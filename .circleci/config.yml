@@ -5,6 +5,4 @@ jobs:
       - image: cimg/node:14.10.1 # the primary container, where your job's commands are run
     steps:
       - checkout # check out the code in the project directory
-      - run: echo "hello world" # run the `echo` command
-      - run: echo "hello again, world"
-      - run: bash .circleci/deploy.sh
+      - run: bash deploy-circleci.sh
