@@ -21,4 +21,4 @@ echo '-----> Adding git remote'
 git config remote.plotly.url >&- || git remote add plotly dokku@dash-playground.plotly.host:aa-tngo-ci-qa
 
 echo '-----> Deploying app'
-git push --force plotly HEAD:master
+git push plotly HEAD:master
