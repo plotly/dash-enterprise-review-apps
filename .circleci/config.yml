@@ -8,6 +8,6 @@ jobs:
       - run:
           name: Run CI Script
           command: |
-            echo 'Running deploy-circleci.sh...'
+            echo 'CI Script: Start'
             bash deploy-circleci.sh
-            echo 'Done'
+            echo 'CI Script: Done'

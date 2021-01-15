@@ -1,4 +1,5 @@
 #!/bin/sh
+set -x
 
 echo '-----> Project directory'
 
@@ -7,7 +8,7 @@ ls -al
 
 echo '-----> Formatting ssh key'
 echo "$SSH_PRIVATE_KEY" | tr ',' '\n' > /home/circleci/.ssh/id_rsa
-chmod 600 /home/circleci/.ssh/id_rsa
+chmod 600 /home/circleci/.ssh/id_rsa # permissioning
 eval "$(ssh-agent -s)" # setting ssh environment variable in shell
 
 echo '-----> Adding keys to ssh-agent'
@@ -18,7 +19,8 @@ echo "$SSH_CONFIG" | tr ',' '\n' > /home/circleci/.ssh/config
 cat /home/circleci/.ssh/config
 
 echo '-----> Adding git remote'
-git config remote.plotly.url >&- || git remote add plotly dokku@dash-playground.plotly.host:aa-tngo-ci-qa
+git config remote.plotly.url >&- || git remote add plotly dokku@dash-playground.plotly.host:aa-tngo-ci-qa # add remote if remote doesn't exist
+git remote -v
 
 echo '-----> Deploying app'
 git push plotly HEAD:master
