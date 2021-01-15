@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eux
+set -x
 
 echo '-----> Project directory'
 pwd
@@ -18,6 +18,6 @@ echo "$SSH_CONFIG" | tr ',' '\n' > ~/.ssh/config
 
 echo '-----> Adding git remote'
 git config remote.plotly.url >&- || git remote add plotly dokku@dash-playground.plotly.host:aa-tngo-ci-qa # add remote if remote doesn't exist
-git branch
+
 echo '-----> Deploying app'
 git push plotly HEAD:master
