@@ -5,4 +5,9 @@ jobs:
       - image: cimg/node:14.10.1 # the primary container, where your job's commands are run
     steps:
       - checkout # check out the code in the project directory
-      - run: bash deploy-circleci.sh
+      - run:
+          name: Run CI Script
+          command: |
+            echo 'CI Script: Start'
+            bash deploy-circleci.sh
+            echo 'CI Script: Done'
