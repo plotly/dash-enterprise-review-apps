@@ -5,10 +5,12 @@ jobs:
       - image: cimg/python:3.6 # main container where this container's job are run
     steps:
       - checkout # checkout code in project directory
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
-          name: Install python dependencies (deps) in a virtual environment (venv)
+          name: Install python dependencies in virtual environment
           command: |
             python3 -m venv venv
             venv/bin/activate
@@ -21,6 +23,9 @@ jobs:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
             - "venv"
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.6/site-packages"
 
   delete:
     docker: 
