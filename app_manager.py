@@ -1,3 +1,4 @@
+import GraphQL
 from gql import  gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 import subprocess, os
@@ -283,7 +284,7 @@ if len(api_call_results) != 0:
                     }}
                     """.format(key=key, value=value, dash_app_name=dash_app_name)
                 client.execute(gql(query_string))
-                
+
                 print("> Adding {key} : {value}".format(key=key, value=value))
     else:
         print("NULL")

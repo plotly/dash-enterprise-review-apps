@@ -1,3 +1,4 @@
+import GraphQL
 from gql import  gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from datetime import datetime, timedelta
