@@ -221,13 +221,15 @@ if len(api_call_results) != 0:
         filtered_dict = dict()
         for i in app_linkedServices_serviceType:
             query_string = """
-                addService(> serviceType: {service_type}, name: "{dash_app_name}-{service_type}") {{
-                service {{
-                    name
-                    serviceType
-                    created
+            mutation {{
+                addService {{
+                    service {{
+                        name
+                        serviceType
+                        created
+                    }}
+                    error
                 }}
-                error
             }}  
             """.format(service_type=i, dash_app_name=dash_app_name)
             client.execute(gql(query_string))
