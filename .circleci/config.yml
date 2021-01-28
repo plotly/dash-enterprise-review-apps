@@ -7,7 +7,7 @@ jobs:
       - checkout # checkout code in project directory
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
+          key: deps2-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
       - run:
           name: Install python dependencies in virtual environment
           command: |
@@ -22,7 +22,6 @@ jobs:
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
           paths:
-            - "venv"
             - "/usr/local/bin"
 
   delete:
@@ -47,7 +46,6 @@ jobs:
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
           paths:
-            - "venv"
             - "/usr/local/bin"
 
 workflows:
