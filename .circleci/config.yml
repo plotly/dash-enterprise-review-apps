@@ -5,45 +5,62 @@ jobs:
       - image: cimg/python:3.6 # main container where this container's job are run
     steps:
       - checkout # checkout code in project directory
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
+      - restore_cache:
+      # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
-          name: Install python dependencies in virtual environment
           command: |
-            pip install -r ci-requirements.txt
+            sudo pip install pipenv
+            pipenv install -r ci-requirements.txt
+      - save_cache: # cache Python dependencies using checksum of Pipfile as the cache-key
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          paths:
+            - "venv"
       - run:
           name: Run Deploy Command
           command: |
-            python3 app_manager.py aa-chris
+            pipenv run python app_manager.py aa-chris
        
 
-  delete:
-    docker: 
-      - image: cimg/python:3.6 # main container where this container's job are run
-    steps:
-      - checkout # checkout code in project directory
-      - run:
-          name: Install python dependencies in a virtual environment
-          command: |
-            pip install -r ci-requirements.txt
-            
-      - run:
-          name: Run Delete Command 
-          command: |
-            echo "Deleting expired review apps..."
-            python3 delete.py review-app- 0
+  # delete:
+  #   docker: 
+  #     - image: cimg/python:3.6 # main container where this container's job are run
+  #   steps:
+  #     - checkout # checkout code in project directory
+  #     - run: sudo chown -R circleci:circleci /usr/local/bin
+  #     - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
+  #     - run:
+  #       command: |
+  #       sudo pip install pipenv
+  #       pipenv install
+    # - save_cache: # cache Python dependencies using checksum of Pipfile as the cache-key
+    #     key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+    #     paths:
+  #       - "venv"
+  # - run:
+  #     name: Run Deploy Command
+  #     command: |
+  #       pipenv run python app_manager.py aa-chris
+  #     name: Run Delete Command 
+  #         command: |
+  #           echo "Deleting expired review apps..."
+  #           python3 delete.py review-app- 0
 
           
-workflows:
-  commit-workflow:
-    jobs:
-      - deploy
-  schedule-workflow:
-    triggers:
-      - schedule:
-          cron: "5-59 * * * *" # every minute
-          # cron: "0 0 * * 1-5" # 00:00 mon-fri
-          filters:
-            branches:
-              only: 
-                - tngo-graphql-demo
-    jobs:
-    - delete
+# workflows:
+#   commit-workflow:
+#     jobs:
+#       - deploy
+#   schedule-workflow:
+#     triggers:
+#       - schedule:
+#           cron: "5-59 * * * *" # every minute
+#           # cron: "0 0 * * 1-5" # 00:00 mon-fri
+#           filters:
+#             branches:
+#               only: 
+#                 - tngo-graphql-demo
+#     jobs:
+#     - delete
