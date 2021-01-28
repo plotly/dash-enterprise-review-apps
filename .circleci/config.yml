@@ -5,27 +5,18 @@ jobs:
       - image: cimg/python:3.6 # main container where this container's job are run
     steps:
       - checkout # checkout code in project directory
-      - run: sudo chown -R circleci:circleci /usr/local/bin
-      - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
       - run:
           name: Install python dependencies in virtual environment
           command: |
-            python3 -m venv venv
-            source ./venv/bin/activate
-            pip install -r ci-requirements.txt
             pip install --upgrade pip
+            python3 -m venv venv
+            source .venv/bin/activate
+            pip install -r ci-requirements.txt
       - run:
           name: Run Deploy Command
           command: |
             python3 app_manager.py aa-chris
-      - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
-          paths:
-            - "venv"
-            - ".venv"
-            - "/usr/local/bin"
-            - "/usr/local/lib/python3.6/site-packages"
+       
 
   delete:
     docker: 
@@ -33,26 +24,18 @@ jobs:
     steps:
       - checkout # checkout code in project directory
       - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
       - run:
           name: Install python dependencies in a virtual environment
           command: |
-            python3 -m venv venv
-            source ./venv/bin/activate
             pip install -r ci-requirements.txt
-            pip install --upgrade pip
+            
       - run:
           name: Run Delete Command 
           command: |
             echo "Deleting expired review apps..."
             python3 delete.py review-app- 0
-      - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
-          paths:
-            - "venv"
-            - ".venv"
-            - "/usr/local/bin"
-            - "/usr/local/lib/python3.6/site-packages"
+
+          
 workflows:
   commit-workflow:
     jobs:
