@@ -7,13 +7,14 @@ jobs:
       - checkout # checkout code in project directory
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
           name: Install python dependencies in virtual environment
           command: |
             python3 -m venv venv
-            venv/bin/activate
+            source venv/bin/activate
             pip install -r requirements.txt
       - run:
           name: Run Deploy Command
@@ -35,16 +36,24 @@ jobs:
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
-          name: Install python dependencies (deps) in a virtual environment (venv)
+          name: Install python dependencies in a virtual environment
           command: |
             python3 -m venv venv
-            venv/bin/activate
+            source venv/bin/activate
             pip install -r requirements.txt
       - run:
           name: Run Delete Command 
           command: |
             echo "Deleting expired review apps..."
             python3 delete.py review-app- 0
+      - save_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          paths:
+            - "venv"
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.6/site-packages"
+            
 workflows:
   commit-workflow:
     jobs:
