@@ -296,7 +296,7 @@ else:
 
 print("Deploying {dash_app_name}".format(dash_app_name=dash_app_name), end=" ")
 
-subprocess.run(
+shell_commands = (
     """
     echo "{ssh_private_key}" | tr ',' '\n' > ~/.ssh/id_rsa
     chmod 600 ~/.ssh/id_rsa
@@ -305,7 +305,11 @@ subprocess.run(
     echo "{ssh_config}" | tr ',' '\n' > ~/.ssh/config
     git config remote.plotly.url >&- || git remote add plotly dokku@{dash_enterprise_host}:{dash_app_name}
     git push --force plotly HEAD:master
-    """.format(ssh_private_key=ssh_private_key, ssh_config=ssh_config, dash_enterprise_host=dash_enterprise_host, dash_app_name=dash_app_name), shell = True 
+    """.format(ssh_private_key=ssh_private_key, ssh_config=ssh_config, dash_enterprise_host=dash_enterprise_host, dash_app_name=dash_app_name)
+)
+
+subprocess.run(
+shell_commands, shell = True
 )
 
 print("OK")
