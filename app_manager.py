@@ -305,7 +305,7 @@ subprocess.run(
     echo "{ssh_config}" | tr ',' '\n' > ~/.ssh/config
     git config remote.plotly.url >&- || git remote add plotly dokku@{dash_enterprise_host}:{dash_app_name}
     git push --force plotly HEAD:master
-    """, shell = True # shell = True, to allow arguments and run string through subshell like os.system().
+    """, shell = True 
 )
 
 print("OK")
