@@ -222,7 +222,7 @@ if len(api_call_results) != 0:
         for i in app_linkedServices_serviceType:
             query_string = """
             mutation {{
-                addService {{
+                addService (name:{dash_app_name} , {service_type} {{
                     service {{
                         name
                         serviceType
