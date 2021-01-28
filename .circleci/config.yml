@@ -18,6 +18,7 @@ jobs:
       - run:
           name: Run Deploy Command
           command: |
+            source venv/bin/activate
             python3 app_manager.py aa-chris
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
@@ -42,6 +43,7 @@ jobs:
           name: Run Delete Command 
           command: |
             echo "Deleting expired review apps..."
+            source venv/bin/activate
             python3 delete.py review-app- 0
       - save_cache:
           key: deps2-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
