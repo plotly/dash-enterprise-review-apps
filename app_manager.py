@@ -230,7 +230,8 @@ if len(api_call_results) != 0:
                 error
             }}  
             """.format(service_type=i, dash_app_name=dash_app_name)
-            # client.execute(gql(query_string))
+            client.execute(gql(query_string))
+
             print("> Adding linkedServices: {service_type}, {dash_app_name}-{service_type}".format(service_type=i, dash_app_name=dash_app_name))
     else:
         print("NULL")
@@ -253,7 +254,8 @@ if len(api_call_results) != 0:
                         }}
                 }}
                 """.format(app_mounts_hostDir=key, app_mounts_targetDir=value, dash_app_name=dash_app_name)
-            # client.execute(gql(query_string))
+            client.execute(gql(query_string))
+
             print("> Mapping hostDir: {key} to targetDir: {value}".format(key=key, value=value))
 
     else:
@@ -280,7 +282,8 @@ if len(api_call_results) != 0:
                         }}
                     }}
                     """.format(key=key, value=value, dash_app_name=dash_app_name)
-                # client.execute(gql(query_string))
+                client.execute(gql(query_string))
+                
                 print("> Adding {key} : {value}".format(key=key, value=value))
     else:
         print("NULL")
@@ -291,16 +294,16 @@ else:
 
 print("Deploying {dash_app_name}".format(dash_app_name=dash_app_name), end=" ")
 
-# subprocess.run(
-#     f"""
-#     echo "{ssh_private_key}" | tr ',' '\n' > ~/.ssh/id_rsa
-#     chmod 600 ~/.ssh/id_rsa
-#     eval "$(ssh-agent -s)"
-#     ssh-add ~/.ssh/id_rsa
-#     echo "{ssh_config}" | tr ',' '\n' > ~/.ssh/config
-#     git config remote.plotly.url >&- || git remote add plotly dokku@{dash_enterprise_host}:{dash_app_name}
-#     git push --force plotly HEAD:master
-#     """, shell = True # shell = True, to allow arguments and run string through subshell like os.system().
-# )
+subprocess.run(
+    f"""
+    echo "{ssh_private_key}" | tr ',' '\n' > ~/.ssh/id_rsa
+    chmod 600 ~/.ssh/id_rsa
+    eval "$(ssh-agent -s)"
+    ssh-add ~/.ssh/id_rsa
+    echo "{ssh_config}" | tr ',' '\n' > ~/.ssh/config
+    git config remote.plotly.url >&- || git remote add plotly dokku@{dash_enterprise_host}:{dash_app_name}
+    git push --force plotly HEAD:master
+    """, shell = True # shell = True, to allow arguments and run string through subshell like os.system().
+)
 
 print("OK")
