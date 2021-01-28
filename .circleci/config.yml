@@ -22,7 +22,10 @@ jobs:
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
           paths:
+            - "venv"
+            - ".venv"
             - "/usr/local/bin"
+            - "/usr/local/lib/python3.6/site-packages"
 
   delete:
     docker: 
@@ -46,8 +49,10 @@ jobs:
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
           paths:
+            - "venv"
+            - ".venv"
             - "/usr/local/bin"
-
+            - "/usr/local/lib/python3.6/site-packages"
 workflows:
   commit-workflow:
     jobs:
