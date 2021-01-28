@@ -12,7 +12,7 @@ jobs:
           name: Install python dependencies in virtual environment
           command: |
             python3 -m venv venv
-            source venv/bin/activate
+            source ./venv/bin/activate
             pip install -r ci-requirements.txt
             pip install --upgrade pip
       - run:
@@ -38,7 +38,7 @@ jobs:
           name: Install python dependencies in a virtual environment
           command: |
             python3 -m venv venv
-            source venv/bin/activate
+            source ./venv/bin/activate
             pip install -r ci-requirements.txt
             pip install --upgrade pip
       - run:
