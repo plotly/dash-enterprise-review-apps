@@ -131,7 +131,7 @@ if len(api_results) != 0:
             }}
         }}
         """.format(key = key))
-        # client.execute(gql(query_string))
+        client.execute(gql(query_string))
         print("OK")
   
 else:

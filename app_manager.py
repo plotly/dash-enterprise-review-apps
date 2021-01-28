@@ -13,8 +13,8 @@ if os.getenv("CIRCLECI") == True:
     username = os.getenv("USERNAME")
     username_password = os.getenv("USERNAME_PASSWORD")
     username_api_key = os.getenv("USERNAME_API_KEY")
-    ssh_config = os.getenv("SSH_CONFIG")
-    ssh_private_key = os.getenv("SSH_PRIVATE_KEY")
+    ssh_config = os.getenv("SSH_CONFIG, ssh_config")
+    ssh_private_key = os.getenv("SSH_PRIVATE_KEY, ssh_private_key")
     target_app_name = str(target_app_name)
 
 else:
@@ -297,7 +297,7 @@ else:
 print("Deploying {dash_app_name}".format(dash_app_name=dash_app_name), end=" ")
 
 subprocess.run(
-    f"""
+    """
     echo "{ssh_private_key}" | tr ',' '\n' > ~/.ssh/id_rsa
     chmod 600 ~/.ssh/id_rsa
     eval "$(ssh-agent -s)"
@@ -305,7 +305,7 @@ subprocess.run(
     echo "{ssh_config}" | tr ',' '\n' > ~/.ssh/config
     git config remote.plotly.url >&- || git remote add plotly dokku@{dash_enterprise_host}:{dash_app_name}
     git push --force plotly HEAD:master
-    """, shell = True 
+    """.format(ssh_private_key=ssh_private_key, ssh_config=ssh_config, dash_enterprise_host=dash_enterprise_host, dash_app_name=dash_app_name), shell = True 
 )
 
 print("OK")
