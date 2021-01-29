@@ -68,7 +68,6 @@ while len(apps) != 0 or page == 0:
             apps {{
                 analytics {{
                     appname
-   
                     timestamps {{
                         created
                         updated
