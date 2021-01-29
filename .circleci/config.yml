@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   deploy:
     docker: 
-      - image: cimg/python:3.6 # main container where this container's job are run
+      - image: cimg/python:3.6
     steps:
       - checkout # checkout code in project directory
       - run: sudo chown -R circleci:circleci /usr/local/bin
@@ -13,11 +13,12 @@ jobs:
           command: |
             python3 -m venv venv
             source venv/bin/activate
-            pip install -r ci-requirements.txt
             pip install --upgrade pip
+            pip install -r ci-requirements.txt
       - run:
           name: Run Deploy Command
           command: |
+            env
             source venv/bin/activate
             python3 app_manager.py aa-chris
       - save_cache:
@@ -27,7 +28,7 @@ jobs:
 
   delete:
     docker: 
-      - image: cimg/python:3.6 # main container where this container's job are run
+      - image: cimg/python:3.6
     steps:
       - checkout # checkout code in project directory
       - restore_cache:
@@ -37,11 +38,12 @@ jobs:
           command: |
             python3 -m venv venv
             source venv/bin/activate
-            pip install -r ci-requirements.txt
             pip install --upgrade pip
+            pip install -r ci-requirements.txt
       - run:
           name: Run Delete Command 
           command: |
+            env
             echo "Deleting expired review apps..."
             source venv/bin/activate
             python3 delete.py review-app- 5
@@ -56,7 +58,7 @@ workflows:
   schedule-workflow:
     triggers:
       - schedule:
-          cron: "1-59 * * * *" # every 5 minutes
+          cron: "20-59 * * * *" # every 5 minutes
           # cron: "0 0 * * 1-5" # 00:00 mon-fri
           filters:
             branches:

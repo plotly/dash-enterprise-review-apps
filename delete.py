@@ -134,6 +134,3 @@ if len(api_results) != 0:
   
 else:
     print("NULL")
-
-
-if (datetime.now() - datetime.fromisoformat("{value}".format(value = value)) < timedelta(minutes=last_update))

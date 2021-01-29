@@ -3,7 +3,7 @@ from gql.transport.requests import RequestsHTTPTransport
 import subprocess, os
 
 if os.getenv("CIRCLECI") == True:
-    print("ENVIRONMENT_VARIABLES")
+    print("USING_CI_ENVIRONMENT_VARIABLES")
 
     from sys import argv
 
@@ -20,7 +20,7 @@ if os.getenv("CIRCLECI") == True:
     target_app_name = str(target_app_name)
 
 else:
-    print("LOCAL_VARIABLES")
+    print("USING_LOCAL_VARIABLES")
     import random
     import string
 
