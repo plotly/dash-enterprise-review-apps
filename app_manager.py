@@ -18,9 +18,11 @@ if os.getenv("CIRCLECI") == "true":
     branch_name = os.getenv("CIRCLE_BRANCH")
     dash_app_name = f"review-app-{branch_name}".replace("_", "-")
     dash_enterprise_host = os.getenv("DASH_ENTERPRISE_HOST")
-    username = os.getenv("USERNAME", "admin")
+    # username = os.getenv("USERNAME", "admin")
+    username = "developers"
+    username_api_key = "faBhA8WwjuLpC8QoEulU"
     username_password = os.getenv("USERNAME_PASSWORD")
-    username_api_key = os.getenv("USERNAME_API_KEY")
+    # username_api_key = os.getenv("USERNAME_API_KEY")
     ssh_config = os.getenv("SSH_CONFIG")
     ssh_private_key = os.getenv("SSH_PRIVATE_KEY")
     target_app_name = str(target_app_name)
