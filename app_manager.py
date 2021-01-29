@@ -2,7 +2,7 @@ from gql import  gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 import subprocess, os
 
-if os.getenv("CIRCLECI") == True:
+if os.getenv("CIRCLECI") == true:
     print("USING_CI_ENVIRONMENT_VARIABLES")
 
     from sys import argv
@@ -299,7 +299,7 @@ else:
 
 print("Deploying {dash_app_name}...".format(dash_app_name=dash_app_name), end=" ")
 
-if os.getenv("SSH_CONFIG") == True:
+if os.getenv("CIRCLECI") == true:
     print("OK")
     subprocess.run(
         f"""
