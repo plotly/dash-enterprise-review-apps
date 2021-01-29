@@ -115,11 +115,9 @@ if len(api_results) != 0:
 
     # Delete all apps meeting filter conditions
 
-    print("Deleting filtered apps...")
+    print("Deleting filtered apps...", end=" ")
 
     for key in filtered_dict:
-
-        print("> Deleting {key}...".format(key = key), end=" ")
         query_string = ("""
         mutation {{
             AddApp(name: "{key}") {{
