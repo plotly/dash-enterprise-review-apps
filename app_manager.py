@@ -298,7 +298,7 @@ else:
 
 
 print("Deploying {dash_app_name}...".format(dash_app_name=dash_app_name), end=" ")
-if os.system("pwd") == "/home/circleci/project":
+if os.getenv("HOME") == "/home/circleci/project":
     print("OK")
     subprocess.run(
         f"""
