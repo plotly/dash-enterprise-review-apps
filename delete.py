@@ -16,7 +16,7 @@ if os.getenv("CIRCLECI") == "true":
     ssh_config = os.getenv("SSH_CONFIG")
     ssh_private_key = os.getenv("SSH_PRIVATE_KEY")
     prefix_string = str(prefix_string)
-    last_update = int(last_update)  # days
+    last_update = int(last_update)  # minutes
 else:
     import random
     import string
@@ -38,6 +38,7 @@ transport = RequestsHTTPTransport(
     ),
     auth=(username, username_api_key),
     use_json=True,
+    retry=3
 )
 
 client = Client(transport=transport)
@@ -136,7 +137,7 @@ if len(api_results) != 0:
     for key in filtered_dict:
         query_string = """
         mutation {{
-            AddApp(name: "{key}") {{
+            deleteApp(name: "{key}") {{
                 ok
                 error
             }}
