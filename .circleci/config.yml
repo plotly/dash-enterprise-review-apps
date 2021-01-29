@@ -58,7 +58,7 @@ workflows:
   schedule-workflow:
     triggers:
       - schedule:
-          cron: "30 * * * *" # every 5 minutes
+          cron: "1-17 * * * *" # every 5 minutes
           filters:
             branches:
               only: 

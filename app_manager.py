@@ -32,7 +32,7 @@ else:
     username = "developers"
     username_api_key = "faBhA8WwjuLpC8QoEulU"
     dash_app_name = "review-app-" + "".join(
-        random.choices(string.ascii_uppercase + string.digits, k=6)
+        random.choices(string.ascii_lowercase + string.digits, k=6)
     )
     target_app_name = "aa-chris"
 
@@ -74,11 +74,11 @@ mountDirectory_errors = [
 
 
 queries = {
-    "'addApp'": "addApp_errors",
-    "'deleteApp'": "deleteApp_errors",
-    "'addEnvironmentVariable'": "addEnvironmentVariable_errors",
-    "'addService'": "addService_errors",
-    "''mountDirectory'": "mountDirectory_errors",
+    "addApp": addApp_errors,
+    "deleteApp": "deleteApp_errors",
+    "addEnvironmentVariable": "addEnvironmentVariable_errors",
+    "addService": "addService_errors",
+    "mountDirectory": "mountDirectory_errors",
 }
 
 print(
@@ -99,10 +99,10 @@ mutation {{
 )
 
 api_call = client.execute(gql(query_string))
-
+print(api_call)
 for key, value in queries.items():
     if key in api_call and "error" in api_call[key]:
-        if api_call[key]["error"] not in value:
+        if api_call[key]["error"] in value:
             raise Exception(api_call)
 
 print("OK")

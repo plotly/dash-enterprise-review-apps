@@ -28,8 +28,8 @@ else:
     dash_app_name = "review-app-" + "".join(
         random.choices(string.ascii_uppercase + string.digits, k=6)
     )
-    prefix_string = str(prefix_string)
-    last_update = int(last_update)
+    prefix_string = "add-app-"
+    last_update = 1
 
 
 transport = RequestsHTTPTransport(
