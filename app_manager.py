@@ -1,10 +1,10 @@
 from gql import  gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 import subprocess, os
-import pprint
+import print
 
 if os.getenv("CIRCLECI") == "true":
-    pprint("USING_CI_ENVIRONMENT_VARIABLES")
+    print("USING_CI_ENVIRONMENT_VARIABLES")
 
     from sys import argv
 
@@ -21,7 +21,7 @@ if os.getenv("CIRCLECI") == "true":
     target_app_name = str(target_app_name)
 
 else:
-    pprint("USING_LOCAL_VARIABLES")
+    print("USING_LOCAL_VARIABLES")
     import random
     import string
 
@@ -73,7 +73,7 @@ queries = {
     "''mountDirectory'": "mountDirectory_errors"
 }
 
-pprint("Initializing app: {dash_app_name}...".format(dash_app_name=dash_app_name), end=" ")
+print("Initializing app: {dash_app_name}...".format(dash_app_name=dash_app_name), end=" ")
 
 query_string = ("""
 mutation {{
@@ -93,12 +93,12 @@ for key,value in queries.items():
         if api_call[key]['error'] not in value:
             raise Exception(api_call)
 
-pprint("OK")
+print("OK")
 
 # Querying target app
 
 if len(target_app_name) != 0:
-    pprint(f"Querying {target_app_name} settings...", end=" ")
+    print(f"Querying {target_app_name} settings...", end=" ")
 
     query_string = ("""
     {{
@@ -129,18 +129,18 @@ if len(target_app_name) != 0:
             if api_call[key]['error'] not in value:
                 raise Exception(api_call)
 
-    pprint("OK")
+    print("OK")
 else:
-    pprint("NULL")
+    print("NULL")
 
-pprint("Parsing API call", end=" ")
+print("Parsing API call", end=" ")
 if len(api_call_results) != 0:
 
 # Checks if linkedServices, mounts and environmentVariables are returned by
 # the api call. If the are returned, those api results will be parsed and
 # stored.
 
-    pprint("OK")
+    print("OK")
     app_linkedServices = api_call_results[0]["linkedServices"]
     app_mounts = api_call_results[0]["mounts"]
     app_environmentVariables = api_call_results[0]["environmentVariables"]
@@ -148,31 +148,31 @@ if len(api_call_results) != 0:
     # Linked Services (postgres/redis)
 
     app_linkedServices_serviceType = []
-    pprint("Parsing LinkedServices...", end=" ")
+    print("Parsing LinkedServices...", end=" ")
     if len(app_linkedServices) != 0:
-        pprint("OK")
+        print("OK")
         for i in range(len(app_linkedServices)):
             app_linkedServices_serviceType.append(app_linkedServices[i]["serviceType"])
-            pprint("> ", app_linkedServices[i]["serviceType"])
+            print("> ", app_linkedServices[i]["serviceType"])
     else:
-        pprint("NULL")
+        print("NULL")
 
     # Mounts (directory mappings)
 
     app_mounts_dict = dict()
     app_mounts_hostDir = []
     app_mounts_targetDir = []
-    pprint("Parsing Mounts...", end=" ")
+    print("Parsing Mounts...", end=" ")
     if len(app_mounts) != 0:
-        pprint("OK")
+        print("OK")
         for i in range(len(app_mounts)):
             app_mounts_hostDir.append(app_mounts[i]["hostDir"])
             app_mounts_targetDir.append(app_mounts[i]["targetDir"])
         app_mounts_dict = dict(zip(app_mounts_hostDir, app_mounts_targetDir))   
         for key,value in app_mounts_dict.items():
-            pprint("> ", key, " : ", value)
+            print("> ", key, " : ", value)
     else:
-        pprint("NULL")
+        print("NULL")
 
     # Environment Variables
 
@@ -197,31 +197,31 @@ if len(api_call_results) != 0:
     app_environmentVariables_dict = dict()
     app_environmentVariables_name = []
     app_environmentVariables_value = []
-    pprint("Parsing EnvironmentVariables...", end=" ")
+    print("Parsing EnvironmentVariables...", end=" ")
     if len(app_environmentVariables) != 0:
-        pprint("OK")
+        print("OK")
         for i in range(len(app_environmentVariables)):
             app_environmentVariables_name.append(app_environmentVariables[i]["name"])
             app_environmentVariables_value.append(app_environmentVariables[i]["value"])
         app_environmentVariables_dict = dict(zip(app_environmentVariables_name, app_environmentVariables_value))
         for key,value in app_environmentVariables_dict.items():
-            pprint("> ", key, " : ", value) 
+            print("> ", key, " : ", value) 
 else:
-    pprint("NULL")
+    print("NULL")
 
 
 
-pprint("Updating {dash_app_name}...", end=" ")
+print("Updating {dash_app_name}...", end=" ")
 
 if len(api_call_results) != 0:
-    pprint("OK")
+    print("OK")
     # Updates new_dash_app by passing saved variables as API queries
 
     # Linked Services (postgres/redis)
 
-    pprint("Updating LinkedServices...", end=" ")
+    print("Updating LinkedServices...", end=" ")
     if len(app_linkedServices) != 0:
-        pprint("OK")
+        print("OK")
         filtered_dict = dict()
         for i in app_linkedServices_serviceType:
             query_string = """
@@ -238,15 +238,15 @@ if len(api_call_results) != 0:
             """.format(service_type=i, dash_app_name=dash_app_name)
             client.execute(gql(query_string))
 
-            pprint("> Adding linkedServices: {service_type}, {dash_app_name}-{service_type}".format(service_type=i, dash_app_name=dash_app_name))
+            print("> Adding linkedServices: {service_type}, {dash_app_name}-{service_type}".format(service_type=i, dash_app_name=dash_app_name))
     else:
-        pprint("NULL")
+        print("NULL")
 
     # Mounts (directory mappings)
 
-    pprint("Updating Mounts...", end=" ")
+    print("Updating Mounts...", end=" ")
     if len(app_mounts_dict) !=0:
-        pprint("OK")
+        print("OK")
         for key, value in app_mounts_dict.items():
             query_string = """
                 mutation {{
@@ -262,16 +262,16 @@ if len(api_call_results) != 0:
                 """.format(app_mounts_hostDir=key, app_mounts_targetDir=value, dash_app_name=dash_app_name)
             client.execute(gql(query_string))
 
-            pprint("> Mapping hostDir: {key} to targetDir: {value}".format(key=key, value=value))
+            print("> Mapping hostDir: {key} to targetDir: {value}".format(key=key, value=value))
 
     else:
-        pprint("NULL")
+        print("NULL")
 
     # Environment Variables
 
-    pprint("Updating EnvironmentVariables...", end=" ")
+    print("Updating EnvironmentVariables...", end=" ")
     if len(app_environmentVariables_dict) != 0:
-        pprint("OK")
+        print("OK")
 
         for key, value in app_environmentVariables_dict.items():
 
@@ -290,17 +290,17 @@ if len(api_call_results) != 0:
                     """.format(key=key, value=value, dash_app_name=dash_app_name)
                 client.execute(gql(query_string))
 
-                pprint("> Adding {key} : {value}".format(key=key, value=value))
+                print("> Adding {key} : {value}".format(key=key, value=value))
     else:
-        pprint("NULL")
+        print("NULL")
 
 else:
-    pprint("NULL")
+    print("NULL")
 
 
-pprint("Deploying {dash_app_name}...".format(dash_app_name=dash_app_name), end=" ")
+print("Deploying {dash_app_name}...".format(dash_app_name=dash_app_name), end=" ")
 if os.getenv("CIRCLECI") == "true":
-    pprint("OK")
+    print("OK")
     subprocess.run(
         f"""
         echo "{ssh_private_key}" | tr ',' '\n' > ~/.ssh/id_rsa
@@ -313,5 +313,5 @@ if os.getenv("CIRCLECI") == "true":
         """, shell = True 
     )
 else:
-    pprint("NULL")
+    print("NULL")
 
