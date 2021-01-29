@@ -1,7 +1,8 @@
 from gql import  gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 import subprocess, os
-
+import random
+import string
 
 if os.getenv("CIRCLECI") == "true":
     print("USING_CI_ENVIRONMENT_VARIABLES")
@@ -23,8 +24,6 @@ if os.getenv("CIRCLECI") == "true":
 
 else:
     print("USING_LOCAL_VARIABLES")
-    import random
-    import string
 
     dash_enterprise_host = "dash-playground.plotly.host"
     username = "developers"
