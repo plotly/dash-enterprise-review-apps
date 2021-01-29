@@ -1,11 +1,12 @@
 from gql import  gql, Client
 from gql.transport.requests import RequestsHTTPTransport
+import datetime
 from datetime import datetime, timedelta
 from sys import argv
 import os
 
 
-if os.getenv("CIRCLECI") == True:
+if os.getenv("CIRCLECI") == "true":
     script, prefix_string, last_update = argv
     branch_name = os.getenv("CIRCLE_BRANCH")
     dash_app_name = f"review-app-{branch_name}".replace("_", "-")
@@ -108,6 +109,7 @@ if len(api_results) != 0:
     # 3. (datetime.now() - datetime.fromisoformat("{value}".format(value = value)) < timedelta(days=int)) == True
     print("Filtering all apps...", end=" ")
     filtered_dict = dict()
+
 
     for key, value in zipped_dict.items():
         if key.startswith("{prefix_string}".format(prefix_string = prefix_string)) and value != None and (datetime.now() - datetime.fromisoformat("{value}".format(value = value))) < timedelta(minutes=last_update):
