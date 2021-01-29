@@ -3,6 +3,8 @@ from gql.transport.requests import RequestsHTTPTransport
 import subprocess, os
 
 if os.getenv("CIRCLECI") == True:
+    print("ENVIRONMENT_VARIABLES")
+
     from sys import argv
 
     script, target_app_name = argv
@@ -18,6 +20,7 @@ if os.getenv("CIRCLECI") == True:
     target_app_name = str(target_app_name)
 
 else:
+    print("LOCAL_VARIABLES")
     import random
     import string
 
@@ -294,7 +297,7 @@ else:
     print("NULL")
 
 
-print("Deploying {dash_app_name}".format(dash_app_name=dash_app_name), end=" ")
+print("Deploying {dash_app_name}...".format(dash_app_name=dash_app_name), end=" ")
 
 if os.getenv("SSH_CONFIG") == True:
     print("OK")
