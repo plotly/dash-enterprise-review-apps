@@ -1,7 +1,7 @@
 from gql import  gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 import subprocess, os
-import print
+
 
 if os.getenv("CIRCLECI") == "true":
     print("USING_CI_ENVIRONMENT_VARIABLES")
