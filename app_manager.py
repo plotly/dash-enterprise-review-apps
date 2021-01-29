@@ -11,6 +11,7 @@ if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
 if os.getenv("CIRCLECI") == "true":
     print("> CIRCLECI")
 
+
     from sys import argv
 
     script, target_app_name = argv
