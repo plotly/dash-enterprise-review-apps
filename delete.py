@@ -100,7 +100,6 @@ if len(api_results) != 0:
 
     zipped_dict = dict(zip(names, times))
     print("OK")
-    print zipped_dict
 
     # Filter zipped_dict:
     # 1. key.startswith("{string}".format(string = string)) == True
@@ -108,7 +107,6 @@ if len(api_results) != 0:
     # 3. (datetime.now() - datetime.fromisoformat("{value}".format(value = value)) < timedelta(days=int)) == True
     print("Filtering all apps...", end=" ")
     filtered_dict = dict()
-
 
     for key, value in zipped_dict.items():
         if key.startswith("{prefix_string}".format(prefix_string = prefix_string)) and value != None and (datetime.now() - datetime.strptime("{value}".format(value = value), "%Y-%m-%dT%H:%M:%S.%f")) < timedelta(minutes=last_update):
