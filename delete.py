@@ -129,8 +129,6 @@ if len(api_results) != 0:
             filtered_dict[key] = value
     print("OK")
 
-    # Delete all apps meeting filter conditions
-
     print("Deleting filtered apps...", end=" ")
 
     for key in filtered_dict:

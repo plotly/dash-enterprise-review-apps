@@ -13,7 +13,6 @@ if os.getenv("CIRCLECI") == "true":
 
     branch_name = os.getenv("CIRCLE_BRANCH")
     dash_app_name = f"review-app-{branch_name}".replace("_", "-")
-    # dash_app_name = "review-app-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
     dash_enterprise_host = os.getenv("DASH_ENTERPRISE_HOST")
     username = os.getenv("USERNAME", "admin")
     username_password = os.getenv("USERNAME_PASSWORD")
