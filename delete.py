@@ -2,8 +2,10 @@ from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from datetime import datetime, timedelta
 from sys import argv
-import os
+import sys, os, random, string
 
+if sys.version_info[0] < 3.6 and sys.version_info[0] <= 3.7:
+    raise Exception("Python 3.6 is required.")
 
 if os.getenv("CIRCLECI") == "true":
     script, prefix_string, last_update = argv
@@ -18,9 +20,6 @@ if os.getenv("CIRCLECI") == "true":
     prefix_string = str(prefix_string)
     last_update = int(last_update)  # minutes
 else:
-    import random
-    import string
-
     script, prefix_string, last_update = argv
     dash_enterprise_host = "dash-playground.plotly.host"
     username = "developers"
@@ -38,7 +37,7 @@ transport = RequestsHTTPTransport(
     ),
     auth=(username, username_api_key),
     use_json=True,
-    retry=3
+    retries=3
 )
 
 client = Client(transport=transport)
@@ -107,10 +106,6 @@ if len(api_results) != 0:
     zipped_dict = dict(zip(names, times))
     print("OK")
 
-    # Filter zipped_dict:
-    # 1. key.startswith("{string}".format(string = string)) == True
-    # 2. (type(None) != type(value)) == True
-    # 3. (datetime.now() - datetime.fromisoformat("{value}".format(value = value)) < timedelta(days=int)) == True
     print("Filtering all apps...", end=" ")
     filtered_dict = dict()
 
