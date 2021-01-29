@@ -5,17 +5,17 @@ import random
 import string
 
 if os.getenv("CIRCLECI") == "true":
-    print("USING_CI_ENVIRONMENT_VARIABLES")
+    print("> CIRCLECI")
 
     from sys import argv
 
     script, target_app_name = argv
 
     branch_name = os.getenv("CIRCLE_BRANCH")
-    # dash_app_name = f"review-app-{branch_name}".replace("_", "-")
-    dash_app_name = "review-app-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    dash_app_name = f"review-app-{branch_name}".replace("_", "-")
+    # dash_app_name = "review-app-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
     dash_enterprise_host = os.getenv("DASH_ENTERPRISE_HOST")
-    username = os.getenv("USERNAME")
+    username = os.getenv("USERNAME", "admin")
     username_password = os.getenv("USERNAME_PASSWORD")
     username_api_key = os.getenv("USERNAME_API_KEY")
     ssh_config = os.getenv("SSH_CONFIG")
@@ -23,7 +23,7 @@ if os.getenv("CIRCLECI") == "true":
     target_app_name = str(target_app_name)
 
 else:
-    print("USING_LOCAL_VARIABLES")
+    print("> LOCAL")
 
     dash_enterprise_host = "dash-playground.plotly.host"
     username = "developers"
@@ -211,7 +211,7 @@ else:
 
 
 
-print("Updating {dash_app_name}...", end=" ")
+print("Updating {dash_app_name}...".format(dash_app_name=dash_app_name), end=" ")
 
 if len(api_call_results) != 0:
     print("OK")
