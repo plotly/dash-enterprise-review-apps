@@ -2,7 +2,7 @@ from gql import  gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 import subprocess, os
 
-if os.system("pwd") == "/home/circleci/project"
+if os.system("pwd") == "/home/circleci/project":
     print("USING_CI_ENVIRONMENT_VARIABLES")
 
     from sys import argv
@@ -298,7 +298,7 @@ else:
 
 
 print("Deploying {dash_app_name}...".format(dash_app_name=dash_app_name), end=" ")
-if os.system("pwd") == "/home/circleci/project"
+if os.system("pwd") == "/home/circleci/project":
     print("OK")
     subprocess.run(
         f"""
