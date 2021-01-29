@@ -34,7 +34,7 @@ else:
 transport = RequestsHTTPTransport(
     url="https://{dash_enterprise_host}/Manager/graphql".format(dash_enterprise_host=dash_enterprise_host), 
     auth=(username, username_api_key), 
-    use_json = True
+    use_json = True,
     retries=3
 )
 
