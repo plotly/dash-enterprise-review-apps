@@ -110,10 +110,8 @@ if len(api_results) != 0:
     filtered_dict = dict()
 
     for key, value in zipped_dict.items():
-        if key.startswith("{prefix_string}".format(prefix_string = prefix_string)):
-            if value != None:
-                if (datetime.now() - datetime.fromisoformat("{value}".format(value = value)) < timedelta(minutes=last_update)):
-                    filtered_dict[key] = value
+        if key.startswith("{prefix_string}".format(prefix_string = prefix_string)) and value != None and (datetime.now() - datetime.fromisoformat("{value}".format(value = value))) < timedelta(minutes=last_update):
+            filtered_dict[key] = value
     print("OK")
 
     # Delete all apps meeting filter conditions
@@ -136,3 +134,6 @@ if len(api_results) != 0:
   
 else:
     print("NULL")
+
+
+if (datetime.now() - datetime.fromisoformat("{value}".format(value = value)) < timedelta(minutes=last_update))
