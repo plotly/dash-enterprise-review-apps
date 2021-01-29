@@ -111,7 +111,7 @@ if len(api_results) != 0:
 
 
     for key, value in zipped_dict.items():
-        if key.startswith("{prefix_string}".format(prefix_string = prefix_string)) and value != None and (datetime.now() - datetime.fromisoformat("{value}".format(value = value))) < timedelta(minutes=last_update):
+        if key.startswith("{prefix_string}".format(prefix_string = prefix_string)) and value != None and (datetime.now() - datetime.strptime("{value}".format(value = value), "%Y-%m-%dT%H:%M:%S.%f")) < timedelta(minutes=last_update):
             filtered_dict[key] = value
     print("OK")
 
