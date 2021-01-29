@@ -2,7 +2,7 @@ from gql import  gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 import subprocess, os
 
-if os.system("pwd") == "/home/circleci/project":
+if os.getenv("CIRCLECI") == True:
     print("USING_CI_ENVIRONMENT_VARIABLES")
 
     from sys import argv
@@ -18,7 +18,7 @@ if os.system("pwd") == "/home/circleci/project":
     ssh_config = os.getenv("SSH_CONFIG")
     ssh_private_key = os.getenv("SSH_PRIVATE_KEY")
     target_app_name = str(target_app_name)
-
+    
 else:
     print("USING_LOCAL_VARIABLES")
     import random
@@ -298,7 +298,7 @@ else:
 
 
 print("Deploying {dash_app_name}...".format(dash_app_name=dash_app_name), end=" ")
-if os.getenv("HOME") == "/home/circleci/project":
+if os.getenv("CIRCLECI") == True:
     print("OK")
     subprocess.run(
         f"""
