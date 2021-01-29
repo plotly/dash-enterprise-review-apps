@@ -38,7 +38,7 @@ transport = RequestsHTTPTransport(
     ),
     auth=(username, username_api_key),
     use_json=True,
-    retries=3
+    retries=3,
 )
 
 client = Client(transport=transport)
