@@ -32,9 +32,10 @@ else:
     target_app_name = "aa-chris"
 
 transport = RequestsHTTPTransport(
-    url =  "https://{dash_enterprise_host}/Manager/graphql".format(dash_enterprise_host = dash_enterprise_host), 
-    auth = (username, username_api_key), 
+    url="https://{dash_enterprise_host}/Manager/graphql".format(dash_enterprise_host=dash_enterprise_host), 
+    auth=(username, username_api_key), 
     use_json = True
+    retries=3
 )
 
 client = Client(transport = transport)
