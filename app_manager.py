@@ -86,7 +86,7 @@ mutation {{
 }}
 """.format(dash_app_name=dash_app_name))
 
-api_call = {} #client.execute(gql(query_string))
+api_call = client.execute(gql(query_string))
 
 for key,value in queries.items():
     if key in api_call and 'error' in api_call[key]:
