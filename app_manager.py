@@ -4,7 +4,6 @@ import subprocess, os, sys
 import random
 import string
 
-
 if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
     raise Exception("Python 3.6 is required.")
 

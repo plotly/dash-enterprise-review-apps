@@ -7,29 +7,28 @@ import sys, os, random, string
 if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
     raise Exception("Python 3.6 is required.")
 
+script, prefix, last_update = argv
 
 if os.getenv("CIRCLECI") == "true":
-    script, prefix_string, last_update = argv
     branch_name = os.getenv("CIRCLE_BRANCH")
     dash_app_name = f"review-app-{branch_name}".replace("_", "-")
     dash_enterprise_host = os.getenv("DASH_ENTERPRISE_HOST")
     username = os.getenv("USERNAME")
     username_password = os.getenv("USERNAME_PASSWORD")
-    username_api_key = os.getenv("USERNAME_API_KEY")
+    username_api_k = os.getenv("USERNAME_API_KEY")
     ssh_config = os.getenv("SSH_CONFIG")
-    ssh_private_key = os.getenv("SSH_PRIVATE_KEY")
-    prefix_string = str(prefix_string)
-    last_update = int(last_update)  # minutes
+    ssh_private_k = os.getenv("SSH_PRIVATE_KEY")
+    prefix = str(prefix)
+    last_update = float(last_update)  # days
 else:
-    script, prefix_string, last_update = argv
     dash_enterprise_host = "dash-playground.plotly.host"
     username = "developers"
     username_api_key = "faBhA8WwjuLpC8QoEulU"
     dash_app_name = "review-app-" + "".join(
-        random.choices(string.ascii_uppercase + string.digits, k=6)
+        random.choices(string.ascii_lowercase + string.digits, k=6)
     )
-    prefix_string = "add-app-"
-    last_update = 1
+    prefix= str(prefix)
+    last_update = float(last_update) # days
 
 
 transport = RequestsHTTPTransport(
@@ -43,9 +42,7 @@ transport = RequestsHTTPTransport(
 
 client = Client(transport=transport)
 
-print("Querying all apps...", end=" ")
-
-# Querying all apps
+print(" Querying apps...", end=" ")
 
 deleteApp_errors = [
     "App does not exist.",
@@ -53,11 +50,13 @@ deleteApp_errors = [
 ]
 
 queries = {
-    "'deleteApp'": "deleteApp_errors",
+    "deleteApp": deleteApp_errors,
 }
 
-api_results = []
+app_results = []
 apps = []
+services_results = []
+services = [] 
 
 page = 0
 while len(apps) != 0 or page == 0:
@@ -73,73 +72,143 @@ while len(apps) != 0 or page == 0:
                         updated
                     }}
                 }}
-            }}   
+                linkedServices {{
+                    name
+                    serviceType
+                }}  
+            }}
         }}
+        services {{
+            name
+            serviceType 
+        }}  
     }}
     """.format(
         page=page
     )
 
     api_call = client.execute(gql(query_string))
-    page = 1 + page
-    apps = api_call["apps"]["apps"]
-    api_results.extend(apps)
+    page = page + 1
 
-    for key, value in queries.items():
-        if key in api_call and "error" in api_call[key]:
-            if api_call[key]["error"] not in value:
+    app_results = api_call["apps"]["apps"]
+    service_results = api_call["services"]
+    
+    app_results.extend(apps)
+
+    try:
+        services_results.extend(services)
+    except KeyError:
+        continue
+
+    for k, v in queries.items():
+        if k in api_call and "error" in api_call[k]:
+            if api_call[k]["error"] in v:
                 raise Exception(api_call)
 
 print("OK")
 
-print("Parsing all apps...", end=" ")
-if len(api_results) != 0:
-
-    # Parse all app names and updated times from api_results, and append them to their respective lists.
-
-    names = []
-    times = []
-
-    for i in range(len(api_results)):
-        names.append(api_results[i]["analytics"]["appname"])
-        times.append(api_results[i]["analytics"]["timestamps"]["updated"])
-
-    zipped_dict = dict(zip(names, times))
+print(" Parsing apps...", end=" ")
+app_names = []
+app_updated = []
+app_created = []
+app_dict = dict()
+if len(app_results) != 0:
+    for i in range(len(app_results)):
+        app_names.append(app_results[i]["analytics"]["appname"])
+        app_created.append(app_results[i]["analytics"]["timestamps"]["created"])
+        app_updated.append(app_results[i]["analytics"]["timestamps"]["updated"])
+        app_dict.update(zip(app_names, zip(app_updated, app_created)))
     print("OK")
-
-    print("Filtering all apps...", end=" ")
-    filtered_dict = dict()
-
-    for key, value in zipped_dict.items():
-        if (
-            key.startswith("{prefix_string}".format(prefix_string=prefix_string))
-            and value != None
-            and (
-                datetime.now()
-                - datetime.strptime(
-                    "{value}".format(value=value), "%Y-%m-%dT%H:%M:%S.%f"
-                )
-            )
-            < timedelta(minutes=last_update)
-        ):
-            filtered_dict[key] = value
-    print("OK")
-
-    print("Deleting filtered apps...", end=" ")
-
-    for key in filtered_dict:
-        query_string = """
-        mutation {{
-            deleteApp(name: "{key}") {{
-                ok
-                error
-            }}
-        }}
-        """.format(
-            key=key
-        )
-        client.execute(gql(query_string))
-        print("OK")
-
 else:
     print("NULL")
+    sys.exit()
+
+print(" Filtering apps...", end=" ")
+filtered_apps = dict()
+if len(app_results) != 0:
+    print("OK")
+    for k, v in app_dict.items():
+        if k.startswith("{prefix}".format(prefix=prefix)) and v[0] == None and (datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f")) >  timedelta(days=last_update):
+            filtered_apps[k] = v[0]
+        elif k.startswith("{prefix}".format(prefix=prefix)) and v[1] != None and (datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f")) > timedelta(days=last_update):
+            filtered_apps[k] = v[1]
+else:
+    print("NULL")
+    sys.exit()
+
+print(" Deleting apps...", end=" ")
+if filtered_apps != False:
+    print("OK")    
+    for k in filtered_apps:
+        print("    ", k)
+        query_string = """
+            mutation {{
+                deleteApp(name: "{k}") {{
+                    ok
+                    error
+                }}
+            }}
+            """.format(
+                k=k
+            )
+        # client.execute(gql(query_string))
+        for k, v in queries.items():
+            if k in api_call and "error" in api_call[k]:
+                if api_call[k]["error"] in v:
+                    raise Exception(api_call) 
+else:
+    print("NULL")
+
+
+
+
+print(" Parsing services...", end=" ")
+service_names = []
+service_types = []
+services_dict = dict()
+if len(service_results) != 0:
+    for i in range(len(services)):
+        service_names.append(service_results[i]["services"]["name"])
+        service_types.append(service_results[i]["services"]["serviceType"])
+        services_dict.update(zip(service_names, service_types))
+    print("OK")   
+else:     
+    print("NULL")
+
+
+print(" Filtering services...", end=" ")
+filtered_services = dict()
+if  len(service_results) != 0:
+    print("OK")
+    for k, v in services_dict:
+        if k.startwith(k) in filtered_apps:
+            filtered_services[k] = filtered_services[v]
+else:     
+    print("NULL")
+
+
+print(" Deleting services...", end=" ")
+if filtered_services != False:
+    print("OK")
+    for k, v in filtered_services.items():
+         
+        query_string = """
+            mutation{{
+                deleteService(name: "{k}", serviceType: {v}){{
+                    error
+                    ok
+                }}
+            }}
+            """.format(
+                k=k, 
+                v=v
+            )
+        print("    ",k)
+        # client.execute(gql(query_string))
+else:
+    print("NULL")
+
+# print(
+#     f"https://{dash_enterprise_host}/Manager/graphql", 
+#     f"https://{dash_enterprise_host}/Manager/apps/{dash_app_name}/overview", f"https://{dash_enterprise_host}/{dash_app_name}/", sep="\n", end=" "
+# )
