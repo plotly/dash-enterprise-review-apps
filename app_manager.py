@@ -230,7 +230,7 @@ if len(api_call_results) != 0:
             """.format(
                 service_type=i, dash_app_name=dash_app_name
             )
-            # client.execute(gql(query_string))
+            client.execute(gql(query_string))
 
             print(
                 "   {dash_app_name}-{service_type}, {service_type}".format(
@@ -239,8 +239,6 @@ if len(api_call_results) != 0:
             )
     else:
         print("NULL")
-
-    # Mounts (directory mappings)
 
     print("Updating Mounts...", end=" ")
     if len(app_mounts_dict) != 0:
@@ -262,7 +260,7 @@ if len(api_call_results) != 0:
                 app_mounts_targetDir=v,
                 dash_app_name=dash_app_name,
             )
-            # client.execute(gql(query_string))
+            client.execute(gql(query_string))
 
             print("    ", k, "to", v)
 
@@ -290,7 +288,7 @@ if len(api_call_results) != 0:
                     """.format(
                     k=k, v=v, dash_app_name=dash_app_name
                 )
-                # client.execute(gql(query_string))
+                client.execute(gql(query_string))
                 print("    ", k, " : ", v)
     else:
         print("NULL")
