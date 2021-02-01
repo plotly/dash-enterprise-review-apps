@@ -109,6 +109,7 @@ if len(target_app_name) != 0:
     {{
         apps(name: "{target_app_name}", allApps:true) {{
             apps {{
+                name
                 linkedServices {{
                     serviceType
                 }}
@@ -119,6 +120,9 @@ if len(target_app_name) != 0:
                 environmentVariables {{
                     name
                     value
+                }}
+                metadata {{
+                    permissionLevel
                 }}
             }}
         }}
@@ -144,9 +148,12 @@ print("Parsing API call", end=" ")
 if len(api_call_results) != 0:
 
     print("OK")
+
     app_linkedServices = api_call_results[0]["linkedServices"]
     app_mounts = api_call_results[0]["mounts"]
     app_environmentVariables = api_call_results[0]["environmentVariables"]
+    app_permissionLevel = api_call_results[0]["metadata"]
+    app_name = api_call_results[0]["name"]
 
     app_linkedServices_serviceType = []
     print("Parsing LinkedServices...", end=" ")
@@ -205,6 +212,17 @@ if len(api_call_results) != 0:
         )
         for k, v in app_environmentVariables_dict.items():
             print("    ", k, " : ", v)
+
+    app_permissionLevel = []
+    app_permissionLevel_name = []
+    app_permission_level_dict = dict()
+    print("Parsing PermissionLevels...", end=" ")
+    if len(app_permissionLevel) != 0:
+        print("OK")
+        for i in range(len(app_permissionLevel)):
+            app_permissionLevel.append(app_permissionLevel[i]["permissionLevel"])
+            app_permissionLevel_name.append(app_name[i]["name"])
+        app_permission_level_dict = zip(app_permissionLevel, app_permissionLevel_name)
 else:
     print("NULL")
 

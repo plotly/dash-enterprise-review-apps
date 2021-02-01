@@ -15,9 +15,9 @@ if os.getenv("CIRCLECI") == "true":
     dash_enterprise_host = os.getenv("DASH_ENTERPRISE_HOST")
     username = os.getenv("USERNAME")
     username_password = os.getenv("USERNAME_PASSWORD")
-    username_api_k = os.getenv("USERNAME_API_KEY")
+    username_api_key = os.getenv("USERNAME_API_KEY")
     ssh_config = os.getenv("SSH_CONFIG")
-    ssh_private_k = os.getenv("SSH_PRIVATE_KEY")
+    ssh_private_key = os.getenv("SSH_PRIVATE_KEY")
     prefix = str(prefix)
     last_update = float(last_update)  # days
 else:
