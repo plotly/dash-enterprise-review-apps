@@ -8,7 +8,7 @@ if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
     raise Exception("Python 3.6 is required.")
 
 if os.getenv("CIRCLECI") == "true":
-    print("> CIRCLECI")
+    print("CIRCLECI")
 
 
     from sys import argv
@@ -25,7 +25,7 @@ if os.getenv("CIRCLECI") == "true":
     target_app_name = str(target_app_name)
 
 else:
-    print("> LOCAL")
+    print("LOCAL")
 
     dash_enterprise_host = "dash-playground.plotly.host"
     username = "developers"
@@ -61,7 +61,7 @@ addEnvironmentVariable_errors = [
     "Invalid app name. Names should be between 3 to 30 characters long, start with a letter, and only contain lower case letters, numbers, and -",
 ]
 
-addEnvironmentVariable_errors = [
+addService_errors = [
     "A service with the given name already exists. Please choose a different name.",
     "Invalid service name. Names should be between 3 to 30 characters long, start with a letter, and only contain lower case letters, numbers, and -",
 ]
@@ -71,18 +71,17 @@ mountDirectory_errors = [
     "Only directories specified in the Allowed Directories for Mapping list of the Dash Enterprise configuration can be mapped to Dash apps. Please ask your administrator to add None to the list as shown in the documentation (https://dash.plot.ly/dash-enterprise/map-local-directories) and then try again.",
 ]
 
-
 queries = {
     "addApp": addApp_errors,
-    "deleteApp": "deleteApp_errors",
-    "addEnvironmentVariable": "addEnvironmentVariable_errors",
-    "addService": "addService_errors",
-    "mountDirectory": "mountDirectory_errors",
+    "deleteApp": deleteApp_errors,
+    "addEnvironmentVariable": addEnvironmentVariable_errors,
+    "addService": addService_errors,
+    "mountDirectory": mountDirectory_errors,
 }
 
-print(
-    "Initializing app: {dash_app_name}...".format(dash_app_name=dash_app_name), end=" "
-)
+print("Initializing app...", end=" ")
+print("OK")
+print("    ", dash_app_name)
 
 query_string = """
 mutation {{
@@ -98,15 +97,10 @@ mutation {{
 )
 
 api_call = client.execute(gql(query_string))
-print(api_call)
-for key, value in queries.items():
-    if key in api_call and "error" in api_call[key]:
-        if api_call[key]["error"] in value:
+for k, v in queries.items():
+    if k in api_call and "error" in api_call[k]:
+        if api_call[k]["error"] in v:
             raise Exception(api_call)
-
-print("OK")
-
-# Querying target app
 
 if len(target_app_name) != 0:
     print(f"Querying {target_app_name} settings...", end=" ")
@@ -137,9 +131,9 @@ if len(target_app_name) != 0:
     api_call_results = []
     api_call_results = api_call["apps"]["apps"]
 
-    for key, value in queries.items():
-        if key in api_call and "error" in api_call[key]:
-            if api_call[key]["error"] not in value:
+    for k, v in queries.items():
+        if k in api_call and "error" in api_call[k]:
+            if api_call[k]["error"] not in v:
                 raise Exception(api_call)
 
     print("OK")
@@ -149,16 +143,10 @@ else:
 print("Parsing API call", end=" ")
 if len(api_call_results) != 0:
 
-    # Checks if linkedServices, mounts and environmentVariables are returned by
-    # the api call. If the are returned, those api results will be parsed and
-    # stored.
-
     print("OK")
     app_linkedServices = api_call_results[0]["linkedServices"]
     app_mounts = api_call_results[0]["mounts"]
     app_environmentVariables = api_call_results[0]["environmentVariables"]
-
-    # Linked Services (postgres/redis)
 
     app_linkedServices_serviceType = []
     print("Parsing LinkedServices...", end=" ")
@@ -166,11 +154,9 @@ if len(api_call_results) != 0:
         print("OK")
         for i in range(len(app_linkedServices)):
             app_linkedServices_serviceType.append(app_linkedServices[i]["serviceType"])
-            print("> ", app_linkedServices[i]["serviceType"])
+            print("    ", app_linkedServices[i]["serviceType"])
     else:
         print("NULL")
-
-    # Mounts (directory mappings)
 
     app_mounts_dict = dict()
     app_mounts_hostDir = []
@@ -182,12 +168,10 @@ if len(api_call_results) != 0:
             app_mounts_hostDir.append(app_mounts[i]["hostDir"])
             app_mounts_targetDir.append(app_mounts[i]["targetDir"])
         app_mounts_dict = dict(zip(app_mounts_hostDir, app_mounts_targetDir))
-        for key, value in app_mounts_dict.items():
-            print("> ", key, " : ", value)
+        for k, v in app_mounts_dict.items():
+            print("    ", k, " : ", v)
     else:
         print("NULL")
-
-    # Environment Variables
 
     app_environmentVariables_filter = [
         "DASH_APP_NAME",
@@ -219,20 +203,14 @@ if len(api_call_results) != 0:
         app_environmentVariables_dict = dict(
             zip(app_environmentVariables_name, app_environmentVariables_value)
         )
-        for key, value in app_environmentVariables_dict.items():
-            print("> ", key, " : ", value)
+        for k, v in app_environmentVariables_dict.items():
+            print("    ", k, " : ", v)
 else:
     print("NULL")
 
-
 print("Updating {dash_app_name}...".format(dash_app_name=dash_app_name), end=" ")
-
 if len(api_call_results) != 0:
     print("OK")
-    # Updates new_dash_app by passing saved variables as API queries
-
-    # Linked Services (postgres/redis)
-
     print("Updating LinkedServices...", end=" ")
     if len(app_linkedServices) != 0:
         print("OK")
@@ -252,10 +230,10 @@ if len(api_call_results) != 0:
             """.format(
                 service_type=i, dash_app_name=dash_app_name
             )
-            client.execute(gql(query_string))
+            # client.execute(gql(query_string))
 
             print(
-                "> Adding linkedServices: {service_type}, {dash_app_name}-{service_type}".format(
+                "   {dash_app_name}-{service_type}, {service_type}".format(
                     service_type=i, dash_app_name=dash_app_name
                 )
             )
@@ -267,7 +245,7 @@ if len(api_call_results) != 0:
     print("Updating Mounts...", end=" ")
     if len(app_mounts_dict) != 0:
         print("OK")
-        for key, value in app_mounts_dict.items():
+        for k, v in app_mounts_dict.items():
             query_string = """
                 mutation {{
                     mountDirectory(
@@ -280,17 +258,13 @@ if len(api_call_results) != 0:
                         }}
                 }}
                 """.format(
-                app_mounts_hostDir=key,
-                app_mounts_targetDir=value,
+                app_mounts_hostDir=k,
+                app_mounts_targetDir=v,
                 dash_app_name=dash_app_name,
             )
-            client.execute(gql(query_string))
+            # client.execute(gql(query_string))
 
-            print(
-                "> Mapping hostDir: {key} to targetDir: {value}".format(
-                    key=key, value=value
-                )
-            )
+            print("    ", k, "to", v)
 
     else:
         print("NULL")
@@ -300,15 +274,13 @@ if len(api_call_results) != 0:
     print("Updating EnvironmentVariables...", end=" ")
     if len(app_environmentVariables_dict) != 0:
         print("OK")
-
-        for key, value in app_environmentVariables_dict.items():
-
-            if key not in app_environmentVariables_filter:
+        for k, v in app_environmentVariables_dict.items():
+            if k not in app_environmentVariables_filter:
                 query_string = """
                     mutation {{
                         addEnvironmentVariable(
-                            name: "{key}",
-                            value: "{value}",
+                            name: "{k}",
+                            v: "{v}",
                             appname: "{dash_app_name}"
                         ){{
                             ok
@@ -316,14 +288,12 @@ if len(api_call_results) != 0:
                         }}
                     }}
                     """.format(
-                    key=key, value=value, dash_app_name=dash_app_name
+                    k=k, v=v, dash_app_name=dash_app_name
                 )
-                client.execute(gql(query_string))
-
-                print("> Adding {key} : {value}".format(key=key, value=value))
+                # client.execute(gql(query_string))
+                print("    ", k, " : ", v)
     else:
         print("NULL")
-
 else:
     print("NULL")
 

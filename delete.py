@@ -53,9 +53,9 @@ queries = {
     "deleteApp": deleteApp_errors,
 }
 
-app_results = []
+apps_result = []
 apps = []
-services_results = []
+services_result = []
 services = [] 
 
 page = 0
@@ -90,13 +90,13 @@ while len(apps) != 0 or page == 0:
     api_call = client.execute(gql(query_string))
     page = page + 1
 
-    app_results = api_call["apps"]["apps"]
-    service_results = api_call["services"]
-    
-    app_results.extend(apps)
+    apps_result = api_call["apps"]["apps"]
+    services_result = api_call["services"]
+
+    apps_result.extend(apps)
 
     try:
-        services_results.extend(services)
+        services_result.extend(services)
     except KeyError:
         continue
 
@@ -108,38 +108,53 @@ while len(apps) != 0 or page == 0:
 print("OK")
 
 print(" Parsing apps...", end=" ")
-app_names = []
-app_updated = []
-app_created = []
-app_dict = dict()
-if len(app_results) != 0:
-    for i in range(len(app_results)):
-        app_names.append(app_results[i]["analytics"]["appname"])
-        app_created.append(app_results[i]["analytics"]["timestamps"]["created"])
-        app_updated.append(app_results[i]["analytics"]["timestamps"]["updated"])
-        app_dict.update(zip(app_names, zip(app_updated, app_created)))
+apps_name = []
+apps_updated = []
+apps_created = []
+services_name = []
+services_type = []
+apps_dict = dict()
+services_dict = dict()
+if len(apps_result) != 0:
     print("OK")
+    for i in range(len(apps_result)):
+        apps_name.append(apps_result[i]["analytics"]["appname"])
+        apps_created.append(apps_result[i]["analytics"]["timestamps"]["created"])
+        apps_updated.append(apps_result[i]["analytics"]["timestamps"]["updated"])
+        apps_dict.update(zip(apps_name, zip(apps_updated, apps_created)))
+        if range(len(apps_result[i]["linkedServices"])) == range(0,1):
+            services_name.append(apps_result[i]["linkedServices"][0]["name"])
+            services_type.append(apps_result[i]["linkedServices"][0]["serviceType"])
+        elif range(len(apps_result[i]["linkedServices"])) == range(1,2):
+            services_name.append(apps_result[i]["linkedServices"][1]["name"])
+            services_type.append(apps_result[i]["linkedServices"][1]["serviceType"])
+        elif range(len(apps_result[i]["linkedServices"])) == range(0,2):
+            services_name.append(apps_result[i]["linkedServices"][0]["name"])
+            services_type.append(apps_result[i]["linkedServices"][0]["serviceType"])
+            services_name.append(apps_result[i]["linkedServices"][1]["name"])
+            services_type.append(apps_result[i]["linkedServices"][1]["serviceType"])
+        services_dict.update(zip(services_name, zip(apps_name, services_type)))
 else:
     print("NULL")
     sys.exit()
 
 print(" Filtering apps...", end=" ")
-filtered_apps = dict()
-if len(app_results) != 0:
+apps_filtered = dict()
+if len(apps_result) != 0:
     print("OK")
-    for k, v in app_dict.items():
+    for k, v in apps_dict.items():
         if k.startswith("{prefix}".format(prefix=prefix)) and v[0] == None and (datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f")) >  timedelta(days=last_update):
-            filtered_apps[k] = v[0]
+            apps_filtered[k] = v[0]
         elif k.startswith("{prefix}".format(prefix=prefix)) and v[1] != None and (datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f")) > timedelta(days=last_update):
-            filtered_apps[k] = v[1]
+            apps_filtered[k] = v[1]
 else:
     print("NULL")
     sys.exit()
 
 print(" Deleting apps...", end=" ")
-if filtered_apps != False:
+if apps_filtered != False:
     print("OK")    
-    for k in filtered_apps:
+    for k in apps_filtered:
         print("    ", k)
         query_string = """
             mutation {{
@@ -159,39 +174,22 @@ if filtered_apps != False:
 else:
     print("NULL")
 
-
-
-
-print(" Parsing services...", end=" ")
-service_names = []
-service_types = []
-services_dict = dict()
-if len(service_results) != 0:
-    for i in range(len(services)):
-        service_names.append(service_results[i]["services"]["name"])
-        service_types.append(service_results[i]["services"]["serviceType"])
-        services_dict.update(zip(service_names, service_types))
-    print("OK")   
-else:     
-    print("NULL")
-
-
 print(" Filtering services...", end=" ")
-filtered_services = dict()
-if  len(service_results) != 0:
+services_filtered = dict()
+if  len(services_dict) != 0:
     print("OK")
-    for k, v in services_dict:
-        if k.startwith(k) in filtered_apps:
-            filtered_services[k] = filtered_services[v]
+    for k, v in services_dict.items():
+        if v[0] in apps_filtered:
+            services_filtered[k] = v[1]
+            print("    ", k, v[1])
 else:     
     print("NULL")
-
 
 print(" Deleting services...", end=" ")
-if filtered_services != False:
+if services_filtered != False:
     print("OK")
-    for k, v in filtered_services.items():
-         
+    for k, v in services_filtered.items():
+        
         query_string = """
             mutation{{
                 deleteService(name: "{k}", serviceType: {v}){{
@@ -203,7 +201,7 @@ if filtered_services != False:
                 k=k, 
                 v=v
             )
-        print("    ",k)
+        print("    ", k, v)
         # client.execute(gql(query_string))
 else:
     print("NULL")
