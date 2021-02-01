@@ -278,7 +278,7 @@ if len(api_call_results) != 0:
                     mutation {{
                         addEnvironmentVariable(
                             name: "{k}",
-                            v: "{v}",
+                            value: "{v}",
                             appname: "{dash_app_name}"
                         ){{
                             ok
