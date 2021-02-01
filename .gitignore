@@ -131,4 +131,8 @@ dmypy.json
 # VS Code
 .vscode/
 
-.circleci/
+# Other
+.p/
+.tn/
+.scratch/
+.qa
