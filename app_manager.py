@@ -47,7 +47,6 @@ transport = RequestsHTTPTransport(
 client = Client(transport=transport)
 
 addApp_errors = [
-    "An app with this name already exists in this Dash Server. Please choose a different name.",
     "Invalid app name. Names should be between 3 to 30 characters long, start with a letter, and only contain lower case letters, numbers, and -",
 ]
 
