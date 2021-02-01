@@ -313,3 +313,9 @@ if os.getenv("CIRCLECI") == "true":
     )
 else:
     print("NULL")
+
+print(
+    "\nView your Dash app:",
+    f"https://{dash_enterprise_host}/Manager/graphql", 
+    f"https://{dash_enterprise_host}/Manager/apps/{dash_app_name}/overview", f"https://{dash_enterprise_host}/{dash_app_name}/", sep="\n", end=" "
+)   
