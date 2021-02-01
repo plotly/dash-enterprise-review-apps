@@ -6,8 +6,8 @@ app = dash.Dash(__name__)
 server = app.server
 
 app.layout = html.Div([
-    html.H1("hello world"),
-    dcc.Graph(figure={'data': [{'x': [1, 2, 3], 'y': [2, 1, 6]}]})
+    html.H1("Review App"),
+    dcc.Graph(figure={'data': [{'x': [1, 2, 3], 'y': [2, 10, 6]}]})
 ])
 
 if __name__ == "__main__":
