@@ -19,16 +19,13 @@ if os.getenv("CIRCLECI") == "true":
         deploy_appname = APPNAME
     subprocess.run(
     f"""
-    cd ../../
-    pwd
-    ls -a
-    echo "${SERVICE_PRIVATE_SSH_KEY}" | base64 --decode -i >> home/.ssh/id_rsa
-    echo "${SERVICE_PUBLIC_SSH_KEY}" | base64 --decode -i >> home/.ssh/id_rsa.pub
-    chmod 600 /home/.ssh/id_rsa
-    chmod 600 /home/.ssh/id_rsa.pub
+    echo "${SERVICE_PRIVATE_SSH_KEY}" | base64 --decode -i >> /home/circleci/.ssh/id_rsa
+    echo "${SERVICE_PUBLIC_SSH_KEY}" | base64 --decode -i >> /home/circleci/.ssh/id_rsa.pub
+    chmod 600 /home/circleci/.ssh/id_rsa
+    chmod 600 /home/circleci/.ssh/id_rsa.pub
     eval "$(ssh-agent -s)"
-    ssh-add ~/.ssh/id_rsa
-    echo "{SSH_CONFIG}" | tr ',' '\n' > ~/.ssh/config
+    ssh-add /home/circleci/.ssh/id_rsa
+    echo "{SSH_CONFIG}" | tr ',' '\n' >> /home/circleci/.ssh/config
     git config remote.plotly.url >&- || git remote add plotly dokku@{DASH_ENTERPRISE_HOST}:{deploy_appname}
     git push --force plotly HEAD:master
     """,
