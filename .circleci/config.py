@@ -1,9 +1,5 @@
 import logging
 import os
-from config import (
-    SERVICE_PRIVATE_SSH_KEY,
-    SERVICE_PUBLIC_SSH_KEY,
-)
 
 DEBUG = os.getenv("DEBUG", "false")
 
