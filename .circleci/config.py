@@ -22,7 +22,7 @@ if os.getenv("CIRCLECI") == "true":
     TARGET_APPNAME = "target-app"
     APPNAME = f"{TARGET_APPNAME}-rev-{BRANCHNAME}"[0:30]
     DASH_ENTERPRISE_HOST = "qa-de-410.plotly.host" 
-    SSH_CONFIG = f"Host {DASH_ENTERPRISE_HOST},    HostName {DASH_ENTERPRISE_HOST},    User {USERNAME},    Port 3022,    IdentityFile ~/.ssh/id_circleci,    StrictHostKeyChecking no,    UserKnownHostsFile /dev/null"
+    SSH_CONFIG = f"Host {DASH_ENTERPRISE_HOST},    HostName {DASH_ENTERPRISE_HOST},    User {USERNAME},    Port 3022,    IdentityFile ~/.ssh/id_rsa,    StrictHostKeyChecking no,    UserKnownHostsFile /dev/null"
     SERVICE_PRIVATE_SSH_KEY = (
         "SERVICE_PRIVATE_SSH_KEY" if os.getenv("ADMIN_PRIVATE_SSH_KEY") !=None
         else None
