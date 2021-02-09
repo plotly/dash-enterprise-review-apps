@@ -1,10 +1,8 @@
 version: 2.1
 jobs:
   initialize: # initialize on PR
-    docker: 
+    docker:
       - image: cimg/python:3.6
-        environment:
-          CACHE_VERSION: v1
     steps:
       - checkout # checkout code in project directory
       - run: sudo chown -R circleci:circleci /usr/local/bin
@@ -13,7 +11,7 @@ jobs:
       - run:
           name: Install python dependencies in virtual environment
           command: |
-            cd .circleci/ 
+            cd .circleci/
             python3 -m venv venv
             source venv/bin/activate
             pip install --upgrade pip
