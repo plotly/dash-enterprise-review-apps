@@ -21,7 +21,7 @@ if os.getenv("CIRCLECI") == "true":
     f"""
     cd ../../
     pwd
-    ls
+    ls -a
     echo "${SERVICE_PRIVATE_SSH_KEY}" | base64 --decode -i >> home/.ssh/id_rsa
     echo "${SERVICE_PUBLIC_SSH_KEY}" | base64 --decode -i >> home/.ssh/id_rsa.pub
     chmod 600 /home/.ssh/id_rsa
