@@ -316,7 +316,7 @@ for k, v in permissionLevels.items():
         ) { 
             addCollaborators(
                 appname: $appname, 
-                users: $users
+                users: [$users],
             ){
                 error
             }
