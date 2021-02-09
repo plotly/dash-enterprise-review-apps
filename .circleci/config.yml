@@ -3,11 +3,13 @@ jobs:
   initialize: # initialize on PR
     docker: 
       - image: cimg/python:3.6
+        environment:
+          CACHE_VERSION: v1
     steps:
       - checkout # checkout code in project directory
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
       - run:
           name: Install python dependencies in virtual environment
           command: |
@@ -24,7 +26,7 @@ jobs:
             source venv/bin/activate
             python3 initialize.py
       - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
           paths:
             - "venv"
   
@@ -35,7 +37,7 @@ jobs:
       - checkout # checkout code in project directory
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
       - run:
           name: Install python dependencies in virtual environment
           command: |
@@ -52,7 +54,7 @@ jobs:
             source venv/bin/activate
             python3 deploy.py
       - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
           paths:
             - "venv"
 
