@@ -27,14 +27,8 @@ if os.getenv("CIRCLECI") == "true":
     APPNAME = f"{TARGET_APPNAME}-rev-{BRANCHNAME}"[0:30]
     DASH_ENTERPRISE_HOST = "qa-de-410.plotly.host" 
     SSH_CONFIG = f"Host {DASH_ENTERPRISE_HOST},    HostName {DASH_ENTERPRISE_HOST},    User {USERNAME},    Port 3022,    IdentityFile ~/.ssh/id_rsa,    StrictHostKeyChecking no,    UserKnownHostsFile /dev/null"
-    SERVICE_PRIVATE_SSH_KEY = (
-        str(SERVICE_PRIVATE_SSH_KEY) if os.getenv("ADMIN_PRIVATE_SSH_KEY") !=None
-        else None
-    )
-    SERVICE_PUBLIC_SSH_KEY = (
-        str(SERVICE_PUBLIC_SSH_KEY) if os.getenv("ADMIN_PUBLIC_SSH_KEY") != None
-        else None
-    )
+    SERVICE_PRIVATE_SSH_KEY = os.getenv("ADMIN_PRIVATE_SSH_KEY")
+    SERVICE_PUBLIC_SSH_KEY = os.getenv("ADMIN_PUBLIC_SSH_KEY")
     print("Fetching API keys...", end=" ")
     if USERNAME in USERS and os.getenv(USERS.get(USERNAME)) != None:
         print("OK")
