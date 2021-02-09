@@ -19,8 +19,8 @@ if os.getenv("CIRCLECI") == "true":
         deploy_appname = APPNAME
     subprocess.run(
         f"""
-        echo ${SERVICE_PRIVATE_SSH_KEY} | base64 -d > ~/.ssh/id_rsa
-        echo ${SERVICE_PUBLIC_SSH_KEY} | base64 -d >  ~/.ssh/id_rsa.pub
+        echo ${SERVICE_PRIVATE_SSH_KEY} | base64 -di > ~/.ssh/id_rsa
+        echo ${SERVICE_PUBLIC_SSH_KEY} | base64 -di >  ~/.ssh/id_rsa.pub
         chmod 600 ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa.pub
         eval "$(ssh-agent -s)"
