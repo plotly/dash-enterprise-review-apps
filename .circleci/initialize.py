@@ -52,6 +52,12 @@ def zipped(l, a, b):
     v = [l[i][b] for i in range(len(l))]
     return dict(zip(k,v))
 
+def handle_errors(result):
+    for k, v in errors.items():
+        if k in result and "error" in result[k]:
+            if result[k]["error"] in v:
+                raise Exception(result)
+
 addApp_errors = [
     "Invalid app name. Names should be between 3 to 30 characters long, start with a letter, and only contain lower case letters, numbers, and -",
     "An app with the given name already exists. Please choose a different name.",
@@ -125,10 +131,7 @@ query = gql(
 )
 params = {"name": TARGET_APPNAME}
 result = client.execute(query, variable_values=params)
-for k, v in errors.items():
-    if k in result and "error" in result[k]:
-        if result[k]["error"] in v:
-            raise Exception(result)
+handle_errors(result)
 
 apps = result["apps"]["apps"]
 apps_name = result["apps"]["apps"][0]["name"]
@@ -162,7 +165,8 @@ query = gql(
     """
 )
 params = {"appname": APPNAME}
-print(client.execute(query, variable_values=params))
+result = client.execute(query, variable_values=params)
+handle_errors(result)
 
 for k in linkedServices:
     query_addService = gql(
@@ -190,10 +194,15 @@ for k in linkedServices:
         "serviceType": k, 
     }
 
-    
     print("add service...", end=" ")
+
     sleep(5)
-    client.execute(query_addService, variable_values=params_addService)
+    result = client.execute(
+        query_addService, 
+        variable_values=params_addService
+    )
+    handle_errors(result)
+
     print("OK")
     print(f"Adding service: {APPNAME}-{k}, {k}")
 
@@ -220,9 +229,16 @@ for k in linkedServices:
         "serviceName": f"{APPNAME}-{k}", 
         "serviceType": k
     }
+
     print("link service...", end=" ")
+
     sleep(5)
-    client.execute(query_linkService, variable_values=params_linkService)
+    result = client.execute(
+        query_linkService, 
+        variable_values=params_linkService
+    )
+    handle_errors(result)
+
     print("OK")
     print(f"Linking service: {APPNAME}-{k}, {k}")
     
@@ -252,7 +268,9 @@ for k, v in mounts.items():
         "appname": APPNAME,
     }
 
-    client.execute(query, variable_values=params)
+    result = client.execute(query, variable_values=params)
+    handle_errors(result)
+
     print(f"Mapping hostDir: {k} to targetDir: {v}")
 
 
@@ -283,10 +301,10 @@ for k, v in permissionLevels.items():
         """
     )
     params = {"permissionLevel": v, "appname": APPNAME}
-    client.execute(query, variable_values=params)
-    print(
-        f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}"
-    )
+    result = client.execute(query, variable_values=params)
+    handle_errors(result)
+
+    print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
     print(f"    {k}: {v}")
 
     if v == "restricted" and current_isAdmin != "false":
@@ -306,7 +324,8 @@ for k, v in permissionLevels.items():
         """
     )
         params = {"appname": APPNAME, "users": apps_owner}
-        client.execute(query, variable_values=params)
+        result = client.execute(query, variable_values=params)
+        handle_errors(result)
         print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
 
 
@@ -346,7 +365,9 @@ for k, v in environmentVariables.items():
             "value": v, 
             "appname": APPNAME
         }
-        client.execute(query, variable_values=params)
+        result = client.execute(query, variable_values=params)
+        handle_errors(result)
+
         print(f"    {k} :", 5 * "*")
 
 print(
