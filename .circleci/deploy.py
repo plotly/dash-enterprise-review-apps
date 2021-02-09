@@ -20,7 +20,9 @@ if os.getenv("CIRCLECI") == "true":
     subprocess.run(
         f"""
         echo `echo ${SERVICE_PRIVATE_SSH_KEY} | base64 --decode -i` > ~/.ssh/id_rsa
+        echo ~/.ssh/id_rsa
         echo `echo ${SERVICE_PUBLIC_SSH_KEY} | base64 --decode -i` > ~/.ssh/id_rsa.pub
+        echo ~/.ssh/id_rsa.pub
         chmod 600 ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa.pub
         eval "$(ssh-agent -s)"
