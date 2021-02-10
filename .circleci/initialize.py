@@ -27,7 +27,6 @@ transport = RequestsHTTPTransport(
     use_json=True,
     retries=3,
     method="POST",
-    verify=False
 )
 
 client = Client(transport=transport)
