@@ -17,7 +17,7 @@ if os.getenv("CIRCLECI") == "true":
     USERS = {
         # "service": "SERVICE_API_KEY",
         # "developers":"DEVELOPERS_API_KEY",
-        # "criddyp": "CRIDDYP_API_KEY",
+        "criddyp": "CRIDDYP_API_KEY",
         "tobinngo": "TOBINNGO_API_KEY",
         "dev1": "DEV1_API_KEY",
         "dev2": "DEV2_API_KEY",
@@ -28,11 +28,14 @@ if os.getenv("CIRCLECI") == "true":
     # as environment variable in your CircleCI Project Settings.
 
     SERVICE_USERNAME = "admin"
+
     SERVICE_API_KEY = os.getenv("ADMIN_API_KEY")
-    USERNAME = "admin"
-    # USERNAME is the Dash Enterprise username that will author the 
-    # initialized apps. Make sure that this user has permission to view 
-    # TARGET_APP or the app's initialization will fail.
+
+    USERNAME = os.getenv("CIRCLE_USERNAME")
+    # USERNAME is the GitHub login of the user who pushed the code to Github.
+    # It is mapped to a Dash Enterprise username that will author the 
+    # initialized apps. (Make sure that this user has permission to view 
+    # TARGET_APP or the app's initialization will fail)
 
     REPONAME = os.getenv("CIRCLE_PROJECT_REPONAME")
     # REPONAME is the name of the repository that will hold the review app 
