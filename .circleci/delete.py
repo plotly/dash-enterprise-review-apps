@@ -73,7 +73,6 @@ while len(apps_result) != 0 or page == 0:
     params = {"page": page}
     sleep(5)
     api_call = client.execute(query,variable_values=params)
-    print(api_call)
     apps_result = api_call["apps"]["apps"]
     apps.extend(apps_result)
     print(f"    Page: {page}")
@@ -131,7 +130,6 @@ if len(apps) != 0:
             > timedelta(**LAST_UPDATE)
         ):
             apps_filtered[k] = v[1]
-            print(apps_filtered)
 else:
     print("NULL")
     sys.exit()
@@ -187,4 +185,3 @@ if len(services_dict) != 0:
         print("    ", k, v)
 else:
     print("NULL")
-
