@@ -11,6 +11,8 @@ from config import (
     DASH_ENTERPRISE_HOST,
     USERNAME,
     USERNAME_API_KEY,
+    SERVICE_API_KEY,
+    SERVICE_USERNAME,
 )
 
 if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
@@ -21,7 +23,7 @@ if DEBUG == "true":
 
 transport = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
-    auth=(USERNAME, USERNAME_API_KEY),
+    auth=(SERVICE_USERNAME, SERVICE_API_KEY),
     use_json=True,
     retries=0,
 )
