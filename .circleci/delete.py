@@ -83,15 +83,15 @@ apps_updated = []
 apps_created = []
 services_name = []
 services_type = []
-apps = dict()
-services = dict()
+apps_dict = dict()
+services_dict = dict()
 if len(apps) != 0:
     print("OK")
     for i in range(len(apps)):
         apps_name.append(apps[i]["analytics"]["appname"])
         apps_created.append(apps[i]["analytics"]["timestamps"]["created"])
         apps_updated.append(apps[i]["analytics"]["timestamps"]["updated"])
-        apps.update(zip(apps_name, zip(apps_updated, apps_created)))
+        apps_dict.update(zip(apps_name, zip(apps_updated, apps_created)))
 
         if range(len(apps[i]["linkedServices"])) == range(0, 1):
             services_name.append(apps[i]["linkedServices"][0]["name"])
@@ -104,7 +104,7 @@ if len(apps) != 0:
             services_type.append(apps[i]["linkedServices"][0]["serviceType"])
             services_name.append(apps[i]["linkedServices"][1]["name"])
             services_type.append(apps[i]["linkedServices"][1]["serviceType"])
-        services.update(zip(services_name, zip(apps_name, services_type)))
+        services_dict.update(zip(services_name, zip(apps_name, services_type)))
 else:
     print("NULL")
     sys.exit()
@@ -121,8 +121,6 @@ if len(apps) != 0:
             > timedelta(**LAST_UPDATE)
         ):
             apps_filtered[k] = v[0]
-            print(datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f"))
-            print(timedelta(**LAST_UPDATE))
         elif (
             k.startswith(f"{PREFIX}")
             and v[1] != None
@@ -130,9 +128,7 @@ if len(apps) != 0:
             > timedelta(**LAST_UPDATE)
         ):
             apps_filtered[k] = v[1]
-            print(datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f"))
-            print(timedelta(**LAST_UPDATE))
-            print(apps_filtered)
+    print(apps_filtered)
 else:
     print("NULL")
     sys.exit()
@@ -161,7 +157,7 @@ print(" Filtering services...", end=" ")
 services_filtered = dict()
 if len(services) != 0:
     print("OK")
-    for k, v in services.items():
+    for k, v in services_dict.items():
         if services[k][0] in apps_filtered:
             services_filtered[k] = v[1]
             print("    ", k, v[1])
