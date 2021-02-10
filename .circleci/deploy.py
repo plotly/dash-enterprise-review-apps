@@ -10,6 +10,7 @@ from config import (
     TARGET_APPNAME,
     BRANCHNAME,
     TRUNK_BRANCHNAME,
+    REPONAME,
 )
 print("Deploying Dash app...", end=" ")
 if os.getenv("CIRCLECI") == "true":
@@ -31,11 +32,13 @@ if os.getenv("CIRCLECI") == "true":
     )
     print(
         f"""
-        Preview your Dash app:
+        You Dash app has been deployed. 
+        
+        Preview {APPNAME}:
         
         https://{DASH_ENTERPRISE_HOST}/{APPNAME}/
         https://{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings
-        https://app.circleci.com/pipelines/github/plotly/dash-enterprise-ci-qa?branch=tngo-graphql-demo
+        https://app.circleci.com/pipelines/github/plotly/{REPONAME}?branch={BRANCHNAME}
         """
     )
 else:

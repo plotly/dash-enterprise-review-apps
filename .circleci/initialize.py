@@ -41,7 +41,7 @@ def handle_error(result, d, bool=True):
                 raise Exception(result)
             else:
                 print(result[k]["error"])
-                print("Skipping app initialization")
+                print("Skipping app initialization to deployment")
                 sys.exit()
 
 
@@ -288,7 +288,8 @@ for k, v in permissionLevels.items():
     print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
     print(f"    {k}: {v}")
 
-    if v == "restricted" and current_isAdmin != "false":
+    print(current_isAdmin)
+    if v == "restricted" and current_isAdmin == "false":
         query = gql(
         """
         mutation (
@@ -353,8 +354,11 @@ for k, v in environmentVariables.items():
 
 print(
     f"""
-    Preview your Dash app:
-    
+
+    You Dash app has been deployed. 
+
+    Preview {APPNAME}:
+
     https://{DASH_ENTERPRISE_HOST}/{APPNAME}/
     https://{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings
     """
