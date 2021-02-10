@@ -35,13 +35,13 @@ def zip_list_index(l, a, b):
     v = [l[i][b] for i in range(len(l))]
     return dict(zip(k,v))
 
-def handle_error(result, d, bool=True):
+def handle_error(result, d):
     for k, v in d.items():
         if k in result and "error" in result[k]:
-            if result[k]["error"] in v == bool:
+            if result[k]["error"] in v:
                 print(result[k]["error"])
                 raise Exception(result)
-            else:
+            elif result[k]["error"] not in v:
                 print(result[k]["error"])
                 print("Skipping app initialization")
                 print("Redeploying app instead")
@@ -177,6 +177,7 @@ query = gql(
             name: $appname
         ) {
             error
+            ok
         }
     }
     """
