@@ -13,8 +13,7 @@ from config import (
     SSH_CONFIG,
     DEBUG,
     PREFIX,
-    LAST_UPDATE
-    ,
+    LAST_UPDATE,
 )
 
 if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:

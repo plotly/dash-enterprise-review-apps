@@ -7,10 +7,10 @@ DEBUG = os.getenv("DEBUG", "false")
 if os.getenv("CIRCLECI") == "true":
     print("CIRCLECI")
 
-    PREFIX = "aa-chris-rev"
+    PREFIX = "target-"
     # PREFIX is a filter for purging review apps.
 
-    LAST_UPDATE = {"days": 3}
+    LAST_UPDATE = {"minutes": 3}
     # LAST_UPDATE is the allowed amount of time before review apps are 
     # purged from the server.
 
