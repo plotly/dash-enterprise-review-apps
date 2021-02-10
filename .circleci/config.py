@@ -40,7 +40,7 @@ if os.getenv("CIRCLECI") == "true":
     DASH_ENTERPRISE_HOST = "qa-de-410.plotly.host" 
     # DASH_ENTERPRISE_HOST is your Dash Enterprise Server's host address.
 
-    SERVICE_API_KEY = os.getenv("ADMIN_API_KEY", "key")
+    SERVICE_API_KEY = os.getenv("ADMIN_API_KEY")
     # SERVICE_API_KEY is the "Machine User's" API key used to access your Dash
     # Enterprise server.
 

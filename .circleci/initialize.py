@@ -21,24 +21,22 @@ if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
 if DEBUG == "true":
     logging.basicConfig(level=logging.DEBUG)
 
-# transport = RequestsHTTPTransport(
-#     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
-#     auth=(SERVICE_USERNAME, SERVICE_API_KEY),
-#     use_json=True,
-#     retries=0,
-# )
+transport = RequestsHTTPTransport(
+    url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
+    auth=(SERVICE_USERNAME, SERVICE_API_KEY),
+    use_json=True,
+    retries=0,
+)
 
-# client = Client(transport=transport)
+transport_user = RequestsHTTPTransport(
+    url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
+    auth=(USERNAME, USERNAME_API_KEY),
+    use_json=True,
+    retries=0,
+)
 
-def transport(*args):
-    RequestsHTTPTransport(
-        url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
-        auth=(SERVICE_USERNAME, SERVICE_API_KEY),
-        use_json=True,
-        retries=0,
-    )
+client = Client(transport=transport)
 
-client = Client(transport=transport(DASH_ENTERPRISE_HOST, SERVICE_USERNAME, SERVICE_API_KEY))
 
 def zip_list_index(l, a, b):
     k = [l[i][a] for i in range(len(l))]
@@ -201,11 +199,7 @@ query = gql(
 params = {"appname": APPNAME}
 
 result = Client(
-    transport=transport(
-            DASH_ENTERPRISE_HOST,
-            USERNAME, 
-            USERNAME_API_KEY,
-    )
+    transport=transport_user
 ).execute(
         query, 
         variable_values=params
