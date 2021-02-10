@@ -4,6 +4,7 @@ import sys
 from time import sleep
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
+from requests.auth import HTTPBasicAuth
 from config import (
     APPNAME,
     TARGET_APPNAME,
