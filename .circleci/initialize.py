@@ -28,10 +28,10 @@ transport = RequestsHTTPTransport(
     retries=0,
 )
 
-# def transport():
+# def transport(USERNAME, API_KEY):
 #     RequestsHTTPTransport(
 #         url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
-#         auth=(SERVICE_USERNAME, SERVICE_API_KEY),
+#         auth=(USERNAME, API_KEY),
 #         use_json=True,
 #         retries=0,
 #     )
@@ -43,24 +43,48 @@ def zip_list_index(l, a, b):
     v = [l[i][b] for i in range(len(l))]
     return dict(zip(k,v))
 
-def handle_error(result, d, bool=True):
-    for k, v in d.items():
+# def handle_error(result, d, bool=True):
+#     for k, v in d.items():
+#         if k in result and "error" in result[k]:
+#             if result[k]["error"] in v == bool:
+#                 print(result[k]["error"])
+#                 raise Exception(result)
+#             else:
+#                 print(result[k]["error"])
+#                 print("Skipping app initialization")
+#                 print("Redeploying app instead")
+#                 sys.exit()
+#         elif len(result["apps"]["apps"]) == 0:
+#             print(result["apps"]["apps"])
+#             print(
+#             "    App does not exist or you may not have been granted access."
+#             )
+#             raise Exception(result)
+
+def handle_error(result, er, ex=None, bool=True):
+    """
+    Does something if api result contains same error in dict(errors) (er)
+    or dict(exception) (ex).or if len(result["apps"]["apps"] == 0)
+    """
+    for k, v in er.items():
         if k in result and "error" in result[k]:
             if result[k]["error"] in v == bool:
                 print(result[k]["error"])
                 raise Exception(result)
-            else:
-                print(result[k]["error"])
-                print("Skipping app initialization")
-                print("Redeploying app instead")
-                sys.exit()
-        elif len(result["apps"]["apps"]) == 0:
-            print(result["apps"]["apps"])
-            print(
-            "    App does not exist or you may not have been granted access."
-            )
-            raise Exception(result)
-
+    if ex != None:
+        for k, v in ex.items():
+            if k in result and "error" in result[k]:
+                if result[k]["error"] in v == bool: 
+                    print(result[k]["error"])
+                    print("Skipping app initialization")
+                    print("Redeploying app instead")
+                    sys.exit()
+    elif len(result["apps"]["apps"]) == 0:
+        print(result["apps"]["apps"])
+        print(
+        "    App does not exist or you may not have been granted access."
+        )
+        raise Exception(result)
 
 addApp_errors = [
     "Invalid app name. Names should be between 3 to 30 characters long, start with a letter, and only contain lower case letters, numbers, and -",
@@ -191,7 +215,7 @@ query = gql(
 )
 params = {"appname": APPNAME}
 result = client.execute(query, variable_values=params)
-handle_error(result, exceptions, False)
+handle_error(result, errors, exceptions)
 
 for k in linkedServices:
     query_addService = gql(
