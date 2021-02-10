@@ -75,7 +75,7 @@ while len(apps_result) != 0 or page == 0:
     api_call = client.execute(query,variable_values=params)
     print(api_call)
     apps_result = api_call["apps"]["apps"]
-    apps.extend(apps_results)
+    apps.extend(apps_result)
     print(f"    Page: {page}")
     page = page + 1
 
