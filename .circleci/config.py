@@ -27,7 +27,7 @@ if os.getenv("CIRCLECI") == "true":
     # REPONAME is the name of the repository that will hold the review app 
     # branches.
 
-    TARGET_APPNAME = "chris-qa-1"
+    TARGET_APPNAME = "chris-app"
     # TARGET_APPNAME is the name the Dash App that will serve as a review app
     # template. This script will copy that apps configuration settings and 
     # apply them to all review apps. App must exist and you must have 
@@ -55,7 +55,7 @@ if os.getenv("CIRCLECI") == "true":
     # TARGET_APP or the app's initialization will fail)
 
     DASH_ENTERPRISE_USERNAME_TO_CIRCLECI_USERNAME = {
-        "criddyp" : "criddyp",
+        "chriddyp" : "chriddyp",
         "tobinngo": "tobinngo",
     }
     # DASH_ENTERPRISE_USERNAME_TO_CIRCLECI_USERNAME maps your developer 
@@ -63,7 +63,7 @@ if os.getenv("CIRCLECI") == "true":
     # repository.
 
     DASH_ENTERPRISE_USERNAME_TO_CIRCLE_CI_API_KEY = {
-        "criddyp": "CRIDDYP_API_KEY",
+        "chriddyp": "CHRIDDYP_API_KEY",
         "tobinngo": "TOBINNGO_API_KEY",
     }
     # DASH_ENTERPRISE_USERNAME_TO_CIRCLE_CI_API_KEY maps your developer 
