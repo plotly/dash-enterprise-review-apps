@@ -91,23 +91,23 @@ workflows:
           requires:
             - initialize
 
-  deploy-workflow:
-    when:
-      or:
-        - equal: [ master, << pipeline.git.branch >> ]
-        - equal: [ main, << pipeline.git.branch >> ]
-        # - equal: [ tngo-graphql-demo, << pipeline.git.branch >> ]
-    jobs:
-      - deploy
+  # deploy-workflow:
+  #   when:
+  #     or:
+  #       - equal: [ master, << pipeline.git.branch >> ]
+  #       - equal: [ main, << pipeline.git.branch >> ]
+  #       # - equal: [ tngo-graphql-demo, << pipeline.git.branch >> ]
+  #   jobs:
+  #     - deploy
 
   schedule-workflow:
     triggers:
       - schedule:
-          cron: "* * * * 1-5" # At minute 0 on every day-of-week from Monday through Friday.
+          cron: "* * * * *" # At minute 0 on every day-of-week from Monday through Friday.
           filters:
             branches:
               ignore: 
-                - master
+                - dev
                 
     jobs:
     - delete
