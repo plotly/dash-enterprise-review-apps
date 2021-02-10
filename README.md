@@ -36,6 +36,7 @@ Part 3 - Auto-Configuration of Review Apps: Copy the configuration of the main a
 
 Part 4 - Production
 
+
 - [x] Add error handling & retrying. If an API call fails, try it again. Explicitly check for status code != 200
 
 Part 5 - Documentation
@@ -43,6 +44,7 @@ Part 5 - Documentation
 - [x] Environment Variables
   - [x] Copy
   - [ ] Assets
+
 ---
 
 ## Dash Enterprise App Manager API Docs
