@@ -152,7 +152,7 @@ if apps_filtered != False:
         client.execute(query,variable_values=params)
     print("    DONE")
 else:
-    print("No apps were deleted"_)
+    print("No apps were deleted")
 
 
 
