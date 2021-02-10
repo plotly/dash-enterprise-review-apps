@@ -131,4 +131,5 @@ dmypy.json
 # VS Code
 .vscode/
 
-.circleci/
+# Other
+tngo

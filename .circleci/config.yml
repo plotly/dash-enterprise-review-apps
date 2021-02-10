@@ -1,13 +1,112 @@
 version: 2.1
 jobs:
-  build:
-    docker: 
-      - image: cimg/node:14.10.1 # the primary container, where your job's commands are run
+  initialize: # initialize on PR
+    docker:
+      - image: cimg/python:3.6
     steps:
-      - checkout # check out the code in the project directory
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - restore_cache: # Purge cache by updating CACHE_VERSION in Project Settings.
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
       - run:
-          name: Run CI Script
+          name: Install python dependencies in virtual environment
           command: |
-            echo 'CI Script: Start'
-            bash deploy-circleci.sh
-            echo 'CI Script: Done'
+            cd .circleci/
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install --upgrade pip
+            pip install -r ci-requirements.txt
+      - run:
+          name: Run Initialize command
+          command: |
+            cd .circleci/
+            env
+            source venv/bin/activate
+            python3 initialize.py
+      - save_cache:
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
+          paths:
+            - "venv"
+  
+  deploy: # Deploy to master/main only if approved and merged
+    docker: 
+      - image: cimg/python:3.6
+    steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - restore_cache: # Purge cache by updating CACHE_VERSION in Project Settings.
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
+      - run:
+          name: Install python dependencies in virtual environment
+          command: |
+            cd .circleci/
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install --upgrade pip
+            pip install -r ci-requirements.txt
+      - run:
+          name: Run Deploy Command
+          command: |
+            cd .circleci/
+            env
+            source venv/bin/activate
+            python3 deploy.py
+      - save_cache:
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
+          paths:
+            - "venv"
+
+  delete:
+    docker: 
+      - image: cimg/python:3.6
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps2-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
+      - run:
+          name: Install python dependencies in a virtual environment
+          command: |
+            cd .circleci/
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install --upgrade pip
+            pip install -r ci-requirements.txt
+      - run:
+          name: Run Delete Command 
+          command: |
+            cd .circleci/
+            env
+            echo "Deleting expired review apps and services..."
+            source venv/bin/activate
+            python3 delete.py
+      - save_cache:
+          key: deps2-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
+          paths:
+            - "venv"
+workflows:
+  commit-workflow:
+    jobs:
+      - initialize
+      - deploy:
+          requires:
+            - initialize
+
+  deploy-workflow:
+    when:
+      or:
+        - equal: [ master, << pipeline.git.branch >> ]
+        - equal: [ main, << pipeline.git.branch >> ]
+        # - equal: [ tngo-graphql-demo, << pipeline.git.branch >> ]
+    jobs:
+      - deploy
+
+  schedule-workflow:
+    triggers:
+      - schedule:
+          cron: "* 5 * * *" 
+          filters:
+            branches:
+              only: 
+                - tngo-graphql-demo
+    jobs:
+    - delete
