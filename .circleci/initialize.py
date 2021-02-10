@@ -183,7 +183,7 @@ query = gql(
 )
 params = {"appname": APPNAME}
 result = client.execute(query, variable_values=params)
-handle_error(result, exceptions, False)
+handle_error(result, errors)
 
 for k in linkedServices:
     query_addService = gql(
