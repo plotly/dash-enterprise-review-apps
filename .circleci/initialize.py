@@ -79,12 +79,7 @@ def handle_error(result, er, ex=None, bool=True):
                     print("Skipping app initialization")
                     print("Redeploying app instead")
                     sys.exit()
-    elif len(result["apps"]["apps"]) == 0:
-        print(result["apps"]["apps"])
-        print(
-        "    App does not exist or you may not have been granted access."
-        )
-        raise Exception(result)
+
 
 addApp_errors = [
     "Invalid app name. Names should be between 3 to 30 characters long, start with a letter, and only contain lower case letters, numbers, and -",
@@ -179,6 +174,13 @@ query = gql(
 params = {"name": TARGET_APPNAME}
 result = client.execute(query, variable_values=params)
 handle_error(result, errors)
+
+if len(result["apps"]["apps"]) == 0:
+    print(result["apps"]["apps"])
+    print(
+    "    App does not exist or you may not have been granted access."
+    )
+    raise Exception(result)
 
 apps = result["apps"]["apps"]
 apps_name = result["apps"]["apps"][0]["name"]
