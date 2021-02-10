@@ -35,6 +35,8 @@ transport_user = RequestsHTTPTransport(
     retries=0,
 )
 print(USERNAME, USERNAME_API_KEY)
+print(USERNAME_API_KEY[0:5] + '    '  + USERNAME_API_KEY[5:])
+
 client = Client(transport=transport)
 client_user = Client(transport=transport_user)
 
