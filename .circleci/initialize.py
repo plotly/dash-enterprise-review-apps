@@ -44,6 +44,10 @@ def handle_error(result, d, bool=True):
                 print("Skipping app initialization")
                 print("Redeploying app instead")
                 sys.exit()
+        elif len(result[apps][apps]) == 0:
+            print(result[apps][apps])
+            print("App does not exist or you may not have been granted access.")
+            raise Exception(result)
 
 
 addApp_errors = [
@@ -70,6 +74,9 @@ mountDirectory_errors = [
     "Only directories specified in the Allowed Directories for Mapping list of the Dash Enterprise configuration can be mapped to Dash apps. Please ask your administrator to add None to the list as shown in the documentation (https://dash.plot.ly/dash-enterprise/map-local-directories) and then try again.",
 ]
 
+apps_query_errors = [
+    "[]",
+]
 addApp_exceptions = [
     "An app with this name already exists in this Dash Server. Please choose a different name."
 ]
@@ -80,6 +87,7 @@ errors = {
     "addEnvironmentVariable": addEnvironmentVariable_errors,
     "addService": addService_errors,
     "mountDirectory": mountDirectory_errors,
+    "apps": apps_query_errors,
 }
 
 exceptions = {
@@ -89,12 +97,17 @@ exceptions = {
 # Querying target app settings
 query = gql(
     """
-    query ($name: String) {
+    query (
+        $name: String
+    ) {
         current {
             username
             isAdmin
         }
-        apps(name: $name, allApps:true) {
+        apps(
+            name: $name, 
+            allApps:true,
+        ) {
             apps {
                 name
                 owner {
