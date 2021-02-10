@@ -36,7 +36,7 @@ transport_user = RequestsHTTPTransport(
 )
 
 client = Client(transport=transport)
-
+client_user = Client(transport=transport_user)
 
 def zip_list_index(l, a, b):
     k = [l[i][a] for i in range(len(l))]
@@ -198,11 +198,9 @@ query = gql(
 )
 params = {"appname": APPNAME}
 
-result = Client(
-    transport=transport_user
-).execute(
-        query, 
-        variable_values=params
+result = client_user.execute(
+    query, 
+    variable_values=params
 )
 
 handle_error(result, errors, exceptions)
