@@ -26,7 +26,8 @@ transport = RequestsHTTPTransport(
     auth=(SERVICE_USERNAME, SERVICE_API_KEY),
     use_json=True,
     retries=3,
-    method="POST"
+    method="POST",
+    verify=False
 )
 
 client = Client(transport=transport)

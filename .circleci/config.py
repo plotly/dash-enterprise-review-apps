@@ -41,7 +41,7 @@ if os.getenv("CIRCLECI") == "true":
     # TRUNK_BRANCHNAME is the name of your repositories "main" or "master" 
     # branch.
 
-    TARGET_APPNAME = "chris-qa-1"
+    TARGET_APPNAME = "chris-qa-1-rev-dev"
     # TARGET_APPNAME is the name the Dash App that will serve as a review app
     # template. This script will copy that apps configuration settings and 
     # apply them to all review apps. You must have permission to view the 
