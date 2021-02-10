@@ -23,9 +23,9 @@ if DEBUG == "true":
 
 transport = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
-    auth=(SERVICE_USERNAME, SERVICE_API_KEY),
+    auth=HTTPBasicAuth(SERVICE_USERNAME, SERVICE_API_KEY),
     use_json=True,
-    retries=0,
+    retries=3,
 )
 
 client = Client(transport=transport)
@@ -46,12 +46,7 @@ def handle_error(result, d):
                 print("Skipping app initialization")
                 print("Redeploying app instead")
                 False
-        elif len(result["apps"]["apps"]) == 0:
-            print(result["apps"]["apps"])
-            print(
-            "    App does not exist or you may not have been granted access."
-            )
-            raise Exception(result)
+
 
 
 addApp_errors = [
@@ -147,6 +142,14 @@ query = gql(
 params = {"name": TARGET_APPNAME}
 result = client.execute(query, variable_values=params)
 handle_error(result, errors)
+
+if len(result["apps"]["apps"]) == 0:
+    print(result["apps"]["apps"])
+    print(
+    "    App does not exist or you may not have been granted access."
+    )
+    raise Exception(result)
+
 
 apps = result["apps"]["apps"]
 apps_name = result["apps"]["apps"][0]["name"]
