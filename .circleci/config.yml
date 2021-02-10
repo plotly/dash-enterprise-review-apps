@@ -28,7 +28,7 @@ jobs:
           paths:
             - "venv"
   
-  deploy: # Deploy to master/main only if approved and merged
+  deploy: # Push to master/main only if PR is approved and merged
     docker: 
       - image: cimg/python:3.6
     steps:
@@ -103,7 +103,7 @@ workflows:
   schedule-workflow:
     triggers:
       - schedule:
-          cron: "* 5 * * *" # Everyday at 5 am
+          cron: "0 * * * 1-5" # At minute 0 on every day-of-week from Monday through Friday.
           filters:
             branches:
               ignore: 

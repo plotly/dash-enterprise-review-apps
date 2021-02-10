@@ -41,7 +41,8 @@ def handle_error(result, d, bool=True):
                 raise Exception(result)
             else:
                 print(result[k]["error"])
-                print("Skipping app initialization to deployment")
+                print("Skipping app initialization")
+                print("Redeploying app instead")
                 sys.exit()
 
 
