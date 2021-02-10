@@ -133,7 +133,6 @@ query = gql(
                     value
                 }
             }
-            error
         }
     }
     """
