@@ -44,7 +44,7 @@ def handle_error(result, d, bool=True):
                 print("Skipping app initialization")
                 print("Redeploying app instead")
                 sys.exit()
-        elif len("    ", result["apps"]["apps"]) == 0:
+        elif len(result["apps"]["apps"]) == 0:
             print(result["apps"]["apps"])
             print(
             "    App does not exist or you may not have been granted access."
