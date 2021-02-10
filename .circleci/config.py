@@ -20,28 +20,33 @@ if os.getenv("CIRCLECI") == "true":
     # USERS maps your developer usernames to their corresponding API key store 
     # as environment variable in your CircleCI Project Settings.
 
-    USERNAME = "dev3"
-    #USERNAME is the Dash Enterprise username that will be 
+    USERNAME = "dev2"
+    # USERNAME is the Dash Enterprise username that will be author the app 
+    # initialization. Make sure that this user has permission to view 
+    # TARGET_APP or the app's initialization will fail.
 
     REPONAME = os.getenv("CIRCLE_PROJECT_REPONAME")
     # REPONAME is the name of the repository that will hold the review app 
     # branches.
 
     BRANCHNAME = os.getenv("CIRCLE_BRANCH")
-    # BRANCHNAME is the name of the branch you pushed changes from. This will be
-    # pulled from the CircleCI's environment.
+    # BRANCHNAME is the name of the branch you will initialize your Dash apps 
+    # from. This will be pulled from the CircleCI's environment. BRANCHNAME 
+    # must not exceed 30 characters in length.
     
     TRUNK_BRANCHNAME = "main"
     # TRUNK_BRANCHNAME is the name of your repositories "main" or "master" 
     # branch.
 
-    TARGET_APPNAME = "target-app-2"
+    TARGET_APPNAME = "target-dev2"
     # TARGET_APPNAME is the name the Dash App that will serve as a review app
     # template. This script will copy that apps configuration settings and 
-    # apply them to all review apps.
+    # apply them to all review apps. You must have permission to view the 
+    # TARGET_APP or the app's initialization will fail.
 
     APPNAME = f"{TARGET_APPNAME}-rev-{BRANCHNAME}"[0:30]
-    # APPNAME handles how your review apps will be named.
+    # APPNAME determines how your review apps will be named. APPNAME must not
+    # exceed 30 characters in length.
 
     DASH_ENTERPRISE_HOST = "qa-de-410.plotly.host" 
     # DASH_ENTERPRISE_HOST is your Dash Enterprise Server's host address.

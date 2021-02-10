@@ -44,9 +44,11 @@ def handle_error(result, d, bool=True):
                 print("Skipping app initialization")
                 print("Redeploying app instead")
                 sys.exit()
-        elif len(result["apps"]["apps"]) == 0:
+        elif len("    ", result["apps"]["apps"]) == 0:
             print(result["apps"]["apps"])
-            print("App does not exist or you may not have been granted access.")
+            print(
+            "    App does not exist or you may not have been granted access."
+            )
             raise Exception(result)
 
 
@@ -113,6 +115,9 @@ query = gql(
                 owner {
                     username
                 }
+                status {
+                    running
+                }
                 collaborators {
                     users
                     teams
@@ -142,9 +147,9 @@ result = client.execute(query, variable_values=params)
 handle_error(result, errors)
 
 apps = result["apps"]["apps"]
-print(apps)
 apps_name = result["apps"]["apps"][0]["name"]
 apps_owner = result["apps"]["apps"][0]["owner"]["username"]
+apps_status = result["apps"]["apps"][0]["status"]["running"]
 current_isAdmin = result["current"]["isAdmin"]
 apps_collaborators = result["apps"]["apps"][0]["collaborators"]
 apps_permissionLevels= result["apps"]["apps"][0]["metadata"]
@@ -303,8 +308,11 @@ for k, v in permissionLevels.items():
     print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
     print(f"    {k}: {v}")
 
-    print(current_isAdmin)
-    if v == "restricted" and current_isAdmin == "false":
+    if (
+        v == "restricted" and 
+        current_isAdmin == "false" and 
+        apps_status == "true"
+    ):
         query = gql(
         """
         mutation (
@@ -326,6 +334,12 @@ for k, v in permissionLevels.items():
       
         print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
 
+    print(
+        f"""
+        cannot add {apps_owner} as collaborator. {apps_owner} already has
+        admin privileges, or app has not been deployed yet.
+        """
+    )
 
 for k, v in environmentVariables.items():
     environmentVariables_filter = tuple(
