@@ -4,8 +4,15 @@ import os
 DEBUG = os.getenv("DEBUG", "false")
 # Enable Requests debugging by setting this variable to "true"
 
-if os.getenv("CIRCLECI") == "true":
+if os.getenv("CIRCLECI") != "true":
     print("CIRCLECI")
+
+    PREFIX = "aa-chris-rev"
+    # PREFIX is a filter for purging review apps.
+
+    LAST_UPDATE = {"days": 3}
+    # LAST_UPDATE is the allowed amount of time before review apps are 
+    # purged from the server.
 
     USERS = {
         # "service": "SERVICE_API_KEY",
