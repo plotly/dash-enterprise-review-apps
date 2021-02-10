@@ -44,7 +44,7 @@ else:
         f"""
         
         Deployment not authorized from this environment.
-        Must push from main/master branch from
+        Must push from main/master branch in
         CIRCLECI.
 
         See Getting Started section in Continuous Integration Docs

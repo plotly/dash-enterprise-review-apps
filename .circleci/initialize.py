@@ -28,39 +28,20 @@ transport = RequestsHTTPTransport(
 
 client = Client(transport=transport)
 
-# import hashlib
-# import json
-# from flask import Flask
-# from flask_caching import Cache
-# app = Flask(__name__)
-# # For more configuration options, check out the documentation
-# cache = Cache(app, config={'CACHE_TYPE': 'filesystem', "CACHE_DIR": "cache"})
-
-# @cache.memoize()
-# def execute(*args, **kwargs):
-#     result = client.execute(*args, **kwargs)
-    
-#     filename = str(args) + str(kwargs) + '.json'
-#     filename = hashlib.sha256(filename.encode()).hexdigest()
-#     with open(f'cache/{filename}', 'w') as f:
-#         f.write(json.dumps(result, indent=4))
-
-#     return result
-
-def zipped(l, a, b):
+def zip_list_index(l, a, b):
     k = [l[i][a] for i in range(len(l))]
     v = [l[i][b] for i in range(len(l))]
     return dict(zip(k,v))
 
-def handle_errors(result):
+def handle_error(result):
     for k, v in errors.items():
         if k in result and "error" in result[k]:
             if result[k]["error"] in v:
                 raise Exception(result)
+                print(result['error'])
 
 addApp_errors = [
     "Invalid app name. Names should be between 3 to 30 characters long, start with a letter, and only contain lower case letters, numbers, and -",
-    "An app with the given name already exists. Please choose a different name.",
 ]
 
 deleteApp_errors = [
@@ -131,7 +112,7 @@ query = gql(
 )
 params = {"name": TARGET_APPNAME}
 result = client.execute(query, variable_values=params)
-handle_errors(result)
+handle_error(result)
 
 apps = result["apps"]["apps"]
 apps_name = result["apps"]["apps"][0]["name"]
@@ -148,17 +129,18 @@ b = [apps[i]["owner"]["username"] for i in range(len(apps))]
 
 owner = dict(zip(a, b))
 permissionLevels = apps_permissionLevels
-linkedServices = zipped(apps_linkedServices, "serviceType", "name")
-mounts = zipped(apps_mounts, "hostDir", "targetDir")
-environmentVariables = zipped(apps_environmentVariables, "name", "value")
+linkedServices = zip_list_index(apps_linkedServices, "serviceType", "name")
+mounts = zip_list_index(apps_mounts, "hostDir", "targetDir")
+environmentVariables = zip_list_index(apps_environmentVariables, "name", "value")
 
 query = gql(
     """
-    mutation ($appname: String) {
-        addApp(name: $appname) {
-            app {
-                name
-            }
+    mutation (
+        $appname: String
+    ) {
+        addApp(
+            name: $appname
+        ) {
             error
         }
     }
@@ -166,7 +148,7 @@ query = gql(
 )
 params = {"appname": APPNAME}
 result = client.execute(query, variable_values=params)
-handle_errors(result)
+handle_error(result)
 
 for k in linkedServices:
     query_addService = gql(
@@ -174,16 +156,11 @@ for k in linkedServices:
         mutation (
             $serviceType: ServiceType=redis,
             $serviceName: String
+        ) {
+            addService (
+                name: $serviceName,
+                serviceType: $serviceType
             ) {
-                addService (
-                    name: $serviceName,
-                    serviceType: $serviceType
-                ) {
-                service {
-                    name
-                    serviceType
-                    created
-                }
                 error
             }
         }  
@@ -201,7 +178,7 @@ for k in linkedServices:
         query_addService, 
         variable_values=params_addService
     )
-    handle_errors(result)
+    handle_error(result)
 
     print("OK")
     print(f"Adding service: {APPNAME}-{k}, {k}")
@@ -218,8 +195,8 @@ for k in linkedServices:
                 appname: $appname,
                 serviceName: $serviceName, 
                 serviceType: $serviceType
-            ){
-                refresh
+            ) {
+                error
             }
         }
         """
@@ -237,7 +214,7 @@ for k in linkedServices:
         query_linkService, 
         variable_values=params_linkService
     )
-    handle_errors(result)
+    handle_error(result)
 
     print("OK")
     print(f"Linking service: {APPNAME}-{k}, {k}")
@@ -256,7 +233,6 @@ for k, v in mounts.items():
                 targetDir: $targetDir, 
                 appname: $appname
             ) {
-                ok
                 error
             }
         }
@@ -269,7 +245,7 @@ for k, v in mounts.items():
     }
 
     result = client.execute(query, variable_values=params)
-    handle_errors(result)
+    handle_error(result)
 
     print(f"Mapping hostDir: {k} to targetDir: {v}")
 
@@ -287,22 +263,14 @@ for k, v in permissionLevels.items():
                     permissionLevel: $permissionLevel
                 }
             ){
-                app {
-                    name
-                    owner {
-                        username
-                    }
-                    metadata{
-                        permissionLevel
-                    }
-                }
+                error
             }
         }
         """
     )
     params = {"permissionLevel": v, "appname": APPNAME}
     result = client.execute(query, variable_values=params)
-    handle_errors(result)
+    handle_error(result)
 
     print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
     print(f"    {k}: {v}")
@@ -312,11 +280,11 @@ for k, v in permissionLevels.items():
         """
         mutation (
             $appname: String,
-            $users: [String]
+            $users: [String],
         ) { 
             addCollaborators(
                 appname: $appname, 
-                users: [$users],
+                users: $users,
             ){
                 error
             }
@@ -325,7 +293,8 @@ for k, v in permissionLevels.items():
     )
         params = {"appname": APPNAME, "users": apps_owner}
         result = client.execute(query, variable_values=params)
-        handle_errors(result)
+        handle_error(result)
+      
         print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
 
 
@@ -354,7 +323,6 @@ for k, v in environmentVariables.items():
                     value: $value,
                     appname: $appname
                 ) {
-                    ok
                     error
                 }
             }
@@ -366,7 +334,7 @@ for k, v in environmentVariables.items():
             "appname": APPNAME
         }
         result = client.execute(query, variable_values=params)
-        handle_errors(result)
+        handle_error(result)
 
         print(f"    {k} :", 5 * "*")
 
