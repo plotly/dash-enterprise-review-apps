@@ -23,6 +23,10 @@ if os.getenv("CIRCLECI") == "true":
     USERNAME = "admin"
     #USERNAME is the Dash Enterprise username that will be 
 
+    REPONAME = os.getenv("CIRCLE_PROJECT_REPONAME")
+    # REPONAME is the name of the repository that will hold the review app 
+    # branches.
+
     BRANCHNAME = os.getenv("CIRCLE_BRANCH")
     # BRANCHNAME is the name of the branch you pushed changes from. This will be
     # pulled from the CircleCI's environment.
@@ -52,17 +56,18 @@ if os.getenv("CIRCLECI") == "true":
     SERVICE_PUBLIC_SSH_KEY = os.getenv("ADMIN_PUBLIC_SSH_KEY")
     # SERVICE_PUBLIC_SSH_KEY used to authenticate the SSH hot.
 
-    print("Fetching API keys...", end=" ")
+    print("Fetching API key...", end=" ")
 
     if USERNAME in USERS and os.getenv(USERS.get(USERNAME)) != None:
         print("OK")
+        print(f"    {USERNAME}")
         USERNAME_API_KEY = os.getenv(USERS.get(USERNAME))
     else:
         print("FAILED")
         print(
             f"""
 
-            Username is missing from \"config.py\" user dictionary.
+            {USERNAME} is missing from \"config.py\" USERS dictionary.
 
             See Getting Started section in Continuous Integration Docs
             (https://{DASH_ENTERPRISE_HOST}/Docs/continuous-integration)
@@ -71,6 +76,3 @@ if os.getenv("CIRCLECI") == "true":
             """
         )
         raise ValueError
-
-
-
