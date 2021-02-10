@@ -30,7 +30,7 @@ if DEBUG == "true":
 
 # client = Client(transport=transport)
 
-def transport(HOST=DASH_ENTERPRISE_HOST, USERNAME, API_KEY):
+def transport(HOST, USERNAME, API_KEY):
     RequestsHTTPTransport(
         url=f"https://{HOST}/Manager/graphql",
         auth=(USERNAME, API_KEY),
@@ -38,7 +38,10 @@ def transport(HOST=DASH_ENTERPRISE_HOST, USERNAME, API_KEY):
         retries=0,
     )
 
-client = Client(transport=transport(SERVICE_USERNAME, SERVICE_API_KEY))
+transport = transport(DASH_ENTERPRISE_HOST, SERVICE_USERNAME, SERVICE_API_KEY)
+
+
+client = Client(transport)
 
 def zip_list_index(l, a, b):
     k = [l[i][a] for i in range(len(l))]
@@ -202,6 +205,7 @@ params = {"appname": APPNAME}
 
 result = Client(
     transport=transport(
+            DASH_ENTERPRISE_HOST,
             USERNAME, 
             USERNAME_API_KEY,
     )
