@@ -5,14 +5,14 @@ from time import sleep
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from config import (
-    APPNAME,
-    TARGET_APPNAME,
-    DEBUG,
     DASH_ENTERPRISE_HOST,
     USERNAME,
     USERNAME_API_KEY,
     SERVICE_API_KEY,
     SERVICE_USERNAME,
+    APPNAME,
+    TARGET_APPNAME,
+    DEBUG,
 )
 
 if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
