@@ -129,6 +129,7 @@ result = client.execute(query, variable_values=params)
 handle_error(result, errors)
 
 apps = result["apps"]["apps"]
+print(apps)
 apps_name = result["apps"]["apps"][0]["name"]
 apps_owner = result["apps"]["apps"][0]["owner"]["username"]
 current_isAdmin = result["current"]["isAdmin"]
