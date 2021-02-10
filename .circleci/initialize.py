@@ -177,7 +177,6 @@ query = gql(
             name: $appname
         ) {
             error
-            ok
         }
     }
     """
