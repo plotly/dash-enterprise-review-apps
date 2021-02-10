@@ -364,3 +364,4 @@ print(
     https://{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings
     """
 )
+
