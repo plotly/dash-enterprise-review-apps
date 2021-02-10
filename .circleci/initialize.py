@@ -135,194 +135,104 @@ if len(apps) != 0:
     mounts = zip_list_index(apps_mounts, "hostDir", "targetDir")
     environmentVariables = zip_list_index(apps_environmentVariables, "name", "value")
 
-query = gql(
-    """
-    mutation (
-        $appname: String
-    ) {
-        addApp(
-            name: $appname
-        ) {
-            error
-        }
-    }
-    """
-)
-params = {"appname": APPNAME}
-result = client.execute(query, variable_values=params)
-handle_error(result)
-
-for k in linkedServices:
-    query_addService = gql(
-        """
-        mutation (
-            $serviceType: ServiceType=redis,
-            $serviceName: String
-        ) {
-            addService (
-                name: $serviceName,
-                serviceType: $serviceType
-            ) {
-                error
-            }
-        }  
-        """
-    )
-    params_addService = {
-        "serviceName": f"{APPNAME}-{k}", 
-        "serviceType": k, 
-    }
-
-    print("add service...", end=" ")
-
-    sleep(5)
-    result = client.execute(
-        query_addService, 
-        variable_values=params_addService
-    )
-    handle_error(result)
-
-    print("OK")
-    print(f"Adding service: {APPNAME}-{k}, {k}")
-
-for k in linkedServices:
-    query_linkService = gql(
-        """
-        mutation (
-            $appname: String
-            $serviceType: ServiceType=redis,
-            $serviceName: String
-        ) {
-            linkService (
-                appname: $appname,
-                serviceName: $serviceName, 
-                serviceType: $serviceType
-            ) {
-                error
-            }
-        }
-        """
-    )
-    params_linkService = {
-        "appname": APPNAME,
-        "serviceName": f"{APPNAME}-{k}", 
-        "serviceType": k
-    }
-
-    print("link service...", end=" ")
-
-    sleep(5)
-    result = client.execute(
-        query_linkService, 
-        variable_values=params_linkService
-    )
-    handle_error(result)
-
-    print("OK")
-    print(f"Linking service: {APPNAME}-{k}, {k}")
-    
-
-for k, v in mounts.items():
     query = gql(
         """
         mutation (
-            $hostDir: String, 
-            $targetDir: String,
             $appname: String
         ) {
-            mountDirectory(
-                hostDir: $hostDir,
-                targetDir: $targetDir, 
-                appname: $appname
+            addApp(
+                name: $appname
             ) {
                 error
             }
         }
         """
     )
-    params = {
-        "hostDir": k,
-        "targetDir": v,
-        "appname": APPNAME,
-    }
-
+    params = {"appname": APPNAME}
     result = client.execute(query, variable_values=params)
     handle_error(result)
 
-    print(f"Mapping hostDir: {k} to targetDir: {v}")
-
-
-for k, v in permissionLevels.items():
-    query = gql(
-        """
-        mutation (
-            $appname: String,
-            $permissionLevel: PermissionLevels
-        ) { 
-            updateApp(
-                appname: $appname, 
-                metadata: {
-                    permissionLevel: $permissionLevel
+    for k in linkedServices:
+        query_addService = gql(
+            """
+            mutation (
+                $serviceType: ServiceType=redis,
+                $serviceName: String
+            ) {
+                addService (
+                    name: $serviceName,
+                    serviceType: $serviceType
+                ) {
+                    error
                 }
-            ){
-                error
-            }
+            }  
+            """
+        )
+        params_addService = {
+            "serviceName": f"{APPNAME}-{k}", 
+            "serviceType": k, 
         }
-        """
-    )
-    params = {"permissionLevel": v, "appname": APPNAME}
-    result = client.execute(query, variable_values=params)
-    handle_error(result)
 
-    print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
-    print(f"    {k}: {v}")
+        print("add service...", end=" ")
 
-    if v == "restricted" and current_isAdmin != "false":
-        query = gql(
-        """
-        mutation (
-            $appname: String,
-            $users: [String],
-        ) { 
-            addCollaborators(
-                appname: $appname, 
-                users: $users,
-            ){
-                error
-            }
-        }
-        """
-    )
-        params = {"appname": APPNAME, "users": apps_owner}
-        result = client.execute(query, variable_values=params)
+        sleep(5)
+        result = client.execute(
+            query_addService, 
+            variable_values=params_addService
+        )
         handle_error(result)
-      
-        print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
 
+        print("OK")
+        print(f"Adding service: {APPNAME}-{k}, {k}")
 
-for k, v in environmentVariables.items():
-    environmentVariables_filter = tuple(
-        [
-            "DOKKU",
-            "DASH",
-            "DATABASE_URL",
-            "GIT_REV",
-            "REDIS_URL",
-            "SCRIPT_NAME",
-            "NO_VHOST",
-        ]
-    )
-    if k.startswith(environmentVariables_filter) != True:
+    for k in linkedServices:
+        query_linkService = gql(
+            """
+            mutation (
+                $appname: String
+                $serviceType: ServiceType=redis,
+                $serviceName: String
+            ) {
+                linkService (
+                    appname: $appname,
+                    serviceName: $serviceName, 
+                    serviceType: $serviceType
+                ) {
+                    error
+                }
+            }
+            """
+        )
+        params_linkService = {
+            "appname": APPNAME,
+            "serviceName": f"{APPNAME}-{k}", 
+            "serviceType": k
+        }
+
+        print("link service...", end=" ")
+
+        sleep(5)
+        result = client.execute(
+            query_linkService, 
+            variable_values=params_linkService
+        )
+        handle_error(result)
+
+        print("OK")
+        print(f"Linking service: {APPNAME}-{k}, {k}")
+        
+
+    for k, v in mounts.items():
         query = gql(
             """
             mutation (
-                $environmentVariable: String, 
-                $value: String, 
+                $hostDir: String, 
+                $targetDir: String,
                 $appname: String
             ) {
-                addEnvironmentVariable (
-                    name: $environmentVariable,
-                    value: $value,
+                mountDirectory(
+                    hostDir: $hostDir,
+                    targetDir: $targetDir, 
                     appname: $appname
                 ) {
                     error
@@ -331,20 +241,112 @@ for k, v in environmentVariables.items():
             """
         )
         params = {
-            "environmentVariable": k, 
-            "value": v, 
-            "appname": APPNAME
+            "hostDir": k,
+            "targetDir": v,
+            "appname": APPNAME,
         }
+
         result = client.execute(query, variable_values=params)
         handle_error(result)
 
-        print(f"    {k} :", 5 * "*")
+        print(f"Mapping hostDir: {k} to targetDir: {v}")
 
-print(
-    f"""
-    Preview your Dash app:
+
+    for k, v in permissionLevels.items():
+        query = gql(
+            """
+            mutation (
+                $appname: String,
+                $permissionLevel: PermissionLevels
+            ) { 
+                updateApp(
+                    appname: $appname, 
+                    metadata: {
+                        permissionLevel: $permissionLevel
+                    }
+                ){
+                    error
+                }
+            }
+            """
+        )
+        params = {"permissionLevel": v, "appname": APPNAME}
+        result = client.execute(query, variable_values=params)
+        handle_error(result)
+
+        print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
+        print(f"    {k}: {v}")
+
+        if v == "restricted" and current_isAdmin != "false":
+            query = gql(
+            """
+            mutation (
+                $appname: String,
+                $users: [String],
+            ) { 
+                addCollaborators(
+                    appname: $appname, 
+                    users: $users,
+                ){
+                    error
+                }
+            }
+            """
+        )
+            params = {"appname": APPNAME, "users": apps_owner}
+            result = client.execute(query, variable_values=params)
+            handle_error(result)
+        
+            print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
+
+
+    for k, v in environmentVariables.items():
+        environmentVariables_filter = tuple(
+            [
+                "DOKKU",
+                "DASH",
+                "DATABASE_URL",
+                "GIT_REV",
+                "REDIS_URL",
+                "SCRIPT_NAME",
+                "NO_VHOST",
+            ]
+        )
+        if k.startswith(environmentVariables_filter) != True:
+            query = gql(
+                """
+                mutation (
+                    $environmentVariable: String, 
+                    $value: String, 
+                    $appname: String
+                ) {
+                    addEnvironmentVariable (
+                        name: $environmentVariable,
+                        value: $value,
+                        appname: $appname
+                    ) {
+                        error
+                    }
+                }
+                """
+            )
+            params = {
+                "environmentVariable": k, 
+                "value": v, 
+                "appname": APPNAME
+            }
+            result = client.execute(query, variable_values=params)
+            handle_error(result)
+
+            print(f"    {k} :", 5 * "*")
+
+    print(
+        f"""
+        Preview your Dash app:
+        
+        https://{DASH_ENTERPRISE_HOST}/{APPNAME}/
+        https://{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings
+        """
+    )
+else:
     
-    https://{DASH_ENTERPRISE_HOST}/{APPNAME}/
-    https://{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings
-    """
-)
