@@ -34,7 +34,7 @@ transport_user = RequestsHTTPTransport(
     use_json=True,
     retries=0,
 )
-
+print(USERNAME, USERNAME_API_KEY)
 client = Client(transport=transport)
 client_user = Client(transport=transport_user)
 
