@@ -42,11 +42,13 @@ queries = {
 print("Querying apps...", end=" ")
 
 apps = []
+apps_result = []
 services = []
+services_result = []
 page = 0
 
 print("OK")
-while len(apps) != 0 or page == 0:
+while len(apps_result) != 0 or page == 0:
     query = gql(
         """
         query($page: Int) {
@@ -71,7 +73,7 @@ while len(apps) != 0 or page == 0:
     params = {"page": page}
     sleep(5)
     result = client.execute(query,variable_values=params)
-    apps= result["apps"]["apps"]
+    apps_result = result["apps"]["apps"]
     apps.extend(apps)
     print(f"    Page: {page}")
     page = page + 1
@@ -113,22 +115,22 @@ print(" Filtering apps...", end=" ")
 apps_filtered = dict()
 if len(apps) != 0:
     print("OK")
-    for k, v in apps.items():
+    for k, v in apps_dict.items():
         if (
-            k.startswith(f"{PREFIX}")
+            k.startswith("{prefix}".format(prefix=PREFIX))
             and v[0] == None
             and (datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f"))
             > timedelta(**LAST_UPDATE)
         ):
             apps_filtered[k] = v[0]
         elif (
-            k.startswith(f"{PREFIX}")
+            k.startswith("{prefix}".format(prefix=PREFIX))
             and v[1] != None
             and (datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f"))
             > timedelta(**LAST_UPDATE)
         ):
             apps_filtered[k] = v[1]
-    print(apps_filtered)
+            print(apps_filtered)
 else:
     print("NULL")
     sys.exit()
@@ -155,7 +157,7 @@ else:
 
 print(" Filtering services...", end=" ")
 services_filtered = dict()
-if len(services) != 0:
+if len(services_dict) != 0:
     print("OK")
     for k, v in services_dict.items():
         if services[k][0] in apps_filtered:
@@ -165,7 +167,7 @@ else:
     print("NULL")
 
 print(" Deleting services...", end=" ")
-if len(services) != 0:
+if len(services_dict) != 0:
     print("OK")
     for k, v in services_filtered.items():
 
