@@ -160,7 +160,7 @@ services_filtered = dict()
 if len(services_dict) != 0:
     print("OK")
     for k, v in services_dict.items():
-        if services[k][0] in apps_filtered:
+        if services_dict[k][0] in apps_filtered:
             services_filtered[k] = v[1]
             print("    ", k, v[1])
 else:
