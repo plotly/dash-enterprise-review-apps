@@ -28,7 +28,7 @@ if os.getenv("CIRCLECI") == "true":
     # as environment variable in your CircleCI Project Settings.
 
     SERVICE_USERNAME = "admin"
-
+    SERVICE_API_KEY = os.getenv("ADMIN_API_KEY")
     USERNAME = "admin"
     # USERNAME is the Dash Enterprise username that will author the 
     # initialized apps. Make sure that this user has permission to view 
