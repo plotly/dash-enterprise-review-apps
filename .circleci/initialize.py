@@ -4,7 +4,6 @@ import sys
 from time import sleep
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
-from requests.auth import HTTPBasicAuth
 from config import (
     APPNAME,
     TARGET_APPNAME,
@@ -24,9 +23,10 @@ if DEBUG == "false":
 
 transport = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
-    auth=HTTPBasicAuth(SERVICE_USERNAME, SERVICE_API_KEY),
+    auth=(SERVICE_USERNAME, SERVICE_API_KEY),
     use_json=True,
     retries=3,
+    method="GET"
 )
 
 client = Client(transport=transport)
