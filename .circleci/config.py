@@ -20,7 +20,9 @@ if os.getenv("CIRCLECI") == "true":
     # USERS maps your developer usernames to their corresponding API key store 
     # as environment variable in your CircleCI Project Settings.
 
-    USERNAME = "dev1"
+    SERVICE_USERNAME = "admin"
+
+    USERNAME = "admin"
     # USERNAME is the Dash Enterprise username that will author the 
     # initialized apps. Make sure that this user has permission to view 
     # TARGET_APP or the app's initialization will fail.
