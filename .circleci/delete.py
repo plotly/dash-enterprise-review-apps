@@ -69,6 +69,7 @@ while len(apps) != 0 or page == 0:
         """
     )
     params = {"page": page}
+    sleep(5)
     result = client.execute(query,variable_values=params)
     apps= result["apps"]["apps"]
     apps.extend(apps)
@@ -120,6 +121,8 @@ if len(apps) != 0:
             > timedelta(**LAST_UPDATE)
         ):
             apps_filtered[k] = v[0]
+            print(datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f"))
+            print(timedelta(**LAST_UPDATE))
         elif (
             k.startswith(f"{PREFIX}")
             and v[1] != None
@@ -127,6 +130,8 @@ if len(apps) != 0:
             > timedelta(**LAST_UPDATE)
         ):
             apps_filtered[k] = v[1]
+            print(datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f"))
+            print(timedelta(**LAST_UPDATE))
             print(apps_filtered)
 else:
     print("NULL")
