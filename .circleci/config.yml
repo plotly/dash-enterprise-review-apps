@@ -108,6 +108,6 @@ workflows:
             branches:
               ignore: 
                 - master
-                - main
+                
     jobs:
     - delete
