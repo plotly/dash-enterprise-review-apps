@@ -117,14 +117,14 @@ if len(apps) != 0:
             k.startswith(f"{PREFIX}")
             and v[0] == None
             and (datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f"))
-            > timedelta(**LAST_UPDATE)
+            < timedelta(**LAST_UPDATE)
         ):
             apps_filtered[k] = v[0]
         elif (
             k.startswith(f"{PREFIX}")
             and v[1] != None
             and (datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f"))
-            > timedelta(**LAST_UPDATE)
+            < timedelta(**LAST_UPDATE)
         ):
             apps_filtered[k] = v[1]
             print(apps_filtered)
