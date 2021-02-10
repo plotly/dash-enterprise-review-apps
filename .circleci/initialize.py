@@ -28,6 +28,14 @@ transport = RequestsHTTPTransport(
     retries=0,
 )
 
+# def transport():
+#     RequestsHTTPTransport(
+#         url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
+#         auth=(SERVICE_USERNAME, SERVICE_API_KEY),
+#         use_json=True,
+#         retries=0,
+#     )
+
 client = Client(transport=transport)
 
 def zip_list_index(l, a, b):
