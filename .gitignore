@@ -136,7 +136,4 @@ dmypy.json
 .tn/
 .scratch/
 .qa
-.circleci/cache/
-.circleci/cache_delete/
-.circleci/id_rsa_service
-.circleci/id_rsa_service.pub
+
