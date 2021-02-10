@@ -10,7 +10,7 @@ if os.getenv("CIRCLECI") == "true":
     PREFIX = "target-dev"
     # PREFIX is a filter for purging review apps.
 
-    LAST_UPDATE = {"hours": 3}
+    LAST_UPDATE = {"hours": 10}
     # LAST_UPDATE is the allowed amount of time before review apps are 
     # purged from the server.
 
