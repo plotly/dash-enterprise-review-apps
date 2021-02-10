@@ -26,7 +26,7 @@ transport = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
     auth=(USERNAME, USERNAME_API_KEY),
     use_json=True,
-    retries=0,
+    retries=5,
 )
 
 client = Client(transport=transport)
