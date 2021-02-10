@@ -9,6 +9,8 @@ from config import (
     TARGET_APPNAME,
     DEBUG,
     DASH_ENTERPRISE_HOST,
+    SERVICE_USERNAME,
+    SERVICE_API_KEY,
     USERNAME,
     USERNAME_API_KEY,
 )
@@ -21,7 +23,7 @@ if DEBUG == "true":
 
 transport = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
-    auth=(USERNAME, USERNAME_API_KEY),
+    auth=(SERVICE_USERNAME, SERVICE_API_KEY),
     use_json=True,
     retries=0,
 )
@@ -381,6 +383,28 @@ for k, v in environmentVariables.items():
 
         print(f"    {k} :", 5 * "*")
 
+    if SERVICE_USERNAME != USERNAME:
+        query = gql(
+            """
+            mutation moveAppsAndServices(
+                $sourceUsername: String, 
+                $targetUsername: String,
+            ){
+                moveAppsAndServices(
+                    sourceUsername: $sourceUsername, 
+                    targetUsername: $targetUsername,
+                ){
+                    error
+                }
+            }
+            """
+        )
+        params = {
+            "sourceUsername": SERVICE_USERNAME, 
+            "targetUsername": APPNAME,
+        }
+        result = client.execute(query, variable_values=params)
+        handle_error(result, errors)
 print(
     f"""
 

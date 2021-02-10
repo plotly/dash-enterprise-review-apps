@@ -21,8 +21,9 @@ if os.getenv("CIRCLECI") == "true":
     # as environment variable in your CircleCI Project Settings.
 
     SERVICE_USERNAME = "admin"
+    SERVICE_API_KEY = os.getenv("ADMIN_API_KEY")
 
-    USERNAME = "admin"
+    USERNAME = "dev1"
     # USERNAME is the Dash Enterprise username that will author the 
     # initialized apps. Make sure that this user has permission to view 
     # TARGET_APP or the app's initialization will fail.
@@ -53,7 +54,7 @@ if os.getenv("CIRCLECI") == "true":
     DASH_ENTERPRISE_HOST = "qa-de-410.plotly.host" 
     # DASH_ENTERPRISE_HOST is your Dash Enterprise Server's host address.
 
-    SSH_CONFIG = f"Host {DASH_ENTERPRISE_HOST},    HostName {DASH_ENTERPRISE_HOST},    User {USERNAME},    Port 3022,    IdentityFile ~/.ssh/id_rsa,    StrictHostKeyChecking no,    UserKnownHostsFile /dev/null"
+    SSH_CONFIG = f"Host {DASH_ENTERPRISE_HOST},    HostName {DASH_ENTERPRISE_HOST},    User {SERVICE_USERNAME},    Port 3022,    IdentityFile ~/.ssh/id_rsa,    StrictHostKeyChecking no,    UserKnownHostsFile /dev/null"
     # SSH_CONFIG contains your SSH settings for Dash app deployment.
 
     SERVICE_PRIVATE_SSH_KEY = os.getenv("ADMIN_PRIVATE_SSH_KEY")
