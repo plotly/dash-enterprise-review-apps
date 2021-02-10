@@ -20,7 +20,7 @@ if os.getenv("CIRCLECI") == "true":
     # USERS maps your developer usernames to their corresponding API key store 
     # as environment variable in your CircleCI Project Settings.
 
-    USERNAME = "admin"
+    USERNAME = "dev3"
     #USERNAME is the Dash Enterprise username that will be 
 
     REPONAME = os.getenv("CIRCLE_PROJECT_REPONAME")
@@ -35,7 +35,7 @@ if os.getenv("CIRCLECI") == "true":
     # TRUNK_BRANCHNAME is the name of your repositories "main" or "master" 
     # branch.
 
-    TARGET_APPNAME = "target-app"
+    TARGET_APPNAME = "target-app-2"
     # TARGET_APPNAME is the name the Dash App that will serve as a review app
     # template. This script will copy that apps configuration settings and 
     # apply them to all review apps.
