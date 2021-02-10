@@ -1,16 +1,45 @@
 version: 2.1
 jobs:
-  deploy:
-    docker: 
+  initialize: # initialize on PR
+    docker:
       - image: cimg/python:3.6
     steps:
-      - checkout # checkout code in project directory
+      - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
-      - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
+      - restore_cache: # Purge cache by updating CACHE_VERSION in Project Settings.
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
       - run:
           name: Install python dependencies in virtual environment
           command: |
+            cd .circleci/
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install --upgrade pip
+            pip install -r ci-requirements.txt
+      - run:
+          name: Run Initialize command
+          command: |
+            cd .circleci/
+            env
+            source venv/bin/activate
+            python3 initialize.py
+      - save_cache:
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
+          paths:
+            - "venv"
+  
+  deploy: # Deploy to master/main only if approved and merged
+    docker: 
+      - image: cimg/python:3.6
+    steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - restore_cache: # Purge cache by updating CACHE_VERSION in Project Settings.
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
+      - run:
+          name: Install python dependencies in virtual environment
+          command: |
+            cd .circleci/
             python3 -m venv venv
             source venv/bin/activate
             pip install --upgrade pip
@@ -18,11 +47,12 @@ jobs:
       - run:
           name: Run Deploy Command
           command: |
+            cd .circleci/
             env
             source venv/bin/activate
-            python3 app_manager.py aa-chris
+            python3 deploy.py
       - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
           paths:
             - "venv"
 
@@ -30,12 +60,13 @@ jobs:
     docker: 
       - image: cimg/python:3.6
     steps:
-      - checkout # checkout code in project directory
+      - checkout
       - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
+          key: deps2-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
       - run:
           name: Install python dependencies in a virtual environment
           command: |
+            cd .circleci/
             python3 -m venv venv
             source venv/bin/activate
             pip install --upgrade pip
@@ -43,22 +74,36 @@ jobs:
       - run:
           name: Run Delete Command 
           command: |
+            cd .circleci/
             env
-            echo "Deleting expired review apps..."
+            echo "Deleting expired review apps and services..."
             source venv/bin/activate
-            python3 delete.py review-app- 5
+            python3 delete.py
       - save_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "ci-requirements.txt" }}
+          key: deps2-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
           paths:
             - "venv"
 workflows:
   commit-workflow:
     jobs:
+      - initialize
+      - deploy:
+          requires:
+            - initialize
+
+  deploy-workflow:
+    when:
+      or:
+        - equal: [ master, << pipeline.git.branch >> ]
+        - equal: [ main, << pipeline.git.branch >> ]
+        # - equal: [ tngo-graphql-demo, << pipeline.git.branch >> ]
+    jobs:
       - deploy
+
   schedule-workflow:
     triggers:
       - schedule:
-          cron: "* * * * *" # every 5 minutes
+          cron: "* 5 * * *" 
           filters:
             branches:
               only: 
