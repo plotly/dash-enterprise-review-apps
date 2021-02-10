@@ -132,8 +132,4 @@ dmypy.json
 .vscode/
 
 # Other
-.p/
-.tn/
-.scratch/
-.qa
-
+tngo
