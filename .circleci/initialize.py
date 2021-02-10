@@ -115,23 +115,25 @@ result = client.execute(query, variable_values=params)
 handle_error(result)
 
 apps = result["apps"]["apps"]
-apps_name = result["apps"]["apps"][0]["name"]
-apps_owner = result["apps"]["apps"][0]["owner"]["username"]
-current_isAdmin = result["current"]["isAdmin"]
-apps_collaborators = result["apps"]["apps"][0]["collaborators"]
-apps_permissionLevels= result["apps"]["apps"][0]["metadata"]
-apps_linkedServices = result["apps"]["apps"][0]["linkedServices"]
-apps_mounts = result["apps"]["apps"][0]["mounts"]
-apps_environmentVariables = result["apps"]["apps"][0]["environmentVariables"]
 
-a = [apps[i]["name"] for i in range(len(apps))]
-b = [apps[i]["owner"]["username"] for i in range(len(apps))]
+if len(apps) != 0:
+    apps_name = result["apps"]["apps"][0]["name"]
+    apps_owner = result["apps"]["apps"][0]["owner"]["username"]
+    current_isAdmin = result["current"]["isAdmin"]
+    apps_collaborators = result["apps"]["apps"][0]["collaborators"]
+    apps_permissionLevels= result["apps"]["apps"][0]["metadata"]
+    apps_linkedServices = result["apps"]["apps"][0]["linkedServices"]
+    apps_mounts = result["apps"]["apps"][0]["mounts"]
+    apps_environmentVariables = result["apps"]["apps"][0]["environmentVariables"]
 
-owner = dict(zip(a, b))
-permissionLevels = apps_permissionLevels
-linkedServices = zip_list_index(apps_linkedServices, "serviceType", "name")
-mounts = zip_list_index(apps_mounts, "hostDir", "targetDir")
-environmentVariables = zip_list_index(apps_environmentVariables, "name", "value")
+    a = [apps[i]["name"] for i in range(len(apps))]
+    b = [apps[i]["owner"]["username"] for i in range(len(apps))]
+
+    owner = dict(zip(a, b))
+    permissionLevels = apps_permissionLevels
+    linkedServices = zip_list_index(apps_linkedServices, "serviceType", "name")
+    mounts = zip_list_index(apps_mounts, "hostDir", "targetDir")
+    environmentVariables = zip_list_index(apps_environmentVariables, "name", "value")
 
 query = gql(
     """
