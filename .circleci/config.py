@@ -21,8 +21,8 @@ if os.getenv("CIRCLECI") == "true":
     # as environment variable in your CircleCI Project Settings.
 
     USERNAME = "dev1"
-    # USERNAME is the Dash Enterprise username that will be author the app 
-    # initialization. Make sure that this user has permission to view 
+    # USERNAME is the Dash Enterprise username that will author the 
+    # initialized apps. Make sure that this user has permission to view 
     # TARGET_APP or the app's initialization will fail.
 
     REPONAME = os.getenv("CIRCLE_PROJECT_REPONAME")
