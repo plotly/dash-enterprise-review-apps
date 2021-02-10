@@ -13,6 +13,12 @@ if os.getenv("CIRCLECI") == "true":
     LAST_UPDATE = {"minutes": 1}
     # LAST_UPDATE is the allowed amount of time before review apps are 
     # purged from the server.
+    
+    TARGET_APPNAME = "chris-qa-1"
+    # TARGET_APPNAME is the name the Dash App that will serve as a review app
+    # template. This script will copy that apps configuration settings and 
+    # apply them to all review apps. App must exist and you must have 
+    # permission to view the TARGET_APP or the app's initialization will fail.
 
     USERS = {
         # "service": "SERVICE_API_KEY",
@@ -49,12 +55,6 @@ if os.getenv("CIRCLECI") == "true":
     TRUNK_BRANCHNAME = "main"
     # TRUNK_BRANCHNAME is the name of your repositories "main" or "master" 
     # branch.
-
-    TARGET_APPNAME = "target-dev2"
-    # TARGET_APPNAME is the name the Dash App that will serve as a review app
-    # template. This script will copy that apps configuration settings and 
-    # apply them to all review apps. You must have permission to view the 
-    # TARGET_APP or the app's initialization will fail.
 
     APPNAME = f"{TARGET_APPNAME}-rev-{BRANCHNAME}"[0:30]
     # APPNAME determines how your review apps will be named. APPNAME must not
