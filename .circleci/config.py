@@ -100,6 +100,12 @@ if os.getenv("CIRCLECI") == "true":
         DASH_ENTERPRISE_USERNAME_TO_CIRCLE_CI_API_KEY
     ):
         print("OK")
+        USERNAME_API_KEY = (
+            os.getenv(
+                DASH_ENTERPRISE_USERNAME_TO_CIRCLE_CI_API_KEY.get(USERNAME)
+            )
+        )
+
     else:
         print("FAILED")
         print(
