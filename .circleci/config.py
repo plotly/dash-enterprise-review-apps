@@ -4,7 +4,7 @@ import os
 DEBUG = os.getenv("DEBUG", "false")
 # Enable Requests debugging by setting this variable to "true"
 
-if os.getenv("CIRCLECI") != "true":
+if os.getenv("CIRCLECI") == "true":
     print("CIRCLECI")
 
     PREFIX = "aa-chris-rev"
