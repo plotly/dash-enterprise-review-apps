@@ -103,10 +103,11 @@ workflows:
   schedule-workflow:
     triggers:
       - schedule:
-          cron: "* 5 * * *" 
+          cron: "* 5 * * *" # Everyday at 5 am
           filters:
             branches:
-              only: 
-                - tngo-graphql-demo
+              ignore: 
+                - master
+                - main
     jobs:
     - delete
