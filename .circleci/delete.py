@@ -8,12 +8,13 @@ from time import sleep
 from config import (
     DEBUG,
     DASH_ENTERPRISE_HOST,
-    USERNAME,
-    USERNAME_API_KEY,
+    SERVICE_USERNAME,
+    SERVICE_API_KEY,
     SSH_CONFIG,
     DEBUG,
     PREFIX,
-    LAST_UPDATE,
+    LAST_UPDATE
+    ,
 )
 
 if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
@@ -24,7 +25,7 @@ if DEBUG == "true":
 
 transport = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
-    auth=(USERNAME, USERNAME_API_KEY),
+    auth=(SERVICE_USERNAME, SERVICE_API_KEY),
     use_json=True,
     retries=5,
 )
