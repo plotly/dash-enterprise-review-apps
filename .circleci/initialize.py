@@ -279,56 +279,56 @@ for k, v in mounts.items():
 
     print(f"Mapped hostDir: {k} to targetDir: {v}")
 
-# for k, v in permissionLevels.items():
-#     query = gql(
-#         """
-#         mutation (
-#             $appname: String,
-#             $permissionLevel: PermissionLevels
-#         ) { 
-#             updateApp(
-#                 appname: $appname, 
-#                 metadata: {
-#                     permissionLevel: $permissionLevel
-#                 }
-#             ){
-#                 error
-#             }
-#         }
-#         """
-#     )
-#     params = {"permissionLevel": v, "appname": APPNAME}
-#     result = client_service.execute(query, variable_values=params)
-#     handle_error(result, accepted_errors)
+for k, v in permissionLevels.items():
+    query = gql(
+        """
+        mutation (
+            $appname: String,
+            $permissionLevel: PermissionLevels
+        ) { 
+            updateApp(
+                appname: $appname, 
+                metadata: {
+                    permissionLevel: $permissionLevel
+                }
+            ){
+                error
+            }
+        }
+        """
+    )
+    params = {"permissionLevel": v, "appname": APPNAME}
+    result = client_service.execute(query, variable_values=params)
+    handle_error(result, accepted_errors)
 
-#     print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
-#     print(f"    {k}: {v}")
+    print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
+    print(f"    {k}: {v}")
 
-#     if (
-#         v == "restricted" and 
-#         current_isAdmin == "false" and 
-#         apps_status == "true"
-#     ):
-#         query = gql(
-#         """
-#         mutation (
-#             $appname: String,
-#             $users: [String],
-#         ) { 
-#             addCollaborators(
-#                 appname: $appname, 
-#                 users: $users,
-#             ){
-#                 error
-#             }
-#         }
-#         """
-#     )
-#         params = {"appname": APPNAME, "users": apps_owner}
-#         result = client_service.execute(query, variable_values=params)
-#         handle_error(result, accepted_errors)
+    if (
+        v == "restricted" and 
+        current_isAdmin == "false" and 
+        apps_status == "true"
+    ):
+        query = gql(
+        """
+        mutation (
+            $appname: String,
+            $users: [String],
+        ) { 
+            addCollaborators(
+                appname: $appname, 
+                users: $users,
+            ){
+                error
+            }
+        }
+        """
+    )
+        params = {"appname": APPNAME, "users": apps_owner}
+        result = client_service.execute(query, variable_values=params)
+        handle_error(result, accepted_errors)
       
-#         print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
+        print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
 
 for k, v in environmentVariables.items():
     environmentVariables_filter = tuple(
