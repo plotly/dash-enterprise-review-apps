@@ -22,7 +22,7 @@ DEBUG = "true"
 if DEBUG == "true":
     logging.basicConfig(level=logging.DEBUG)
 
-transport = RequestsHTTPTransport(
+transport_service = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
     auth=(SERVICE_USERNAME, SERVICE_API_KEY),
     use_json=True,
@@ -38,9 +38,9 @@ transport_user = RequestsHTTPTransport(
 print(USERNAME, USERNAME_API_KEY)
 print(USERNAME_API_KEY[0:5] + '    '  + USERNAME_API_KEY[5:], end="\n")
 print(SERVICE_USERNAME, SERVICE_API_KEY)
-print(SERVICE_API_KEY[0:5]+ '    '  + USERNAME_API_KEY[5:], end="\n")
+print(SERVICE_API_KEY[0:5]+ '    '  + SERVICE_API_KEY[5:], end="\n")
 
-client = Client(transport=transport)
+client_service = Client(transport=transport_service)
 client_user = Client(transport=transport_user)
 
 def zip_list_index(l, a, b):
@@ -125,7 +125,7 @@ query = gql(
     """
 )
 params = {"name": TARGET_APPNAME}
-result = client.execute(query, variable_values=params)
+result = client_service.execute(query, variable_values=params)
 handle_error(result, accepted_errors)
 
 if len(result["apps"]["apps"]) == 0:
@@ -201,7 +201,7 @@ for k in linkedServices:
     print("add service...", end=" ")
 
     sleep(5)
-    result = client.execute(
+    result = client_service.execute(
         query_addService, 
         variable_values=params_addService
     )
@@ -237,7 +237,7 @@ for k in linkedServices:
     print("link service...", end=" ")
 
     sleep(5)
-    result = client.execute(
+    result = client_service.execute(
         query_linkService, 
         variable_values=params_linkService
     )
@@ -271,7 +271,7 @@ for k, v in mounts.items():
         "appname": APPNAME,
     }
 
-    result = client.execute(query, variable_values=params)
+    result = client_service.execute(query, variable_values=params)
     handle_error(result, accepted_errors)
 
     print(f"Mapped hostDir: {k} to targetDir: {v}")
@@ -296,7 +296,7 @@ for k, v in permissionLevels.items():
         """
     )
     params = {"permissionLevel": v, "appname": APPNAME}
-    result = client.execute(query, variable_values=params)
+    result = client_service.execute(query, variable_values=params)
     handle_error(result, accepted_errors)
 
     print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
@@ -323,7 +323,7 @@ for k, v in permissionLevels.items():
         """
     )
         params = {"appname": APPNAME, "users": apps_owner}
-        result = client.execute(query, variable_values=params)
+        result = client_service.execute(query, variable_values=params)
         handle_error(result, accepted_errors)
       
         print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
@@ -370,7 +370,7 @@ for k, v in environmentVariables.items():
             "value": v, 
             "appname": APPNAME
         }
-        result = client.execute(query, variable_values=params)
+        result = client_service.execute(query, variable_values=params)
         handle_error(result, accepted_errors)
 
         print(f"    {k} :", 5 * "*")
