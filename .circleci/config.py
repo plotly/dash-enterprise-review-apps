@@ -27,7 +27,7 @@ if os.getenv("CIRCLECI") == "true":
     # REPONAME is the name of the repository that will hold the review app 
     # branches.
 
-    TARGET_APPNAME = "chris-qa-1"
+    TARGET_APPNAME = "chris-app"
     # TARGET_APPNAME is the name the Dash App that will serve as a review app
     # template. This script will copy that apps configuration settings and 
     # apply them to all review apps. App must exist and you must have 
