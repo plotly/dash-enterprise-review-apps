@@ -48,7 +48,7 @@ services_result = []
 page = 0
 
 if 1 != 0:
-    print("Querying apps...", end="\n")
+    print("Querying apps...\n")
     while len(apps_result) != 0 or page == 0:
         query = gql(
             """
@@ -78,7 +78,7 @@ if 1 != 0:
         apps.extend(apps_result)
         print(f"  Page: {page}")
         page = page + 1
-    print(f"\n  Total apps: {len(apps)}", end="\n")
+    print(f"\n  Total apps: {len(apps)}\n")
 else:
     print("No apps were queried")
 
@@ -134,7 +134,7 @@ if len(apps) != 0:
         ):
             print(f"  {k}")
             apps_filtered[k] = v[1]
-    print(f"\n  Total apps filtered: {len(apps_filtered.items())}", end="\n")
+    print(f"\n  Total apps filtered: {len(apps_filtered.items())}\n")
 else:
     print("No apps were filtered")
 
