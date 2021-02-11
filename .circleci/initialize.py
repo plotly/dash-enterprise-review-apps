@@ -62,6 +62,7 @@ def handle_error(result, er=None):
 
 addService_errors = [
     "A service with the given name already exists. Please choose a different name.",
+    None,
 ]
 
 apps_query_errors = [
