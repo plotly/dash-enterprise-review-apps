@@ -70,7 +70,7 @@ if os.getenv("CIRCLECI") == "true":
     # usernames to their corresponding API key stored as environment variable 
     # in your CircleCI Project Settings.
 
-    SSH_CONFIG = f"Host {DASH_ENTERPRISE_HOST},    HostName {DASH_ENTERPRISE_HOST},    User {USERNAME},    Port 3022,    IdentityFile ~/.ssh/id_rsa,    StrictHostKeyChecking no,    UserKnownHostsFile /dev/null"
+    SSH_CONFIG = f"Host {DASH_ENTERPRISE_HOST},    HostName {DASH_ENTERPRISE_HOST},    User {SERVICE_USERNAME},    Port 3022,    IdentityFile ~/.ssh/id_rsa,    StrictHostKeyChecking no,    UserKnownHostsFile /dev/null"
     # SSH_CONFIG contains your SSH settings for Dash app deployment.
 
     SERVICE_PRIVATE_SSH_KEY = os.getenv("ADMIN_PRIVATE_SSH_KEY")
@@ -86,14 +86,14 @@ if os.getenv("CIRCLECI") == "true":
         USERNAME in DASH_ENTERPRISE_USERNAME_TO_CIRCLECI_USERNAME and 
         DASH_ENTERPRISE_USERNAME_TO_CIRCLE_CI_API_KEY
     ):
-        print("Fetching API key...", end=" ")
+        print("Fetching API key...")
         
         USERNAME_API_KEY = (
             os.getenv(
                 DASH_ENTERPRISE_USERNAME_TO_CIRCLE_CI_API_KEY.get(USERNAME)
             )
         )
-        print("DONE")
+        print("....{USERNAME} :", 5*"*")
     else:
         print("API key was not fetched")
         print(
