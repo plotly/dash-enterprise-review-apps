@@ -27,6 +27,7 @@ transport = RequestsHTTPTransport(
     auth=(SERVICE_USERNAME, SERVICE_API_KEY),
     use_json=True,
     retries=5,
+    
 )
 
 client = Client(transport=transport)
@@ -40,25 +41,13 @@ queries = {
     "deleteApp": deleteApp_errors,
 }
 
-import requests.exceptions
-
-try:
-    r = requests.get(f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql")
-    r.raise_for_status()  # Raises a HTTPError if the status is 4xx, 5xxx
-except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
-    print("Down")
-except requests.exceptions.HTTPError:
-    print("4xx, 5xx")
-else:
-    print("All good!")  # Proceed to do stuff with `r`
-
 apps = []
 apps_result = []
 services = []
 services_result = []
 page = 0
 
-if len(api_call) != 0:
+if 1 != 0:
     print("Querying apps...", end=" ")
     while len(apps_result) != 0 or page == 0:
         query = gql(
