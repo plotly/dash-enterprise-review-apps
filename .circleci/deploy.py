@@ -45,7 +45,7 @@ if os.getenv("CIRCLECI") == "true":
         """, shell=True
     )
 
-    if permissionLevels.items() != 0:
+    if permissionLevels.items() != None:
         for k, v in permissionLevels.items():
             query = gql(
                 """
