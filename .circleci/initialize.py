@@ -45,67 +45,34 @@ def zip_list_index(l, a, b):
     v = [l[i][b] for i in range(len(l))]
     return dict(zip(k,v))
 
-def handle_error(result, er, ex=None, bool=True):
+def handle_error(result, er=None, bool=True):
     """
-    Exceptions if api result contains same error in dict(errors) (er)
-    or dict(exception) (ex)
+    Raise error if error is not an accepted error
     """
-    for k, v in er.items():
-        if k in result and "error" in result[k]:
-            if result[k]["error"] in v == bool:
-                print(result[k]["error"])
-                raise Exception(result)
-    if ex != None:
-        for k, v in ex.items():
+    if er != None:
+        for k, v in accepted_errors.items():
             if k in result and "error" in result[k]:
-                if result[k]["error"] in v == bool: 
-                    print(result[k]["error"])
-                    print("Skipping app initialization")
-                    print("Redeploying app instead")
-                    sys.exit()
-
-addApp_errors = [
-    "Invalid app name. Names should be between 3 to 30 characters long, start with a letter, and only contain lower case letters, numbers, and -",
-]
-
-deleteApp_errors = [
-    "App does not exist.",
-    "Invalid app name. Names should be between 3 to 30 characters long, start with a letter, and only contain lower case letters, numbers, and -",
-]
-
-addEnvironmentVariable_errors = [
-    "App does not exist.",
-    "Invalid app name. Names should be between 3 to 30 characters long, start with a letter, and only contain lower case letters, numbers, and -",
-]
+                if result[k]["error"] in v == bool:
+                    pass
+                else:
+                    raise Exception(result[k]["error"])
 
 addService_errors = [
     "A service with the given name already exists. Please choose a different name.",
-    "Invalid service name. Names should be between 3 to 30 characters long, start with a letter, and only contain lower case letters, numbers, and -",
-]
-
-mountDirectory_errors = [
-    "App does not exist.",
-    "Only directories specified in the Allowed Directories for Mapping list of the Dash Enterprise configuration can be mapped to Dash apps. Please ask your administrator to add None to the list as shown in the documentation (https://dash.plot.ly/dash-enterprise/map-local-directories) and then try again.",
 ]
 
 apps_query_errors = [
     "[]",
 ]
-addApp_exceptions = [
+
+addApp_errors = [
     "An app with this name already exists in this Dash Server. Please choose a different name."
 ]
 
-errors = {
+accepted_errors = {
     "addApp": addApp_errors,
-    "deleteApp": deleteApp_errors,
-    "addEnvironmentVariable": addEnvironmentVariable_errors,
     "addService": addService_errors,
-    "mountDirectory": mountDirectory_errors,
     "apps": apps_query_errors,
-}
-
-exceptions = {
-    "addApp": addApp_exceptions,
 }
 
 # Querying target app settings
@@ -156,12 +123,12 @@ query = gql(
 )
 params = {"name": TARGET_APPNAME}
 result = client.execute(query, variable_values=params)
-handle_error(result, errors)
+handle_error(result, accepted_errors)
 
 if len(result["apps"]["apps"]) == 0:
     print(result["apps"]["apps"])
     print(
-    "    App does not exist or you may not have been granted access."
+    f"    App {TARGET_APPNAME} does not exist."
     )
     raise Exception(result)
 
@@ -205,7 +172,7 @@ result = client_user.execute(
     variable_values=params
 )
 
-handle_error(result, errors, exceptions)
+handle_error(result, accepted_errors)
 
 for k in linkedServices:
     query_addService = gql(
@@ -235,7 +202,7 @@ for k in linkedServices:
         query_addService, 
         variable_values=params_addService
     )
-    handle_error(result, errors)
+    handle_error(result, accepted_errors)
 
     print("OK")
     print(f"Adding service: {APPNAME}-{k}, {k}")
@@ -271,7 +238,7 @@ for k in linkedServices:
         query_linkService, 
         variable_values=params_linkService
     )
-    handle_error(result, errors)
+    handle_error(result, accepted_errors)
 
     print("OK")
     print(f"Linking service: {APPNAME}-{k}, {k}")
@@ -302,7 +269,7 @@ for k, v in mounts.items():
     }
 
     result = client.execute(query, variable_values=params)
-    handle_error(result, errors)
+    handle_error(result, accepted_errors)
 
     print(f"Mapping hostDir: {k} to targetDir: {v}")
 
@@ -327,7 +294,7 @@ for k, v in permissionLevels.items():
     )
     params = {"permissionLevel": v, "appname": APPNAME}
     result = client.execute(query, variable_values=params)
-    handle_error(result, errors)
+    handle_error(result, accepted_errors)
 
     print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
     print(f"    {k}: {v}")
@@ -354,7 +321,7 @@ for k, v in permissionLevels.items():
     )
         params = {"appname": APPNAME, "users": apps_owner}
         result = client.execute(query, variable_values=params)
-        handle_error(result, errors)
+        handle_error(result, accepted_errors)
       
         print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
 
@@ -401,7 +368,7 @@ for k, v in environmentVariables.items():
             "appname": APPNAME
         }
         result = client.execute(query, variable_values=params)
-        handle_error(result, errors)
+        handle_error(result, accepted_errors)
 
         print(f"    {k} :", 5 * "*")
 
