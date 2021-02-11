@@ -30,7 +30,6 @@ transport = RequestsHTTPTransport(
 )
 
 client = Client(transport=transport)
-api_call = client.execute(query,variable_values=params)
 
 deleteApp_errors = [
     "App does not exist.",
@@ -41,6 +40,7 @@ queries = {
     "deleteApp": deleteApp_errors,
 }
 
+api_call = []
 apps = []
 apps_result = []
 services = []
