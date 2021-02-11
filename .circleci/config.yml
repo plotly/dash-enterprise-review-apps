@@ -86,11 +86,14 @@ jobs:
 workflows:
   commit-workflow:
     jobs:
-      - delete
       - initialize
       - deploy:
           requires:
             - initialize
+      - delete:
+          requires:
+            - initialize
+            - deploy
 
   # deploy-workflow:
   #   when:
