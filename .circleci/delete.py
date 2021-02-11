@@ -78,7 +78,7 @@ if 1 != 0:
         apps.extend(apps_result)
         print(f"  Page: {page}")
         page = page + 1
-    print("\n", f"  Total apps: {len(apps)} ", end="\n")
+    print(f"  Total apps: {len(apps)}", end="\n")
 else:
     print("No apps were queried")
 
@@ -134,7 +134,7 @@ if len(apps) != 0:
         ):
             print(f"  {k}")
             apps_filtered[k] = v[1]
-    print("\n", f"  Total apps: ", len(apps_filtered.items()), "\n")
+    print(f"  Total apps: {len(apps_filtered.items())}", end="\n")
 else:
     print("No apps were filtered")
 
