@@ -14,6 +14,7 @@ from config import (
 )
 from initialize import (
     gql,
+    apps_permissionLevels,
     permissionLevels,
     client_service,
     handle_error,

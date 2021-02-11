@@ -144,7 +144,7 @@ apps_owner = result["apps"]["apps"][0]["owner"]["username"]
 apps_status = result["apps"]["apps"][0]["status"]["running"]
 current_isAdmin = result["current"]["isAdmin"]
 apps_collaborators = result["apps"]["apps"][0]["collaborators"]
-apps_permissionLevels= result["apps"]["apps"][0]["metadata"]
+apps_permissionLevels = result["apps"]["apps"][0]["metadata"]
 apps_linkedServices = result["apps"]["apps"][0]["linkedServices"]
 apps_mounts = result["apps"]["apps"][0]["mounts"]
 apps_environmentVariables = result["apps"]["apps"][0]["environmentVariables"]
@@ -372,14 +372,4 @@ for k, v in environmentVariables.items():
 
         print(f"    {k} :", 5 * "*")
 
-print(
-    f"""
-
-    You Dash app has been initialized. 
-
-    App settings :
-
-    https://{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings
-    """
-)
-
+print(f"\n{APPNAME} has been initialized")
