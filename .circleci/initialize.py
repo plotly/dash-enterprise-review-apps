@@ -18,7 +18,6 @@ from config import (
 if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
     raise Exception("Python 3.6 is required.")
 
-DEBUG = "true"
 if DEBUG == "true":
     logging.basicConfig(level=logging.DEBUG)
 
@@ -35,11 +34,6 @@ transport_user = RequestsHTTPTransport(
     use_json=True,
     retries=0,
 )
-
-# print(USERNAME, USERNAME_API_KEY)
-# print(USERNAME_API_KEY[0:5] + '    '  + USERNAME_API_KEY[5:], end="\n")
-# print(SERVICE_USERNAME, SERVICE_API_KEY)
-# print(SERVICE_API_KEY[0:5]+ '    '  + SERVICE_API_KEY[5:], end="\n")
 
 client_service = Client(transport=transport_service)
 client_user = Client(transport=transport_user)
@@ -69,7 +63,10 @@ addService_errors = [
 apps_query_errors = [
     "[]",
 ]
-
+updateApp_errors = [
+    "None is not a valid PermissionLevels",
+    None,
+]
 addApp_errors = [
     "An app with this name already exists in this Dash Server. Please choose a different name.",
     None,
@@ -77,6 +74,7 @@ addApp_errors = [
 
 accepted_errors = {
     "addApp": addApp_errors,
+    "updateApp": updateApp_errors,
     "addService": addService_errors,
     "apps": apps_query_errors,
 }

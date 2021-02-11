@@ -26,7 +26,7 @@ from initialize import (
     apps_owner,
 )
 
-print("Deploying {APPNAME}...\n")
+print(f"Deploying {APPNAME}...\n")
 if os.getenv("CIRCLECI") == "true":
     print("OK")
     if TRUNK_BRANCHNAME == BRANCHNAME:
