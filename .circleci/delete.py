@@ -161,12 +161,12 @@ else:
 
 services_filtered = dict()
 if len(services_dict) != 0:
-    print("Filtering services...\n")
+    print("Filtering services...")
     for k, v in services_dict.items():
         if services_dict[k][0] in apps_filtered:
             services_filtered[k] = v[1]
-            print(f"  {k}, {v[1]}")
-    print(f"\n  Services filtered: {len(services_filtered.items())}\n")
+            # print(f"  {k}, {v[1]}")
+    print(f"\n  Services filtered: {len(services_filtered.items())}\n")?
 else:
     print("No services were filtered")
 
