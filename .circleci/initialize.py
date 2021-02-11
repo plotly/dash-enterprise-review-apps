@@ -69,7 +69,8 @@ apps_query_errors = [
 ]
 
 addApp_errors = [
-    "An app with this name already exists in this Dash Server. Please choose a different name."
+    "An app with this name already exists in this Dash Server. Please choose a different name.",
+    None,
 ]
 
 accepted_errors = {
