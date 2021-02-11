@@ -134,7 +134,7 @@ if len(apps) != 0:
         ):
             print(f"  {k}")
             apps_filtered[k] = v[1]
-    print(f"\n  Total filtered: {len(apps_filtered.items())}", end="\n")
+    print(f"\n  Total apps filtered: {len(apps_filtered.items())}", end="\n")
 else:
     print("No apps were filtered")
 
