@@ -46,11 +46,11 @@ try:
     r = requests.get(f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql")
     r.raise_for_status()  # Raises a HTTPError if the status is 4xx, 5xxx
 except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
-    print "Down"
+    print("Down")
 except requests.exceptions.HTTPError:
-    print "4xx, 5xx"
+    print("4xx, 5xx")
 else:
-    print "All good!"  # Proceed to do stuff with `r`
+    print("All good!")  # Proceed to do stuff with `r`
 
 apps = []
 apps_result = []
