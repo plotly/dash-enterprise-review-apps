@@ -30,6 +30,7 @@ transport = RequestsHTTPTransport(
 )
 
 client = Client(transport=transport)
+api_call = client.execute(query,variable_values=params)
 
 deleteApp_errors = [
     "App does not exist.",
@@ -39,7 +40,6 @@ deleteApp_errors = [
 queries = {
     "deleteApp": deleteApp_errors,
 }
-print("Querying apps...", end=" ")
 
 apps = []
 apps_result = []
@@ -47,37 +47,40 @@ services = []
 services_result = []
 page = 0
 
-while len(apps_result) != 0 or page == 0:
-    query = gql(
-        """
-        query($page: Int) {
-        apps(page: $page, allApps:true) {
-                apps {
-                    analytics {
-                        appname
-                        timestamps {
-                            created
-                            updated
+if len(api_call) != 0:
+    print("Querying apps...", end=" ")
+    while len(apps_result) != 0 or page == 0:
+        query = gql(
+            """
+            query($page: Int) {
+            apps(page: $page, allApps:true) {
+                    apps {
+                        analytics {
+                            appname
+                            timestamps {
+                                created
+                                updated
+                            }
                         }
+                        linkedServices {
+                            name
+                            serviceType
+                        }  
                     }
-                    linkedServices {
-                        name
-                        serviceType
-                    }  
-                }
-            }  
-        }
-        """
-    )
-    params = {"page": page}
-    sleep(5)
-    api_call = client.execute(query,variable_values=params)
-    apps_result = api_call["apps"]["apps"]
-    apps.extend(apps_result)
-    print(f"    Page: {page}")
-    page = page + 1
-print("\n    Total apps: ", len(apps), "\n")
-print("....DONE")
+                }  
+            }
+            """
+        )
+        params = {"page": page}
+        sleep(5)
+        api_call = client.execute(query,variable_values=params)
+        apps_result = api_call["apps"]["apps"]
+        apps.extend(apps_result)
+        print(f"    Page: {page}")
+        page = page + 1
+    print("\n    Total apps: ", len(apps), "\n")
+else:
+    print("No apps were queried")
 
 apps_name = []
 apps_updated = []
@@ -86,8 +89,9 @@ services_name = []
 services_type = []
 apps_dict = dict()
 services_dict = dict()
+
 if len(apps) != 0:
-    print(" Parsing apps and services...", end=" ")
+    print("Parsing apps and services...", end=" ")
     for i in range(len(apps)):
         apps_name.append(apps[i]["analytics"]["appname"])
         apps_created.append(apps[i]["analytics"]["timestamps"]["created"])
@@ -106,7 +110,6 @@ if len(apps) != 0:
             services_name.append(apps[i]["linkedServices"][1]["name"])
             services_type.append(apps[i]["linkedServices"][1]["serviceType"])
         services_dict.update(zip(services_name, zip(apps_name, services_type)))
-    print("    DONE")
 else:
     print("No apps or services were parsed")
 
@@ -130,12 +133,11 @@ if len(apps) != 0:
         ):
             print(f"    {k}")
             apps_filtered[k] = v[1]
-    print("    DONE")
 else:
     print("No apps were filtered")
 
 if apps_filtered != False:
-    print(" Deleting apps...")
+    print("Deleting apps...")
     for k in apps_filtered:
         print("    ", k)
         query = gql(
@@ -150,24 +152,23 @@ if apps_filtered != False:
         )
         params = {"name": k}
         client.execute(query,variable_values=params)
-    print("    DONE")
 else:
     print("No apps were deleted")
 
 
-
 services_filtered = dict()
 if len(services_dict) != 0:
-    print(" Filtering services...")
+    print("Filtering services...")
     for k, v in services_dict.items():
         if services_dict[k][0] in apps_filtered:
             services_filtered[k] = v[1]
             print("    ", k, v[1])
 else:
-    print("    No services were filtered")
+    print("No services were filtered")
 
-if len(services_dict) != 0:
-    print(" Deleting services...")
+
+if len(services_filtered) != 0:
+    print(" Deleting services...", end=" ")
     for k, v in services_filtered.items():
         query = gql(
             """
@@ -182,6 +183,5 @@ if len(services_dict) != 0:
         params = {"name": k, "serviceType": v}
         client.execute(query,variable_values=params)
         print("    ", k, v)
-    print("DONE")
 else:
-    print("Services were not filtered")
+    print("No services were deleted")

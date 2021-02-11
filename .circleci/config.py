@@ -80,21 +80,22 @@ if os.getenv("CIRCLECI") == "true":
     SERVICE_PUBLIC_SSH_KEY = os.getenv("ADMIN_PUBLIC_SSH_KEY")
     # SERVICE_PUBLIC_SSH_KEY used to authenticate the SSH host
 
-    print("Fetching API key...", end=" ")
+    
 
     if (
         USERNAME in DASH_ENTERPRISE_USERNAME_TO_CIRCLECI_USERNAME and 
         DASH_ENTERPRISE_USERNAME_TO_CIRCLE_CI_API_KEY
     ):
-        print("OK")
+        print("Fetching API key...", end=" ")
+        
         USERNAME_API_KEY = (
             os.getenv(
                 DASH_ENTERPRISE_USERNAME_TO_CIRCLE_CI_API_KEY.get(USERNAME)
             )
         )
-
+        print("DONE")
     else:
-        print("FAILED")
+        print("API key was not fetched")
         print(
             f"""
             {USERNAME} is missing from 
