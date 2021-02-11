@@ -18,6 +18,7 @@ from config import (
 if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
     raise Exception("Python 3.6 is required.")
 
+DEBUG = "true"
 if DEBUG == "true":
     logging.basicConfig(level=logging.DEBUG)
 
@@ -35,7 +36,9 @@ transport_user = RequestsHTTPTransport(
     retries=0,
 )
 print(USERNAME, USERNAME_API_KEY)
-print(USERNAME_API_KEY[0:5] + '    '  + USERNAME_API_KEY[5:])
+print(USERNAME_API_KEY[0:5] + '    '  + USERNAME_API_KEY[5:], end="\n")
+print(SERVICE_USERNAME, SERVICE_API_KEY)
+print(SERVICE_API_KEY[0:5]+ '    '  + USERNAME_API_KEY[5:], end="\n")
 
 client = Client(transport=transport)
 client_user = Client(transport=transport_user)
@@ -271,7 +274,7 @@ for k, v in mounts.items():
     result = client.execute(query, variable_values=params)
     handle_error(result, accepted_errors)
 
-    print(f"Mapping hostDir: {k} to targetDir: {v}")
+    print(f"Mapped hostDir: {k} to targetDir: {v}")
 
 
 for k, v in permissionLevels.items():

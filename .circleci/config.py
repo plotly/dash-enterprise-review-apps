@@ -91,7 +91,6 @@ if os.getenv("CIRCLECI") == "true":
                 DASH_ENTERPRISE_USERNAME_TO_CIRCLE_CI_API_KEY.get(USERNAME)
             )
         )
-        print(f"  {USERNAME}:", 5*"*")
     else:
         print("API key was not fetched")
         print(

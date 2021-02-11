@@ -111,7 +111,7 @@ if len(apps) != 0:
             services_type.append(apps[i]["linkedServices"][1]["serviceType"])
         services_dict.update(zip(services_name, zip(apps_name, services_type)))
 else:
-    print("No apps or services were parsed")
+    print("No apps were parsed")
 
 apps_filtered = dict()
 if len(apps) != 0:
