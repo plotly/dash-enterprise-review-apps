@@ -48,14 +48,14 @@ def zip_list_index(l, a, b):
     v = [l[i][b] for i in range(len(l))]
     return dict(zip(k,v))
 
-def handle_error(result, er=None, bool=True):
+def handle_error(result, er=None):
     """
     Raise error if error is not an accepted error
     """
     if er != None:
         for k, v in accepted_errors.items():
             if k in result and "error" in result[k]:
-                if result[k]["error"] in v == bool:
+                if result[k]["error"] in v:
                     pass
                 else:
                     raise Exception(result[k]["error"])
