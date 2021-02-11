@@ -5,7 +5,7 @@ DEBUG = os.getenv("DEBUG", "false")
 # Enable Requests debugging by setting this variable to "true"
 
 if os.getenv("CIRCLECI") == "true":
-    print("CIRCLECI")
+    print("\n", "CIRCLECI")
 
     PREFIX = "chris-qa-1"
     # PREFIX is a filter for purging review apps.
@@ -80,8 +80,6 @@ if os.getenv("CIRCLECI") == "true":
     SERVICE_PUBLIC_SSH_KEY = os.getenv("ADMIN_PUBLIC_SSH_KEY")
     # SERVICE_PUBLIC_SSH_KEY used to authenticate the SSH host
 
-    
-
     if (
         USERNAME in DASH_ENTERPRISE_USERNAME_TO_CIRCLECI_USERNAME and 
         DASH_ENTERPRISE_USERNAME_TO_CIRCLE_CI_API_KEY
@@ -93,7 +91,7 @@ if os.getenv("CIRCLECI") == "true":
                 DASH_ENTERPRISE_USERNAME_TO_CIRCLE_CI_API_KEY.get(USERNAME)
             )
         )
-        print(f"....{USERNAME}:", 5*"*")
+        print(f"  {USERNAME}:", 5*"*")
     else:
         print("API key was not fetched")
         print(
