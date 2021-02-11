@@ -66,6 +66,7 @@ if os.getenv("CIRCLECI") == "true":
         params = {"permissionLevel": v, "appname": APPNAME}
         result = client_service.execute(query, variable_values=params)
         handle_error(result, accepted_errors)
+        print(result)
 
         print(f"Copying {k}: {v} from {TARGET_APPNAME} to {APPNAME}")
 
