@@ -76,9 +76,9 @@ if 1 != 0:
         api_call = client.execute(query,variable_values=params)
         apps_result = api_call["apps"]["apps"]
         apps.extend(apps_result)
-        print(f"  Page: {page}")
+        print(f"  Page: {page}\n")
         page = page + 1
-    print(f"  Total apps: {len(apps)}", end="\n")
+    print(f"\n  Total apps: {len(apps)}", end="\n")
 else:
     print("No apps were queried")
 
@@ -134,7 +134,7 @@ if len(apps) != 0:
         ):
             print(f"  {k}")
             apps_filtered[k] = v[1]
-    print(f"  Total apps: {len(apps_filtered.items())}", end="\n")
+    print(f"\n  Total apps: {len(apps_filtered.items())}", end="\n")
 else:
     print("No apps were filtered")
 
