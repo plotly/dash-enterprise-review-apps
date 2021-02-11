@@ -12,6 +12,17 @@ from config import (
     TRUNK_BRANCHNAME,
     REPONAME,
 )
+from initialize import (
+    gql,
+    permissionLevels,
+    client_service,
+    handle_error,
+    accepted_errors,
+    current_isAdmin,
+    apps_status,
+    apps_owner
+)
+
 print("Deploying Dash app...", end=" ")
 if os.getenv("CIRCLECI") == "true":
     print("OK")
@@ -30,6 +41,57 @@ if os.getenv("CIRCLECI") == "true":
         git push --force plotly HEAD:master
         """, shell=True
     )
+
+    for k, v in permissionLevels.items():
+        query = gql(
+            """
+            mutation (
+                $appname: String,
+                $permissionLevel: PermissionLevels
+            ) { 
+                updateApp(
+                    appname: $appname, 
+                    metadata: {
+                        permissionLevel: $permissionLevel
+                    }
+                ){
+                    error
+                }
+            }
+            """
+        )
+        params = {"permissionLevel": v, "appname": APPNAME}
+        result = client_service.execute(query, variable_values=params)
+        handle_error(result, accepted_errors)
+
+        print(f"Copying {k}: {v} from {TARGET_APPNAME} to {APPNAME}")
+
+        if (
+            v == "restricted" and 
+            current_isAdmin == "false" and 
+            apps_status == "true"
+        ):
+            query = gql(
+            """
+            mutation (
+                $appname: String,
+                $users: [String],
+            ) { 
+                addCollaborators(
+                    appname: $appname, 
+                    users: $users,
+                ){
+                    error
+                }
+            }
+            """
+        )
+        params = {"appname": APPNAME, "users": apps_owner}
+        result = client_service.execute(query, variable_values=params)
+        handle_error(result, accepted_errors)
+      
+        print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
+
     print(
         f"""
         You Dash app has been deployed. 

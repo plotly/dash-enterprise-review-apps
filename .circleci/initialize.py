@@ -35,10 +35,11 @@ transport_user = RequestsHTTPTransport(
     use_json=True,
     retries=0,
 )
-print(USERNAME, USERNAME_API_KEY)
-print(USERNAME_API_KEY[0:5] + '    '  + USERNAME_API_KEY[5:], end="\n")
-print(SERVICE_USERNAME, SERVICE_API_KEY)
-print(SERVICE_API_KEY[0:5]+ '    '  + SERVICE_API_KEY[5:], end="\n")
+
+# print(USERNAME, USERNAME_API_KEY)
+# print(USERNAME_API_KEY[0:5] + '    '  + USERNAME_API_KEY[5:], end="\n")
+# print(SERVICE_USERNAME, SERVICE_API_KEY)
+# print(SERVICE_API_KEY[0:5]+ '    '  + SERVICE_API_KEY[5:], end="\n")
 
 client_service = Client(transport=transport_service)
 client_user = Client(transport=transport_user)
@@ -280,64 +281,56 @@ for k, v in mounts.items():
 
     print(f"Mapped hostDir: {k} to targetDir: {v}")
 
+# for k, v in permissionLevels.items():
+#     query = gql(
+#         """
+#         mutation (
+#             $appname: String,
+#             $permissionLevel: PermissionLevels
+#         ) { 
+#             updateApp(
+#                 appname: $appname, 
+#                 metadata: {
+#                     permissionLevel: $permissionLevel
+#                 }
+#             ){
+#                 error
+#             }
+#         }
+#         """
+#     )
+#     params = {"permissionLevel": v, "appname": APPNAME}
+#     result = client_service.execute(query, variable_values=params)
+#     handle_error(result, accepted_errors)
 
-for k, v in permissionLevels.items():
-    query = gql(
-        """
-        mutation (
-            $appname: String,
-            $permissionLevel: PermissionLevels
-        ) { 
-            updateApp(
-                appname: $appname, 
-                metadata: {
-                    permissionLevel: $permissionLevel
-                }
-            ){
-                error
-            }
-        }
-        """
-    )
-    params = {"permissionLevel": v, "appname": APPNAME}
-    result = client_service.execute(query, variable_values=params)
-    handle_error(result, accepted_errors)
+#     print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
+#     print(f"    {k}: {v}")
 
-    print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
-    print(f"    {k}: {v}")
-
-    if (
-        v == "restricted" and 
-        current_isAdmin == "false" and 
-        apps_status == "true"
-    ):
-        query = gql(
-        """
-        mutation (
-            $appname: String,
-            $users: [String],
-        ) { 
-            addCollaborators(
-                appname: $appname, 
-                users: $users,
-            ){
-                error
-            }
-        }
-        """
-    )
-        params = {"appname": APPNAME, "users": apps_owner}
-        result = client_service.execute(query, variable_values=params)
-        handle_error(result, accepted_errors)
+#     if (
+#         v == "restricted" and 
+#         current_isAdmin == "false" and 
+#         apps_status == "true"
+#     ):
+#         query = gql(
+#         """
+#         mutation (
+#             $appname: String,
+#             $users: [String],
+#         ) { 
+#             addCollaborators(
+#                 appname: $appname, 
+#                 users: $users,
+#             ){
+#                 error
+#             }
+#         }
+#         """
+#     )
+#         params = {"appname": APPNAME, "users": apps_owner}
+#         result = client_service.execute(query, variable_values=params)
+#         handle_error(result, accepted_errors)
       
-        print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
-
-    print(
-        f"""
-        cannot add {apps_owner} as collaborator. {apps_owner} already has
-        admin privileges, or app has not been deployed yet.
-        """
-    )
+#         print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
 
 for k, v in environmentVariables.items():
     environmentVariables_filter = tuple(
@@ -382,11 +375,10 @@ for k, v in environmentVariables.items():
 print(
     f"""
 
-    You Dash app has been deployed. 
+    You Dash app has been initialized. 
 
-    Preview {APPNAME}:
+    App settings :
 
-    https://{DASH_ENTERPRISE_HOST}/{APPNAME}/
     https://{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings
     """
 )
