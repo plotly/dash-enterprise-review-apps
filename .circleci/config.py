@@ -7,7 +7,7 @@ DEBUG = os.getenv("DEBUG", "false")
 if os.getenv("CIRCLECI") == "true":
     print("CIRCLECI")
 
-    PREFIX = "target"
+    PREFIX = "chris-qa-1"
     # PREFIX is a filter for purging review apps.
 
     LAST_UPDATE = {"minutes": 1}
