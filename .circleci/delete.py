@@ -136,7 +136,7 @@ if len(apps) != 0:
 else:
     print("No apps were filtered")
 
-if apps_filtered != False:
+if len(apps_filtered) != 0:
     print("Deleting apps...")
     for k in apps_filtered:
         print("    ", k)
