@@ -78,7 +78,7 @@ if 1 != 0:
         apps.extend(apps_result)
         print(f"  Page: {page}")
         page = page + 1
-    print("\n", "  Total apps: ", len(apps), "\n")
+    print("\n", f"  Total apps: {len(apps)} ", end="\n")
 else:
     print("No apps were queried")
 
@@ -124,7 +124,7 @@ if len(apps) != 0:
             and (datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f"))
             > timedelta(**LAST_UPDATE)
         ):
-            print(f"    {k}")
+            print(f"  {k}")
             apps_filtered[k] = v[0]
         elif (
             k.startswith("{prefix}".format(prefix=PREFIX))
@@ -132,9 +132,9 @@ if len(apps) != 0:
             and (datetime.now() - datetime.strptime(v[1], "%Y-%m-%dT%H:%M:%S.%f"))
             > timedelta(**LAST_UPDATE)
         ):
-            print(f"    {k}")
+            print(f"  {k}")
             apps_filtered[k] = v[1]
-    print("\n", "    Total apps: ", len(apps_filtered.items()), "\n")
+    print("\n", f"  Total apps: ", len(apps_filtered.items()), "\n")
 else:
     print("No apps were filtered")
 
@@ -142,7 +142,7 @@ else:
 if len(apps_filtered) != 0:
     print("Deleting apps...")
     for k in apps_filtered:
-        print(f"    {k}")
+        print(f"  {k}")
         query = gql(
             """
             mutation ($name: String) {
@@ -165,7 +165,7 @@ if len(services_dict) != 0:
     for k, v in services_dict.items():
         if services_dict[k][0] in apps_filtered:
             services_filtered[k] = v[1]
-            print(f"    {k}, {v[1]}")
+            print(f"  {k}, {v[1]}")
 else:
     print("No services were filtered")
 
@@ -185,6 +185,6 @@ if len(services_filtered) != 0:
         )
         params = {"name": k, "serviceType": v}
         client.execute(query,variable_values=params)
-        print("    name: {k}, type: {v}")
+        print(f"  name: {k}, type: {v}")
 else:
     print("No services were deleted")
