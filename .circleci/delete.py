@@ -78,7 +78,7 @@ if 1 != 0:
         apps.extend(apps_result)
         print(f"  Page: {page}")
         page = page + 1
-    print(f"\n  Total apps: {len(apps)}\n")
+    print(f"\n  Apps: {len(apps)}\n")
 else:
     print("No apps were queried")
 
@@ -134,7 +134,7 @@ if len(apps) != 0:
         ):
             print(f"  {k}")
             apps_filtered[k] = v[1]
-    print(f"\n  Total apps filtered: {len(apps_filtered.items())}\n")
+    print(f"\n  Apps filtered: {len(apps_filtered.items())}\n")
 else:
     print("No apps were filtered")
 
@@ -161,11 +161,12 @@ else:
 
 services_filtered = dict()
 if len(services_dict) != 0:
-    print("Filtering services...")
+    print("Filtering services...\n")
     for k, v in services_dict.items():
         if services_dict[k][0] in apps_filtered:
             services_filtered[k] = v[1]
             print(f"  {k}, {v[1]}")
+    print(f"\n  Services filtered: {len(services_filtered.items())}\n")
 else:
     print("No services were filtered")
 
