@@ -180,6 +180,7 @@ result = client_user.execute(
 handle_error(result, accepted_errors)
 
 for k in linkedServices:
+    serviceName = f"{APPNAME}-{k}"[0:30]
     query_addService = gql(
         """
         mutation (
@@ -196,7 +197,7 @@ for k in linkedServices:
         """
     )
     params_addService = {
-        "serviceName": f"{APPNAME}-{k}", 
+        "serviceName": serviceName, 
         "serviceType": k, 
     }
 
@@ -210,9 +211,10 @@ for k in linkedServices:
     handle_error(result, accepted_errors)
 
     print("OK")
-    print(f"Adding service: {APPNAME}-{k}, {k}")
+    print(f"Adding service: {serviceName}, {k}")
 
 for k in linkedServices:
+    serviceName = f"{APPNAME}-{k}"[0:30]
     query_linkService = gql(
         """
         mutation (
@@ -232,7 +234,7 @@ for k in linkedServices:
     )
     params_linkService = {
         "appname": APPNAME,
-        "serviceName": f"{APPNAME}-{k}", 
+        "serviceName": serviceName, 
         "serviceType": k
     }
 
@@ -246,7 +248,7 @@ for k in linkedServices:
     handle_error(result, accepted_errors)
 
     print("OK")
-    print(f"Linking service: {APPNAME}-{k}, {k}")
+    print(f"Linking service: {serviceName}, {k}")
     
 
 for k, v in mounts.items():
