@@ -372,4 +372,4 @@ for k, v in environmentVariables.items():
 
         print(f"    {k} :", 5 * "*")
 
-print(f"\n{APPNAME} has been initialized")
+print(f"\n{APPNAME} has been initialized\n")

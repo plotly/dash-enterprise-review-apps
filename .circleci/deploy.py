@@ -14,6 +14,8 @@ from config import (
 )
 from initialize import (
     gql,
+    RequestsHTTPTransport,
+    Client,
     apps_permissionLevels,
     permissionLevels,
     client_service,
@@ -21,10 +23,10 @@ from initialize import (
     accepted_errors,
     current_isAdmin,
     apps_status,
-    apps_owner
+    apps_owner,
 )
 
-print("Deploying Dash app...", end=" ")
+print("Deploying {APPNAME}...\n")
 if os.getenv("CIRCLECI") == "true":
     print("OK")
     if TRUNK_BRANCHNAME == BRANCHNAME:
