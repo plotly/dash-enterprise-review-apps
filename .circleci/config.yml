@@ -86,7 +86,7 @@ jobs:
 workflows:
   commit-workflow:
     jobs:
-      - delete
+      # - delete
       - initialize
       - deploy:
           requires:
@@ -112,3 +112,4 @@ workflows:
   #               - main
                 
   #   jobs:
+  #     - delete
