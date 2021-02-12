@@ -237,7 +237,7 @@ for k in linkedServices:
         "serviceType": k
     }
 
-    print("link service...", end=" ")
+    print("link service...")
 
     sleep(5)
     result = client_service.execute(
@@ -246,7 +246,6 @@ for k in linkedServices:
     )
     handle_error(result, accepted_errors)
 
-    print("OK")
     print(f"Linking service: {serviceName}, {k}")
     
 
