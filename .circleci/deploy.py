@@ -45,69 +45,66 @@ if os.getenv("CIRCLECI") == "true":
         """, shell=True
     )
 
-    if permissionLevels.items() != 0:
-        for k, v in permissionLevels.items():
-            query = gql(
-                """
-                mutation (
-                    $appname: String,
-                    $permissionLevel: PermissionLevels
-                ) { 
-                    updateApp(
-                        appname: $appname, 
-                        metadata: {
-                            permissionLevel: $permissionLevel
-                        }
-                    ){
-                        error
-                    }
-                }
-                """
-            )
-            params = {"permissionLevel": v, "appname": APPNAME}
-            result = client_service.execute(query, variable_values=params)
-            handle_error(result, accepted_errors)
-            print(result)
+    print(permissionLevels)
+    # if permissionLevels.items() != 0:
+    #     for k, v in permissionLevels.items():
+    #         query = gql(
+    #             """
+    #             mutation (
+    #                 $appname: String,
+    #                 $permissionLevel: PermissionLevels
+    #             ) { 
+    #                 updateApp(
+    #                     appname: $appname, 
+    #                     metadata: {
+    #                         permissionLevel: $permissionLevel
+    #                     }
+    #                 ){
+    #                     error
+    #                 }
+    #             }
+    #             """
+    #         )
+    #         params = {"permissionLevel": v, "appname": APPNAME}
+    #         result = client_service.execute(query, variable_values=params)
+    #         handle_error(result, accepted_errors)
+    #         print(result)
 
-            print(f"Copying {k}: {v} from {TARGET_APPNAME} to {APPNAME}")
+    #         print(f"Copying {k}: {v} from {TARGET_APPNAME} to {APPNAME}")
 
-            if (
-                v == "restricted" and 
-                current_isAdmin == "false" and 
-                apps_status == "true"
-            ):
-                query = gql(
-                """
-                mutation (
-                    $appname: String,
-                    $users: [String],
-                ) { 
-                    addCollaborators(
-                        appname: $appname, 
-                        users: $users,
-                    ){
-                        error
-                    }
-                }
-                """
-            )
-            params = {"appname": APPNAME, "users": apps_owner}
-            result = client_service.execute(query, variable_values=params)
-            handle_error(result, accepted_errors)
+    #         if v == "restricted" and apps_status == "true":
+    #             query = gql(
+    #             """
+    #             mutation (
+    #                 $appname: String,
+    #                 $users: [String],
+    #             ) { 
+    #                 addCollaborators(
+    #                     appname: $appname, 
+    #                     users: $users,
+    #                 ){
+    #                     error
+    #                 }
+    #             }
+    #             """
+    #         )
+    #         params = {"appname": APPNAME, "users": apps_owner}
+    #         result = client_service.execute(query, variable_values=params)
+    #         handle_error(result, accepted_errors)
         
-            print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
+    #         print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
 
-        print(
-            f"""
-            You Dash app has been deployed. 
+    #     print(
+    #         f"""
+    #         You Dash app has been deployed. 
             
-            Preview {APPNAME}:
+    #         Preview {APPNAME}:
             
-            https://{DASH_ENTERPRISE_HOST}/{APPNAME}/
-            https://{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings
-            https://app.circleci.com/pipelines/github/plotly/{REPONAME}?branch={BRANCHNAME}
-            """
-        )
+    #         https://{DASH_ENTERPRISE_HOST}/{APPNAME}/
+    #         https://{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings
+    #         https://app.circleci.com/pipelines/github/plotly/{REPONAME}?branch={BRANCHNAME}
+    #         """
+    #     )
 else:
     print("FAILED")
     raise Exception(

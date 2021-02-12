@@ -8,8 +8,8 @@ app's main branch.
 
 ### Prequisites
 
-* An existing CircleCI pipeline.
-* An existing repo on GitHub with your apps source code.
+* CircleCI pipeline.
+* GitHub repository with your app's source code.
 
 1. Navigate you your to Project Settings page in CircleCI.
 

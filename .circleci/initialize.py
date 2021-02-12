@@ -295,8 +295,8 @@ for k, v in mounts.items():
 #         """
 #     )
 #     params = {"permissionLevel": v, "appname": APPNAME}
-#     result = client_service.execute(query, variable_values=params)
-#     handle_error(result, accepted_errors)
+#     result_permissionLevel = client_service.execute(query, variable_values=params)
+#     handle_error(result_permissionLevel, accepted_errors)
 
 #     print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
 #     print(f"    {k}: {v}")
