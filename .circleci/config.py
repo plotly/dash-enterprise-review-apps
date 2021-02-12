@@ -1,7 +1,7 @@
 import logging
 import os
 
-DEBUG = os.getenv("DEBUG", "false")
+DEBUG = os.getenv("DEBUG", "true")
 # Enable Requests debugging by setting this variable to "true"
 
 if os.getenv("CIRCLECI") == "true":
