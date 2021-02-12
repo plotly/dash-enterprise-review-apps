@@ -90,10 +90,7 @@ workflows:
       - deploy:
           requires:
             - initialize
-      - delete:
-          requires:
-            - initialize
-            - deploy
+      - delete
 
   # deploy-workflow:
   #   when:
