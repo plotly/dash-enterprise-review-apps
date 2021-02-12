@@ -4,7 +4,7 @@ import sys
 from time import sleep
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
-from config import (
+from settings import (
     DASH_ENTERPRISE_HOST,
     USERNAME,
     USERNAME_API_KEY,

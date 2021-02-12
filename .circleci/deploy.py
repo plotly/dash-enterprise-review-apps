@@ -1,7 +1,7 @@
 import os
 import subprocess
 import base64
-from config import (
+from settings import (
     SERVICE_PRIVATE_SSH_KEY,
     SERVICE_PUBLIC_SSH_KEY,
     SSH_CONFIG,
