@@ -101,15 +101,14 @@ workflows:
   #   jobs:
   #     - deploy
 
-  schedule-workflow:
-    triggers:
-      - schedule:
-          cron: "* 0 * * 1-5" # At minute 0 on every day-of-week from Monday through Friday.
-          filters:
-            branches:
-              ignore: 
-                - dev
-                - main
+  # schedule-workflow:
+  #   triggers:
+  #     - schedule:
+  #         cron: "* 0 * * 1-5" # At minute 0 on every day-of-week from Monday through Friday.
+  #         filters:
+  #           branches:
+  #             ignore: 
+  #               - dev
+  #               - main
                 
-    jobs:
-    - delete
+  #   jobs:
