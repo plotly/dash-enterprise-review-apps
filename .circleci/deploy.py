@@ -26,9 +26,8 @@ from initialize import (
     apps_owner,
 )
 
-print(f"Deploying {APPNAME}...\n")
 if os.getenv("CIRCLECI") == "true":
-    print("OK")
+    print(f"Deploying review app...\n")
     if TRUNK_BRANCHNAME == BRANCHNAME:
         deploy_appname = TARGET_APPNAME
     else: 
@@ -46,67 +45,72 @@ if os.getenv("CIRCLECI") == "true":
     )
 
     print(permissionLevels)
-    # if permissionLevels.items() != 0:
-    #     for k, v in permissionLevels.items():
-    #         query = gql(
-    #             """
-    #             mutation (
-    #                 $appname: String,
-    #                 $permissionLevel: PermissionLevels
-    #             ) { 
-    #                 updateApp(
-    #                     appname: $appname, 
-    #                     metadata: {
-    #                         permissionLevel: $permissionLevel
-    #                     }
-    #                 ){
-    #                     error
-    #                 }
-    #             }
-    #             """
-    #         )
-    #         params = {"permissionLevel": v, "appname": APPNAME}
-    #         result = client_service.execute(query, variable_values=params)
-    #         handle_error(result, accepted_errors)
-    #         print(result)
+    if permissionLevels.items() != 0:
+        print(f"Updating PermissionLevel...")
+        query = gql(
+            """
+            mutation (
+                $appname: String,
+                $permissionLevel: PermissionLevels
+            ) { 
+                updateApp(
+                    appname: $appname, 
+                    metadata: {
+                        permissionLevel: $permissionLevel
+                    }
+                ){
+                    error
+                }
+            }
+            """
+        )
+        params = {
+            "permissionLevel": permissionLevels["permissionLevel"],
+            "appname": APPNAME
+        }
+        result = client_service.execute(query, variable_values=params)
+        handle_error(result, accepted_errors)
+    else:
+        print("PermissionLevel not updated")
 
-    #         print(f"Copying {k}: {v} from {TARGET_APPNAME} to {APPNAME}")
+    if permissionLevels["permissionLevel"] == "restricted" and apps_status == "true":
+        print("Adding collaborator...")
+        query = gql(
+        """
+        mutation (
+            $appname: String,
+            $users: [String],
+        ) { 
+            addCollaborators(
+                appname: $appname, 
+                users: $users,
+            ){
+                error
+            }
+        }
+        """
+        )
+        params = {"appname": APPNAME, "users": apps_owner}
+        result = client_service.execute(query, variable_values=params)
+        handle_error(result, accepted_errors)
 
-    #         if v == "restricted" and apps_status == "true":
-    #             query = gql(
-    #             """
-    #             mutation (
-    #                 $appname: String,
-    #                 $users: [String],
-    #             ) { 
-    #                 addCollaborators(
-    #                     appname: $appname, 
-    #                     users: $users,
-    #                 ){
-    #                     error
-    #                 }
-    #             }
-    #             """
-    #         )
-    #         params = {"appname": APPNAME, "users": apps_owner}
-    #         result = client_service.execute(query, variable_values=params)
-    #         handle_error(result, accepted_errors)
+        print(f"  {apps_owner}")
+    else:
+        print(f"No collaborators added")
+
+    print(
+        f"""
+        You Dash app has been deployed. 
         
-    #         print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
-
-    #     print(
-    #         f"""
-    #         You Dash app has been deployed. 
-            
-    #         Preview {APPNAME}:
-            
-    #         https://{DASH_ENTERPRISE_HOST}/{APPNAME}/
-    #         https://{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings
-    #         https://app.circleci.com/pipelines/github/plotly/{REPONAME}?branch={BRANCHNAME}
-    #         """
-    #     )
+        Preview {APPNAME}:
+        
+        https://{DASH_ENTERPRISE_HOST}/{APPNAME}/
+        https://{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings
+        https://app.circleci.com/pipelines/github/plotly/{REPONAME}?branch={BRANCHNAME}
+        """
+    )
 else:
-    print("FAILED")
+    print("App not deployed")
     raise Exception(
         f"""
         

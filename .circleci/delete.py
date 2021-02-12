@@ -5,7 +5,7 @@ from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from datetime import datetime, timedelta
 from time import sleep
-from config import (
+from settings import (
     DEBUG,
     DASH_ENTERPRISE_HOST,
     SERVICE_USERNAME,
