@@ -7,7 +7,7 @@ DEBUG = os.getenv("DEBUG", "true")
 if os.getenv("CIRCLECI") == "true":
     print("\n", "CIRCLECI")
 
-    PREFIX = "chris-qa-1"
+    PREFIX = "review-app-"
     # PREFIX is a filter for purging review apps.
 
     LAST_UPDATE = {"minutes": 1}
@@ -38,6 +38,7 @@ if os.getenv("CIRCLECI") == "true":
     # exceed 30 characters in length.
 
     DASH_ENTERPRISE_HOST = "qa-de-410.plotly.host" 
+    # DASH_ENTERPRISE_HOST = "dash-playground.plotly.host"
     # DASH_ENTERPRISE_HOST is your Dash Enterprise Server's host address.
 
     SERVICE_API_KEY = os.getenv("ADMIN_API_KEY")

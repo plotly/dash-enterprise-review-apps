@@ -25,14 +25,14 @@ transport_service = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
     auth=(SERVICE_USERNAME, SERVICE_API_KEY),
     use_json=True,
-    retries=0,
+    retries=5,
 )
 
 transport_user = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
     auth=(USERNAME, USERNAME_API_KEY),
     use_json=True,
-    retries=0,
+    retries=5,
 )
 
 client_service = Client(transport=transport_service)
