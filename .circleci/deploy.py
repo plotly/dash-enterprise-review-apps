@@ -44,7 +44,8 @@ if os.getenv("CIRCLECI") == "true":
         """, shell=True
     )
 
-    print(permissionLevels)
+    print("\n")
+
     if permissionLevels.items() != 0:
         print(f"Updating PermissionLevel...")
         query = gql(

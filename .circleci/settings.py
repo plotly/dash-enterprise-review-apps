@@ -5,7 +5,7 @@ DEBUG = os.getenv("DEBUG", "false")
 # Enable Requests debugging by setting this variable to "true"
 
 if os.getenv("CIRCLECI") == "true":
-    print("\n", "CIRCLECI")
+    print("\nDEPLOYMENT ENV: CIRCLECI\n")
 
     PREFIX = "review-app-"
     # PREFIX is a filter for purging review apps.
