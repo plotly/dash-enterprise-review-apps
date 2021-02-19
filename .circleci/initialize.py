@@ -287,57 +287,6 @@ if len(mounts.items()) != 0:
 else:
     print("Directories not mapped")
 
-# for k, v in permissionLevels.items():
-#     query = gql(
-#         """
-#         mutation (
-#             $appname: String,
-#             $permissionLevel: PermissionLevels
-#         ) { 
-#             updateApp(
-#                 appname: $appname, 
-#                 metadata: {
-#                     permissionLevel: $permissionLevel
-#                 }
-#             ){
-#                 error
-#             }
-#         }
-#         """
-#     )
-#     params = {"permissionLevel": v, "appname": APPNAME}
-#     result_permissionLevel = client_service.execute(query, variable_values=params)
-#     handle_error(result_permissionLevel, accepted_errors)
-
-#     print(f"Copying permissionlevel from {TARGET_APPNAME} to {APPNAME}")
-#     print(f"    {k}: {v}")
-
-#     if (
-#         v == "restricted" and 
-#         current_isAdmin == "false" and 
-#         apps_status == "true"
-#     ):
-#         query = gql(
-#         """
-#         mutation (
-#             $appname: String,
-#             $users: [String],
-#         ) { 
-#             addCollaborators(
-#                 appname: $appname, 
-#                 users: $users,
-#             ){
-#                 error
-#             }
-#         }
-#         """
-#     )
-#         params = {"appname": APPNAME, "users": apps_owner}
-#         result = client_service.execute(query, variable_values=params)
-#         handle_error(result, accepted_errors)
-      
-#         print(f"Adding  \"{apps_owner}\" as \"collaborator\"")
-
 if len(environmentVariables.items()) != 0:
     print("Adding environment variables...")
     for k, v in environmentVariables.items():
