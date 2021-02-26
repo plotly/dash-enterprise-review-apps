@@ -1,4 +1,3 @@
-import logging
 import os
 import sys
 from time import sleep
@@ -12,14 +11,10 @@ from settings import (
     SERVICE_USERNAME,
     APPNAME,
     TARGET_APPNAME,
-    DEBUG,
 )
 
 if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
     raise Exception("Python 3.6 is required.")
-
-if DEBUG == "true":
-    logging.basicConfig(level=logging.DEBUG)
 
 transport_service = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
@@ -31,16 +26,17 @@ transport_user = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
     auth=(USERNAME, USERNAME_API_KEY),
     use_json=True,
-    
 )
 
 client_service = Client(transport=transport_service)
 client_user = Client(transport=transport_user)
 
+
 def zip_list_index(l, a, b):
     k = [l[i][a] for i in range(len(l))]
     v = [l[i][b] for i in range(len(l))]
-    return dict(zip(k,v))
+    return dict(zip(k, v))
+
 
 def handle_error(result, er=None):
     """
@@ -53,6 +49,7 @@ def handle_error(result, er=None):
                     pass
                 else:
                     raise Exception(result[k]["error"])
+
 
 addService_errors = [
     "A service with the given name already exists. Please choose a different name.",
@@ -166,23 +163,23 @@ if len(result["apps"]["apps"]) != 0:
     )
     params = {"appname": APPNAME}
 
-    result = client_user.execute(
-        query, 
-        variable_values=params
-    )
+    result = client_user.execute(query, variable_values=params)
     handle_error(result, accepted_errors)
     print(f"  {APPNAME}")
-else: 
+else:
     print("Review app not initialized")
     print(f"\n  App {TARGET_APPNAME} does not exist.\n")
     raise Exception(result)
 
 
-
 if len(linkedServices.items()) == 1:
-    print("Adding service...",)
+    print(
+        "Adding service...",
+    )
 elif len(linkedServices.items()) > 1:
-    print("Adding services...",)
+    print(
+        "Adding services...",
+    )
     for k in linkedServices:
         serviceName = f"{APPNAME}-{k}"[0:30]
         query_addService = gql(
@@ -201,13 +198,12 @@ elif len(linkedServices.items()) > 1:
             """
         )
         params_addService = {
-            "serviceName": serviceName, 
-            "serviceType": k, 
+            "serviceName": serviceName,
+            "serviceType": k,
         }
         sleep(5)
         result = client_service.execute(
-            query_addService, 
-            variable_values=params_addService
+            query_addService, variable_values=params_addService
         )
         handle_error(result, accepted_errors)
 
@@ -216,9 +212,13 @@ else:
     print("Services not added")
 
 if len(linkedServices.items()) == 1:
-    print("Linking service...",)
+    print(
+        "Linking service...",
+    )
 elif len(linkedServices.items()) > 1:
-    print("Linking services...",)
+    print(
+        "Linking services...",
+    )
     for k in linkedServices:
         query_linkService = gql(
             """
@@ -239,21 +239,20 @@ elif len(linkedServices.items()) > 1:
         )
         params_linkService = {
             "appname": APPNAME,
-            "serviceName": serviceName, 
-            "serviceType": k
+            "serviceName": serviceName,
+            "serviceType": k,
         }
 
         sleep(5)
         result = client_service.execute(
-            query_linkService, 
-            variable_values=params_linkService
+            query_linkService, variable_values=params_linkService
         )
         handle_error(result, accepted_errors)
 
         print(f". {serviceName}, {k}")
 else:
     print("Services not linked")
-    
+
 if len(mounts.items()) != 0:
     print("Mapping directories...")
     for k, v in mounts.items():
@@ -319,11 +318,7 @@ if len(environmentVariables.items()) != 0:
                 }
                 """
             )
-            params = {
-                "environmentVariable": k, 
-                "value": v, 
-                "appname": APPNAME
-            }
+            params = {"environmentVariable": k, "value": v, "appname": APPNAME}
             result = client_service.execute(query, variable_values=params)
             handle_error(result, accepted_errors)
 

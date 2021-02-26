@@ -1,4 +1,3 @@
-import logging
 import os
 import sys
 from gql import gql, Client
@@ -11,7 +10,6 @@ from settings import (
     SERVICE_USERNAME,
     SERVICE_API_KEY,
     SSH_CONFIG,
-    DEBUG,
     PREFIX,
     LAST_UPDATE,
 )
@@ -19,15 +17,11 @@ from settings import (
 if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
     raise Exception("Python 3.6 is required.")
 
-if DEBUG == "true":
-    logging.basicConfig(level=logging.DEBUG)
-
 transport = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
     auth=(SERVICE_USERNAME, SERVICE_API_KEY),
     use_json=True,
     retries=5,
-    
 )
 
 client = Client(transport=transport)
@@ -73,7 +67,7 @@ if 1 != 0:
         )
         params = {"page": page}
         sleep(5)
-        api_call = client.execute(query,variable_values=params)
+        api_call = client.execute(query, variable_values=params)
         apps_result = api_call["apps"]["apps"]
         apps.extend(apps_result)
         print(f"  Page: {page}")
@@ -155,7 +149,7 @@ if len(apps_filtered) != 0:
             """
         )
         params = {"name": k}
-        client.execute(query,variable_values=params)
+        client.execute(query, variable_values=params)
 else:
     print("No apps were deleted")
 
@@ -167,7 +161,7 @@ if len(services_dict) != 0:
         if services_dict[k][0] in apps_filtered:
             services_filtered[k] = v[1]
             # print(f"  {k}, {v[1]}")
-    if len(services_filtered.items()) > 0:        
+    if len(services_filtered.items()) > 0:
         print(f"\n  Services filtered: {len(services_filtered.items())}\n")
 else:
     print("No services were filtered")
@@ -187,7 +181,7 @@ if len(services_filtered) != 0:
             """
         )
         params = {"name": k, "serviceType": v}
-        client.execute(query,variable_values=params)
+        client.execute(query, variable_values=params)
         print(f"  name: {k}, type: {v}")
 else:
     print("No services were deleted")

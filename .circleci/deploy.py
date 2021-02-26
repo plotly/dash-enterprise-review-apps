@@ -30,7 +30,7 @@ if os.getenv("CIRCLECI") == "true":
     print(f"Deploying review app...\n")
     if TRUNK_BRANCHNAME == BRANCHNAME:
         deploy_appname = TARGET_APPNAME
-    else: 
+    else:
         deploy_appname = APPNAME
     subprocess.run(
         f"""
@@ -41,7 +41,8 @@ if os.getenv("CIRCLECI") == "true":
         echo {SSH_CONFIG} | tr ',' '\n' > ~/.ssh/config
         git config remote.plotly.url >&- || git remote add plotly dokku@{DASH_ENTERPRISE_HOST}:{deploy_appname}
         git push --force plotly HEAD:master
-        """, shell=True
+        """,
+        shell=True,
     )
 
     print("\n")
@@ -67,7 +68,7 @@ if os.getenv("CIRCLECI") == "true":
         )
         params = {
             "permissionLevel": permissionLevels["permissionLevel"],
-            "appname": APPNAME
+            "appname": APPNAME,
         }
         result = client_service.execute(query, variable_values=params)
         handle_error(result, accepted_errors)
@@ -77,7 +78,7 @@ if os.getenv("CIRCLECI") == "true":
     if permissionLevels["permissionLevel"] == "restricted" and apps_status == "true":
         print("Adding collaborator...")
         query = gql(
-        """
+            """
         mutation (
             $appname: String,
             $users: [String],
