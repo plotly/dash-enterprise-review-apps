@@ -1,4 +1,8 @@
-import os
+"""
+This script is used initialize Review Apps that enherit the properties and
+settings of their counterparts in production.
+"""
+
 import sys
 from time import sleep
 from gql import gql, Client
@@ -14,69 +18,78 @@ from settings import (
 )
 
 if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
-    raise Exception("Python 3.6 is required.")
+    raise Exception(
+        "This script has only been tested on Python 3.6."
+        + "You are using {version}.".format(version=sys.version_info[0])
+    )
 
 transport_service = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
     auth=(SERVICE_USERNAME, SERVICE_API_KEY),
     use_json=True,
+    retries=5,
 )
 
 transport_user = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
     auth=(USERNAME, USERNAME_API_KEY),
     use_json=True,
+    retries=5,
 )
 
 client_service = Client(transport=transport_service)
 client_user = Client(transport=transport_user)
 
 
-def zip_list_index(l, a, b):
-    k = [l[i][a] for i in range(len(l))]
-    v = [l[i][b] for i in range(len(l))]
-    return dict(zip(k, v))
+def zip_list_index(index_list, index_a, index_b):
+    """
+    Accepts two indices, from a single list, with values equivalent to a list
+    and zips them together, resulting in a dictionary.
+    """
+    index_key = [index_list[i][index_a] for i in range(len(index_list))]
+    index_value = [index_list[i][index_b] for i in range(len(index_list))]
+    return dict(zip(index_key, index_value))
 
 
-def handle_error(result, er=None):
+def handle_error(query_result, detected_error=None):
     """
     Raise error if error is not an accepted error
+
+    When initialize.py is called multiple times via multiple commits on the
+    same branch, the service will already exist. So, if this error is returned
+    from the API we simply ignore it and move on.
     """
-    if er != None:
-        for k, v in accepted_errors.items():
-            if k in result and "error" in result[k]:
-                if result[k]["error"] in v:
-                    pass
-                else:
-                    raise Exception(result[k]["error"])
+    if detected_error is not None:
+        for accepted_error, error_message in accepted_errors.items():
+            if accepted_error in query_result and "error" in result[accepted_error]:
+                if query_result[accepted_error]["error"] not in error_message:
+                    raise Exception(result[accepted_error]["error"])
 
 
-addService_errors = [
-    "A service with the given name already exists. Please choose a different name.",
+addService_acceptable_errors = [
+    """A service with the given name already exists. Please choose a different
+    name.""",
     None,
 ]
 
-apps_query_errors = [
-    "[]",
-]
-updateApp_errors = [
-    "None is not a valid PermissionLevels",
+apps_query_acceptable_errors = [
     None,
 ]
-addApp_errors = [
-    "An app with this name already exists in this Dash Server. Please choose a different name.",
+
+addApp_acceptable_errors = [
+    """An app with this name already exists in this Dash Server. Please choose a
+    different name.""",
     None,
 ]
 
 accepted_errors = {
-    "addApp": addApp_errors,
-    "updateApp": updateApp_errors,
-    "addService": addService_errors,
-    "apps": apps_query_errors,
+    "addApp": addApp_acceptable_errors,
+    "addService": addService_acceptable_errors,
+    "apps": apps_query_acceptable_errors,
 }
 
 print("Querying target app...")
-# Querying target app settings
+
 query = gql(
     """
     query (
@@ -87,7 +100,7 @@ query = gql(
             isAdmin
         }
         apps(
-            name: $name, 
+            name: $name,
             allApps:true,
         ) {
             apps {
@@ -139,10 +152,6 @@ if len(result["apps"]["apps"]) != 0:
     apps_mounts = result["apps"]["apps"][0]["mounts"]
     apps_environmentVariables = result["apps"]["apps"][0]["environmentVariables"]
 
-    a = [apps[i]["name"] for i in range(len(apps))]
-    b = [apps[i]["owner"]["username"] for i in range(len(apps))]
-
-    owner = dict(zip(a, b))
     permissionLevels = apps_permissionLevels
     linkedServices = zip_list_index(apps_linkedServices, "serviceType", "name")
     mounts = zip_list_index(apps_mounts, "hostDir", "targetDir")
@@ -165,23 +174,27 @@ if len(result["apps"]["apps"]) != 0:
 
     result = client_user.execute(query, variable_values=params)
     handle_error(result, accepted_errors)
-    print(f"  {APPNAME}")
+    print("  {APPNAME}".format(APPNAME=APPNAME))
 else:
-    print("Review app not initialized")
-    print(f"\n  App {TARGET_APPNAME} does not exist.\n")
-    raise Exception(result)
-
+    print(result)
+    raise Exception(
+        "\nReview app not initialized"
+        + "\nApp {TARGET_APPNAME} does not exist or the user {USERNAME}".format(
+            TARGET_APPNAME=TARGET_APPNAME, USERNAME=USERNAME
+        )
+        + "does not have permission to query this app.\n"
+    )
 
 if len(linkedServices.items()) == 1:
     print(
-        "Adding service...",
+        "Adding redis/postgres database...",
     )
 elif len(linkedServices.items()) > 1:
     print(
-        "Adding services...",
+        "Adding redis/postgres databases...",
     )
-    for k in linkedServices:
-        serviceName = f"{APPNAME}-{k}"[0:30]
+    for serviceType in linkedServices:
+        serviceName = f"{APPNAME}-{serviceType}"[0:30]
         query_addService = gql(
             """
             mutation (
@@ -194,12 +207,12 @@ elif len(linkedServices.items()) > 1:
                 ) {
                     error
                 }
-            }  
+            }
             """
         )
         params_addService = {
             "serviceName": serviceName,
-            "serviceType": k,
+            "serviceType": serviceType,
         }
         sleep(5)
         result = client_service.execute(
@@ -207,19 +220,23 @@ elif len(linkedServices.items()) > 1:
         )
         handle_error(result, accepted_errors)
 
-        print(f"  {serviceName}, {k}")
+        print(
+            "  {serviceName}, {serviceType}".format(
+                serviceName=serviceName, serviceType=serviceType
+            )
+        )
 else:
-    print("Services not added")
+    print("No redis/postgres databases to add")
 
 if len(linkedServices.items()) == 1:
     print(
-        "Linking service...",
+        "Linking database...",
     )
 elif len(linkedServices.items()) > 1:
     print(
-        "Linking services...",
+        "Linking databases...",
     )
-    for k in linkedServices:
+    for serviceType in linkedServices:
         query_linkService = gql(
             """
             mutation (
@@ -229,7 +246,7 @@ elif len(linkedServices.items()) > 1:
             ) {
                 linkService (
                     appname: $appname,
-                    serviceName: $serviceName, 
+                    serviceName: $serviceName,
                     serviceType: $serviceType
                 ) {
                     error
@@ -240,7 +257,7 @@ elif len(linkedServices.items()) > 1:
         params_linkService = {
             "appname": APPNAME,
             "serviceName": serviceName,
-            "serviceType": k,
+            "serviceType": serviceType,
         }
 
         sleep(5)
@@ -249,23 +266,27 @@ elif len(linkedServices.items()) > 1:
         )
         handle_error(result, accepted_errors)
 
-        print(f". {serviceName}, {k}")
+        print(
+            ". {serviceName}, {serviceType}".format(
+                serviceName=serviceName, serviceType=serviceType
+            )
+        )
 else:
-    print("Services not linked")
+    print("No redis/postgres databases to link")
 
 if len(mounts.items()) != 0:
     print("Mapping directories...")
-    for k, v in mounts.items():
+    for host_dir, target_dir in mounts.items():
         query = gql(
             """
             mutation (
-                $hostDir: String, 
+                $hostDir: String,
                 $targetDir: String,
                 $appname: String
             ) {
                 mountDirectory(
                     hostDir: $hostDir,
-                    targetDir: $targetDir, 
+                    targetDir: $targetDir,
                     appname: $appname
                 ) {
                     error
@@ -274,38 +295,44 @@ if len(mounts.items()) != 0:
             """
         )
         params = {
-            "hostDir": k,
-            "targetDir": v,
+            "hostDir": host_dir,
+            "targetDir": target_dir,
             "appname": APPNAME,
         }
 
         result = client_service.execute(query, variable_values=params)
         handle_error(result, accepted_errors)
 
-        print(f"  Mapping hostDir: {k} to targetDir: {v}")
+        print(
+            "  Mapping hostDir: {host_dir} to targetDir: {target_dir}".format(
+                host_dir=host_dir, target_dir=target_dir
+            )
+        )
 else:
-    print("Directories not mapped")
+    print("No directories to map")
 
 if len(environmentVariables.items()) != 0:
     print("Adding environment variables...")
-    for k, v in environmentVariables.items():
-        environmentVariables_filter = tuple(
-            [
-                "DOKKU",
-                "DASH",
-                "DATABASE_URL",
-                "GIT_REV",
-                "REDIS_URL",
-                "SCRIPT_NAME",
-                "NO_VHOST",
-            ]
-        )
-        if k.startswith(environmentVariables_filter) != True:
+    environmentVariables_filter = tuple(
+        # These environment variables are created automatically by Dash Enterprise and
+        # do not need to be manually modified.
+        [
+            "DOKKU",
+            "DASH",
+            "DATABASE_URL",
+            "GIT_REV",
+            "REDIS_URL",
+            "SCRIPT_NAME",
+            "NO_VHOST",
+        ]
+    )
+    for envar_name, envar_value in environmentVariables.items():
+        if envar_name.startswith(environmentVariables_filter) is not True:
             query = gql(
                 """
                 mutation (
-                    $environmentVariable: String, 
-                    $value: String, 
+                    $environmentVariable: String,
+                    $value: String,
                     $appname: String
                 ) {
                     addEnvironmentVariable (
@@ -318,12 +345,14 @@ if len(environmentVariables.items()) != 0:
                 }
                 """
             )
-            params = {"environmentVariable": k, "value": v, "appname": APPNAME}
+            params = {
+                "environmentVariable": envar_name,
+                "value": envar_value,
+                "appname": APPNAME,
+            }
             result = client_service.execute(query, variable_values=params)
             handle_error(result, accepted_errors)
 
-            print(f"  {k} :", 10 * "*")
+            print("  {envar_name} :".format(envar_name=envar_name), 10 * "*")
 else:
-    print("Environment variables not added")
-
-print("\n")
+    print("No environment variables to add\n")
