@@ -10,7 +10,7 @@ import os
 # LAST_UPDATE is the allowed amount of time since a review app was last viewed
 #  or updated, before it is deleted from the server.
 # Typically this is {"days": 5}
-PERIOD = "minutes"  # "minutes", "hours", "days"
+PERIOD = "hours"  # "minutes", "hours", "days"
 TIME = 1
 LAST_UPDATE = {PERIOD: TIME}
 
@@ -30,8 +30,8 @@ BRANCHNAME = os.getenv("CIRCLE_BRANCH")
 # template. This script will copy that apps configuration settings and
 # apply them to all review apps.
 # When BRANCHNAME = TRUNK_BRANCHNAME, the changes on the branch will get
-# deployed to this app.
-TARGET_APPNAME = "aa-chris"
+# deployed to this app.cl
+TARGET_APPNAME = "aa-tobin"
 
 # PREFIX is a filter for deleting review apps.
 PREFIX = "{TARGET_APPNAME}-rev-".format(TARGET_APPNAME=TARGET_APPNAME[:15])
@@ -57,7 +57,7 @@ SERVICE_API_KEY = os.getenv("SERVICE_API_KEY")
 # your review app repository. If you use the same SSO for both Dash Enterprise
 # and your CI platform, then this mapping will be 1-1: the same SSO username
 # will be the key and the value. In this case, you could delete this
-# dictionary a USERNAME = CI_USERNAME
+# dictionary and assign USERNAME to CI_USERNAME: USERNAME = CI_USERNAME
 DE_USERNAME_TO_CI_USERNAME = {
     "criddyp": "criddyp",
     "tobinngo": "tobinngo",
@@ -69,7 +69,7 @@ DE_USERNAME_TO_CI_USERNAME = {
 # contains their Dash Enterprise API key.
 DE_USERNAME_TO_CI_API_KEY = {
     "criddyp": "CRIDDYP_API_KEY",
-    "tobinngo": "TOBINNGO_API_KEY",
+    "tobinngo": "TNGO_API_KEY",
     "service": "SERVICE_API_KEY",
 }
 
@@ -79,15 +79,15 @@ DE_USERNAME_TO_CI_API_KEY = {
 CI_USERNAME = os.getenv("CIRCLE_USERNAME")
 
 
-# USERNAME = DE_USERNAME_TO_CI_USERNAME[CI_USERNAME]
-USERNAME = CI_USERNAME
+USERNAME = DE_USERNAME_TO_CI_USERNAME[CI_USERNAME]
+# USERNAME = CI_USERNAME
 
 # SERVICE_PRIVATE_SSH_KEY belongs to a Dash Enterprise user with admin
 # privileges. This user will handle server deployment tasks.
 SERVICE_PRIVATE_SSH_KEY = os.getenv("SERVICE_PRIVATE_SSH_KEY")
 
 if USERNAME in DE_USERNAME_TO_CI_USERNAME and USERNAME in DE_USERNAME_TO_CI_API_KEY:
-    USERNAME_API_KEY = os.getenv(DE_USERNAME_TO_CI_API_KEY.get(CI_USERNAME))
+    USERNAME_API_KEY = os.getenv(DE_USERNAME_TO_CI_API_KEY.get(USERNAME))
 else:
     print("API key was not fetched")
     print(

@@ -108,10 +108,10 @@ if len(result["apps"]["apps"]) != 0:
     print("Initializing review app...")
     apps = result["apps"]["apps"]
     apps_name = result["apps"]["apps"][0]["name"]
-    apps_owner = result["apps"]["apps"][0]["owner"]["username"]
-    apps_status = result["apps"]["apps"][0]["status"]["running"]
-    current_isAdmin = result["current"]["isAdmin"]
-    apps_collaborators = result["apps"]["apps"][0]["collaborators"]
+    # apps_owner = result["apps"]["apps"][0]["owner"]["username"]
+    # apps_status = result["apps"]["apps"][0]["status"]["running"]
+    # current_isAdmin = result["current"]["isAdmin"]
+    # apps_collaborators = result["apps"]["apps"][0]["collaborators"]
     apps_permissionLevels = result["apps"]["apps"][0]["metadata"]
     apps_linkedServices = result["apps"]["apps"][0]["linkedServices"]
     apps_mounts = result["apps"]["apps"][0]["mounts"]
@@ -139,6 +139,7 @@ if len(result["apps"]["apps"]) != 0:
     params = {"appname": APPNAME}
 
     result = client_user.execute(query, variable_values=params)
+
     print("  {APPNAME}".format(APPNAME=APPNAME))
 else:
     print(result)

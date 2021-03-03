@@ -74,25 +74,25 @@ else:
     DEPLOY_APPNAME = APPNAME
 subprocess.run(
     """
-    echo "{SERVICE_PRIVATE_SSH_KEY}" | base64 --decode -i > ~/.ssh/id_rsa
+    echo "{SSH_KEY}" | base64 --decode -i > ~/.ssh/id_rsa
     chmod 600 ~/.ssh/id_rsa
     eval "$(ssh-agent -s)"
     ssh-add ~/.ssh/id_rsa
-    echo "Host {DASH_ENTERPRISE_HOST},\
-        HostName {DASH_ENTERPRISE_HOST},\
+    echo "Host {HOST},\
+        HostName {HOST},\
         User {SERVICE_USERNAME},\
         Port 3022,\
         IdentityFile ~/.ssh/id_rsa,\
         StrictHostKeyChecking no,\
         UserKnownHostsFile /dev/null"\
     | tr ',' '\n' > ~/.ssh/config
-    git config remote.plotly.url >&- || git remote add plotly dokku@{DASH_ENTERPRISE_HOST}:{DEPLOY_APPNAME}
+    git config remote.plotly.url >&- || git remote add plotly dokku@{HOST}:{APP}
     git push --force plotly HEAD:master
     """.format(
-        SERVICE_PRIVATE_SSH_KEY=SERVICE_PRIVATE_SSH_KEY,
-        DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
+        SSH_KEY=SERVICE_PRIVATE_SSH_KEY,
+        HOST=DASH_ENTERPRISE_HOST,
         SERVICE_USERNAME=SERVICE_USERNAME,
-        DEPLOY_APPNAME=DEPLOY_APPNAME,
+        APP=DEPLOY_APPNAME,
     ),
     shell=True,
     check=True,

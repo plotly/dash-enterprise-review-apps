@@ -16,7 +16,6 @@ from settings import (
     PERIOD,
     TIME,
     LAST_UPDATE,
-    TARGET_APPNAME,
 )
 
 if sys.version_info[0:2] < (3, 6) or sys.version_info[0:2] > (3, 7):
