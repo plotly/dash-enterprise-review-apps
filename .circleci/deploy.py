@@ -41,7 +41,7 @@ def exit_message():
     Prints out links to deployed app and app settings page before exiting
     script.
     """
-    sys.exit(
+    print(
         """
         Your Dash app has been deployed.
 
@@ -54,6 +54,7 @@ def exit_message():
             DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
         )
     )
+    sys.exit(0)
 
 
 def zip_list_index(index_list, index_a, index_b):
@@ -103,7 +104,7 @@ print("\n")
 if TRUNK_BRANCHNAME == BRANCHNAME:
     exit_message()
 else:
-    print("Querying target app's viewer permissions...")
+    print("Querying target app viewer permissions...")
     query = gql(
         """
         query (
@@ -134,7 +135,6 @@ else:
     )
     params = {"name": TARGET_APPNAME}
     result = client_service.execute(query, variable_values=params)
-    print(result)
 
 if len(result["apps"]["apps"]) != 0:
     exit_message()
