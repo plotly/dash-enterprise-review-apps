@@ -1,4 +1,7 @@
-"""This script allows you to delete your Review apps on a schedule."""
+"""
+This script deletes your Review apps and their linked databases. It is intended
+to be run on a schedule.
+"""
 
 import sys
 from datetime import datetime, timedelta
@@ -10,13 +13,18 @@ from settings import (
     SERVICE_USERNAME,
     SERVICE_API_KEY,
     PREFIX,
+    PERIOD,
+    TIME,
     LAST_UPDATE,
+    TARGET_APPNAME,
 )
 
-if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
+if sys.version_info[0:2] < (3, 6) or sys.version_info[0:2] > (3, 7):
     raise Exception(
-        "This script has only been tested on Python 3.6."
-        + "You are using {version}.".format(version=sys.version_info[0])
+        "This script has only been tested on Python 3.6. "
+        + "You are using {major}.{minor}.".format(
+            major=sys.version_info[0], minor=sys.version_info[1]
+        )
     )
 
 transport = RequestsHTTPTransport(
@@ -64,18 +72,18 @@ while len(apps_result) != 0 or PAGE == 0:
     api_call = client.execute(query, variable_values=params)
     apps_result = api_call["apps"]["apps"]
     apps.extend(apps_result)
-    print(f"  Page: {PAGE}")
+    print("  Page: {PAGE}".format(PAGE=PAGE))
     PAGE = PAGE + 1
 print("\n  Apps: {apps}\n".format(apps=len(apps)))
 
 if len(apps) == 0:
-    print(
+    sys.exit(
         "No apps were found by user {username}.".format(username=SERVICE_USERNAME)
         + "Check that {username} owns apps or has admin privileges.\n".format(
             username=SERVICE_USERNAME
         )
     )
-    sys.exit()
+
 
 apps_name = []
 apps_updated = []
@@ -84,69 +92,59 @@ services_name = []
 services_type = []
 apps_dict = dict()
 services_dict = dict()
-if len(apps) != 0:
-    print("Discovering linked databases associated with the apps...")
-    for i in enumerate(apps):
-        apps_name.append(apps[i]["analytics"]["appname"])
-        apps_created.append(apps[i]["analytics"]["timestamps"]["created"])
-        apps_updated.append(apps[i]["analytics"]["timestamps"]["updated"])
-        apps_dict.update(zip(apps_name, zip(apps_updated, apps_created)))
-        for j in range(len(apps[i]["linkedServices"])):
-            services_name.append(apps[i]["linkedServices"][j]["name"])
-            services_type.append(apps[i]["linkedServices"][j]["serviceType"])
-            services_dict.update(zip(services_name, zip(apps_name, services_type)))
-else:
-    print("No linked databases associated with the apps were discovered.")
 
+print("Discovering linked databases associated with the apps...")
+for i in range(len(apps)):
+    apps_name.append(apps[i]["analytics"]["appname"])
+    apps_created.append(apps[i]["analytics"]["timestamps"]["created"])
+    apps_updated.append(apps[i]["analytics"]["timestamps"]["updated"])
+    apps_dict.update(zip(apps_name, zip(apps_updated, apps_created)))
+    for j in range(len(apps[i]["linkedServices"])):
+        services_name.append(apps[i]["linkedServices"][j]["name"])
+        services_type.append(apps[i]["linkedServices"][j]["serviceType"])
+        services_dict.update(zip(services_name, zip(apps_name, services_type)))
 
 apps_filtered = dict()
-if len(apps) != 0:
-    print(
-        "Determining which apps haven't been updated or visited in "
-        + "{time} {period}...".format(
-            time=LAST_UPDATE.values(),
-            period=LAST_UPDATE.keys(),
-        )
-    )
-    for app_name, app_time in apps_dict.items():
-        if (
-            app_name.startswith("{prefix}".format(prefix=PREFIX))
-            and app_time[0] is None
-            and (
-                datetime.now() - datetime.strptime(app_time[1], "%Y-%m-%dT%H:%M:%S.%f")
-            )
-            > timedelta(**LAST_UPDATE)
-        ):
-            print("  {app_name}".format(app_name=app_name))
-            apps_filtered[app_name] = app_time[0]
-        elif (
-            app_name.startswith("{prefix}".format(prefix=PREFIX))
-            and app_time[1] is not None
-            and (
-                datetime.now() - datetime.strptime(app_time[1], "%Y-%m-%dT%H:%M:%S.%f")
-            )
-            > timedelta(**LAST_UPDATE)
-        ):
-            print("  {app_name}".format(app_name=app_name))
-            apps_filtered[app_name] = app_time[1]
-    if len(apps_filtered.items()) > 0:
-        print(f"\n  Apps filtered: {len(apps_filtered.items())}\n")
-else:
-    print(
-        "All apps have been updated or visited since in the last "
-        + "{time} {period}.".format(
-            time=LAST_UPDATE.values(),
-            period=LAST_UPDATE.keys(),
-        )
-    )
-    sys.exit()
 
 
 print(
-    "Deleting apps that haven't been updated or visited in "
+    "Determining which apps haven't been updated or visited the last "
     + "{time} {period}...".format(
-        time=LAST_UPDATE.values(),
-        period=LAST_UPDATE.keys(),
+        time=TIME,
+        period=PERIOD,
+    )
+)
+for app_name, app_time in apps_dict.items():
+    # app_time[0] is the time last updated
+    # app_time[1] is the time last viewed
+    if (
+        app_name.startswith(PREFIX)
+        and app_time[0] is None
+        and (datetime.now() - datetime.strptime(app_time[1], "%Y-%m-%dT%H:%M:%S.%f"))
+        > timedelta(**LAST_UPDATE)
+    ):
+        print("  {app_name}".format(app_name=app_name))
+        apps_filtered[app_name] = app_time[0]
+    elif (
+        app_name.startswith(PREFIX)
+        and app_time[1] is not None
+        and (datetime.now() - datetime.strptime(app_time[1], "%Y-%m-%dT%H:%M:%S.%f"))
+        > timedelta(**LAST_UPDATE)
+    ):
+        print("  {app_name}".format(app_name=app_name))
+        apps_filtered[app_name] = app_time[1]
+print(
+    "\n  Apps filtered: {total_apps_filtered}\n".format(
+        total_apps_filtered=len(apps_filtered.items())
+    )
+)
+
+
+print(
+    "Deleting apps that haven't been updated or visited in over "
+    + "{time} {period}...".format(
+        time=TIME,
+        period=PERIOD,
     )
 )
 for app_name in apps_filtered:
@@ -163,7 +161,7 @@ for app_name in apps_filtered:
     )
     params = {"name": app_name}
     client.execute(query, variable_values=params)
-
+    sleep(10)
 
 services_filtered = dict()
 if len(services_dict) != 0:
@@ -171,8 +169,11 @@ if len(services_dict) != 0:
     for service_name, service_type in services_dict.items():
         if services_dict[service_name][0] in apps_filtered:
             services_filtered[service_name] = service_type[1]
-    if len(services_filtered.items()) > 0:
-        print(f"\n  Databases filtered: {len(services_filtered.items())}\n")
+    print(
+        "  Databases filtered: {total_db_filtered}\n".format(
+            total_db_filtered=len(services_filtered.items())
+        )
+    )
 else:
     print("No databases associated with deleted apps were found.")
     sys.exit()

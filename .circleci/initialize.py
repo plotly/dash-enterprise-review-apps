@@ -1,6 +1,6 @@
 """
-This script is used initialize Review Apps that enherit the properties and
-settings of their counterparts in production.
+This script is used initialize Review Apps that inherit the properties and
+settings of their a target app.
 """
 
 import sys
@@ -17,10 +17,12 @@ from settings import (
     TARGET_APPNAME,
 )
 
-if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
+if sys.version_info[0:2] < (3, 6) or sys.version_info[0:2] > (3, 7):
     raise Exception(
-        "This script has only been tested on Python 3.6."
-        + "You are using {version}.".format(version=sys.version_info[0])
+        "This script has only been tested on Python 3.6. "
+        + "You are using {major}.{minor}.".format(
+            major=sys.version_info[0], minor=sys.version_info[1]
+        )
     )
 
 transport_service = RequestsHTTPTransport(
@@ -51,44 +53,8 @@ def zip_list_index(index_list, index_a, index_b):
     return dict(zip(index_key, index_value))
 
 
-def handle_error(query_result, detected_error=None):
-    """
-    Raise error if error is not an accepted error
-
-    When initialize.py is called multiple times via multiple commits on the
-    same branch, the service will already exist. So, if this error is returned
-    from the API we simply ignore it and move on.
-    """
-    if detected_error is not None:
-        for accepted_error, error_message in accepted_errors.items():
-            if accepted_error in query_result and "error" in result[accepted_error]:
-                if query_result[accepted_error]["error"] not in error_message:
-                    raise Exception(result[accepted_error]["error"])
-
-
-addService_acceptable_errors = [
-    """A service with the given name already exists. Please choose a different
-    name.""",
-    None,
-]
-
-apps_query_acceptable_errors = [
-    None,
-]
-
-addApp_acceptable_errors = [
-    """An app with this name already exists in this Dash Server. Please choose a
-    different name.""",
-    None,
-]
-
-accepted_errors = {
-    "addApp": addApp_acceptable_errors,
-    "addService": addService_acceptable_errors,
-    "apps": apps_query_acceptable_errors,
-}
-
 print("Querying target app...")
+print("  {TARGET_APPNAME}".format(TARGET_APPNAME=TARGET_APPNAME))
 
 query = gql(
     """
@@ -137,7 +103,6 @@ query = gql(
 )
 params = {"name": TARGET_APPNAME}
 result = client_service.execute(query, variable_values=params)
-handle_error(result, accepted_errors)
 
 if len(result["apps"]["apps"]) != 0:
     print("Initializing review app...")
@@ -170,10 +135,10 @@ if len(result["apps"]["apps"]) != 0:
         }
         """
     )
+
     params = {"appname": APPNAME}
 
     result = client_user.execute(query, variable_values=params)
-    handle_error(result, accepted_errors)
     print("  {APPNAME}".format(APPNAME=APPNAME))
 else:
     print(result)
@@ -185,58 +150,92 @@ else:
         + "does not have permission to query this app.\n"
     )
 
-if len(linkedServices.items()) == 1:
-    print(
-        "Adding redis/postgres database...",
-    )
-elif len(linkedServices.items()) > 1:
+if len(linkedServices.items()) != 0:
     print(
         "Adding redis/postgres databases...",
     )
     for serviceType in linkedServices:
-        serviceName = f"{APPNAME}-{serviceType}"[0:30]
-        query_addService = gql(
-            """
-            mutation (
-                $serviceType: ServiceType=redis,
-                $serviceName: String
-            ) {
-                addService (
-                    name: $serviceName,
-                    serviceType: $serviceType
+        if serviceType == "redis":
+            serviceName = "{APPNAME}-{serviceType}".format(
+                APPNAME=APPNAME,
+                serviceType="redis",
+            )[0:30]
+            query_addService = gql(
+                """
+                mutation (
+                    $serviceType: ServiceType=redis,
+                    $serviceName: String
                 ) {
-                    error
+                    addService (
+                        name: $serviceName,
+                        serviceType: $serviceType
+                    ) {
+                        error
+                    }
                 }
-            }
-            """
-        )
-        params_addService = {
-            "serviceName": serviceName,
-            "serviceType": serviceType,
-        }
-        sleep(5)
-        result = client_service.execute(
-            query_addService, variable_values=params_addService
-        )
-        handle_error(result, accepted_errors)
-
-        print(
-            "  {serviceName}, {serviceType}".format(
-                serviceName=serviceName, serviceType=serviceType
+                """
             )
-        )
+            params_addService = {
+                "serviceName": serviceName,
+                "serviceType": serviceType,
+            }
+            sleep(5)
+            result = client_service.execute(
+                query_addService, variable_values=params_addService
+            )
+
+            print(
+                "  {serviceName}, {serviceType}".format(
+                    serviceName=serviceName, serviceType=serviceType
+                )
+            )
+        elif serviceType == "postgres":
+            serviceName = "{APPNAME}-{serviceType}".format(
+                APPNAME=APPNAME,
+                serviceType="postgres",
+            )[0:30]
+            query_addService = gql(
+                """
+                mutation (
+                    $serviceType: ServiceType=postgres,
+                    $serviceName: String
+                ) {
+                    addService (
+                        name: $serviceName,
+                        serviceType: $serviceType
+                    ) {
+                        error
+                    }
+                }
+                """
+            )
+            params_addService = {
+                "serviceName": serviceName,
+                "serviceType": serviceType,
+            }
+            sleep(5)
+            result = client_service.execute(
+                query_addService, variable_values=params_addService
+            )
+
+            print(
+                "  {serviceName}, {serviceType}".format(
+                    serviceName=serviceName, serviceType=serviceType
+                )
+            )
 else:
     print("No redis/postgres databases to add")
 
-if len(linkedServices.items()) == 1:
-    print(
-        "Linking database...",
-    )
-elif len(linkedServices.items()) > 1:
-    print(
-        "Linking databases...",
-    )
-    for serviceType in linkedServices:
+
+print(
+    "Linking databases...",
+)
+for serviceType in linkedServices:
+    if serviceType == "redis":
+        serviceName = "{APPNAME}-{serviceType}".format(
+            APPNAME=APPNAME,
+            serviceType="redis",
+        )[0:30]
         query_linkService = gql(
             """
             mutation (
@@ -264,15 +263,51 @@ elif len(linkedServices.items()) > 1:
         result = client_service.execute(
             query_linkService, variable_values=params_linkService
         )
-        handle_error(result, accepted_errors)
 
         print(
-            ". {serviceName}, {serviceType}".format(
+            "  {serviceName}, {serviceType}".format(
                 serviceName=serviceName, serviceType=serviceType
             )
         )
-else:
-    print("No redis/postgres databases to link")
+
+    elif serviceType == "postgres":
+        serviceName = "{APPNAME}-{serviceType}".format(
+            APPNAME=APPNAME,
+            serviceType="postgres",
+        )[0:30]
+        query_linkService = gql(
+            """
+            mutation (
+                $appname: String
+                $serviceType: ServiceType=postgres,
+                $serviceName: String
+            ) {
+                linkService (
+                    appname: $appname,
+                    serviceName: $serviceName,
+                    serviceType: $serviceType
+                ) {
+                    error
+                }
+            }
+            """
+        )
+        params_linkService = {
+            "appname": APPNAME,
+            "serviceName": serviceName,
+            "serviceType": serviceType,
+        }
+
+        sleep(5)
+        result = client_service.execute(
+            query_linkService, variable_values=params_linkService
+        )
+
+        print(
+            "  {serviceName}, {serviceType}".format(
+                serviceName=serviceName, serviceType=serviceType
+            )
+        )
 
 if len(mounts.items()) != 0:
     print("Mapping directories...")
@@ -301,10 +336,9 @@ if len(mounts.items()) != 0:
         }
 
         result = client_service.execute(query, variable_values=params)
-        handle_error(result, accepted_errors)
 
         print(
-            "  Mapping hostDir: {host_dir} to targetDir: {target_dir}".format(
+            "  Mapping host directory: {host_dir} to review app directory: {target_dir}".format(
                 host_dir=host_dir, target_dir=target_dir
             )
         )
@@ -314,8 +348,8 @@ else:
 if len(environmentVariables.items()) != 0:
     print("Adding environment variables...")
     environmentVariables_filter = tuple(
-        # These environment variables are created automatically by Dash Enterprise and
-        # do not need to be manually modified.
+        # These environment variables are created automatically by Dash
+        # Enterprise and do not need to be manually modified.
         [
             "DOKKU",
             "DASH",
@@ -327,7 +361,7 @@ if len(environmentVariables.items()) != 0:
         ]
     )
     for envar_name, envar_value in environmentVariables.items():
-        if envar_name.startswith(environmentVariables_filter) is not True:
+        if not envar_name.startswith(environmentVariables_filter):
             query = gql(
                 """
                 mutation (
@@ -351,7 +385,6 @@ if len(environmentVariables.items()) != 0:
                 "appname": APPNAME,
             }
             result = client_service.execute(query, variable_values=params)
-            handle_error(result, accepted_errors)
 
             print("  {envar_name} :".format(envar_name=envar_name), 10 * "*")
 else:

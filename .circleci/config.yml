@@ -1,12 +1,12 @@
 version: 2.1
 jobs:
-  initialize: # initialize on PR
+  initialize: # Initialize review app when PR is created
     docker:
       - image: cimg/python:3.6
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
-      - restore_cache: # Purge cache by updating CACHE_VERSION in Project Settings.
+      - restore_cache: # Note: Delete cache manually by updating CACHE_VERSION in Project Settings.
           key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
       - run:
           name: Install python dependencies in virtual environment
@@ -28,13 +28,14 @@ jobs:
           paths:
             - "venv"
   
-  deploy: # Push to master/main only if PR is approved and merged
+  deploy: # Deploy the code to the target app
+
     docker: 
       - image: cimg/python:3.6
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
-      - restore_cache: # Purge cache by updating CACHE_VERSION in Project Settings.
+      - restore_cache:
           key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
       - run:
           name: Install python dependencies in virtual environment
@@ -56,7 +57,7 @@ jobs:
           paths:
             - "venv"
 
-  delete:
+  delete: # Delete old review apps on a schedule
     docker: 
       - image: cimg/python:3.6
     steps:

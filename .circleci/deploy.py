@@ -18,10 +18,12 @@ from settings import (
     SERVICE_API_KEY,
 )
 
-if sys.version_info[0] < 3.6 and sys.version_info[0] > 3.7:
+if sys.version_info[0:2] < (3, 6) or sys.version_info[0:2] > (3, 7):
     raise Exception(
-        "This script has only been tested on Python 3.6."
-        + "You are using {version}.".format(version=sys.version_info[0])
+        "This script has only been tested on Python 3.6. "
+        + "You are using {major}.{minor}.".format(
+            major=sys.version_info[0], minor=sys.version_info[1]
+        )
     )
 
 transport_service = RequestsHTTPTransport(
@@ -39,9 +41,9 @@ def exit_message():
     Prints out links to deployed app and app settings page before exiting
     script.
     """
-    print(
+    sys.exit(
         """
-        You Dash app has been deployed.
+        Your Dash app has been deployed.
 
         Preview {APPNAME}:
 
@@ -52,7 +54,6 @@ def exit_message():
             DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
         )
     )
-    sys.exit()
 
 
 def zip_list_index(index_list, index_a, index_b):
@@ -65,32 +66,11 @@ def zip_list_index(index_list, index_a, index_b):
     return dict(zip(index_key, index_value))
 
 
-def handle_error(query_result, detected_error=None):
-    """
-    Raise error if error is not an accepted error
-    """
-    if detected_error is not None:
-        for accepted_error, error_message in accepted_errors.items():
-            if accepted_error in query_result and "error" in result[accepted_error]:
-                if query_result[accepted_error]["error"] in error_message:
-                    pass
-                else:
-                    raise Exception(result[accepted_error]["error"])
-
-
-apps_query_errors = [
-    "[]",
-]
-
-accepted_errors = {
-    "apps": apps_query_errors,
-}
-
-
-print("Deploying review app...\n")
 if TRUNK_BRANCHNAME == BRANCHNAME:
+    print("Re-deploying target app...\n")
     DEPLOY_APPNAME = TARGET_APPNAME
 else:
+    print("Deploying review app...\n")
     DEPLOY_APPNAME = APPNAME
 subprocess.run(
     """
@@ -104,10 +84,9 @@ subprocess.run(
         Port 3022,\
         IdentityFile ~/.ssh/id_rsa,\
         StrictHostKeyChecking no,\
-        UserKnownHostsFile /dev/null\
+        UserKnownHostsFile /dev/null"\
     | tr ',' '\n' > ~/.ssh/config
-    git config remote.plotly.url >&- || git remote add plotly dokku@\
-    {DASH_ENTERPRISE_HOST}:{DEPLOY_APPNAME}
+    git config remote.plotly.url >&- || git remote add plotly dokku@{DASH_ENTERPRISE_HOST}:{DEPLOY_APPNAME}
     git push --force plotly HEAD:master
     """.format(
         SERVICE_PRIVATE_SSH_KEY=SERVICE_PRIVATE_SSH_KEY,
@@ -124,7 +103,7 @@ print("\n")
 if TRUNK_BRANCHNAME == BRANCHNAME:
     exit_message()
 else:
-    print("Querying target app...")
+    print("Querying target app's viewer permissions...")
     query = gql(
         """
         query (
@@ -145,6 +124,9 @@ else:
                     metadata {
                         permissionLevel
                     }
+                    collaborators {
+                        users
+                  }
                 }
             }
         }
@@ -152,46 +134,49 @@ else:
     )
     params = {"name": TARGET_APPNAME}
     result = client_service.execute(query, variable_values=params)
-    handle_error(result, accepted_errors)
+    print(result)
 
 if len(result["apps"]["apps"]) != 0:
-    apps_owner = result["apps"]["apps"][0]["owner"]["username"]
-    apps_status = result["apps"]["apps"][0]["status"]["running"]
-    apps_permissionLevels = result["apps"]["apps"][0]["metadata"]
+    exit_message()
 
-    permissionLevels = apps_permissionLevels
+apps_owner = result["apps"]["apps"][0]["owner"]["username"]
+apps_status = result["apps"]["apps"][0]["status"]["running"]
+apps_permissionLevels = result["apps"]["apps"][0]["metadata"]["permissionLevel"]
+apps_collaborators = result["apps"]["apps"][0]["collaborators"]["users"]
 
-    print(
-        "Updating app permission level to {permissionLevel}...".format(
-            permissionLevel=permissionLevels["permissionLevel"]
-        )
+apps_viewers = [apps_owner] + apps_collaborators
+print(apps_permissionLevels)
+print(
+    "Updating app permission level to {permissionLevel}...".format(
+        permissionLevel=apps_permissionLevels
     )
-    query = gql(
-        """
-        mutation (
-            $appname: String,
-            $permissionLevel: PermissionLevels
-        ) {
-            updateApp(
-                appname: $appname,
-                metadata: {
-                    permissionLevel: $permissionLevel
-                }
-            ){
-                error
+)
+query = gql(
+    """
+    mutation (
+        $appname: String,
+        $permissionLevel: PermissionLevels
+    ) {
+        updateApp(
+            appname: $appname,
+            metadata: {
+                permissionLevel: $permissionLevel
             }
+        ){
+            error
         }
-        """
-    )
-    params = {
-        "permissionLevel": permissionLevels["permissionLevel"],
-        "appname": APPNAME,
     }
-    result = client_service.execute(query, variable_values=params)
-    handle_error(result, accepted_errors)
+    """
+)
+params = {
+    "permissionLevel": apps_permissionLevels,
+    "appname": APPNAME,
+}
+result = client_service.execute(query, variable_values=params)
 
-    if permissionLevels["permissionLevel"] == "restricted" and apps_status == "true":
-        print("Adding {apps_owner} as app viewer...".format(apps_owner=apps_owner))
+if apps_permissionLevels == "restricted" and apps_status == "true":
+    print("Adding target app viewers to review app...")
+    for viewer in range(apps_viewers):
         query = gql(
             """
         mutation (
@@ -207,12 +192,9 @@ if len(result["apps"]["apps"]) != 0:
         }
         """
         )
-        params = {"appname": APPNAME, "users": apps_owner}
+        params = {"appname": APPNAME, "users": viewer}
         result = client_service.execute(query, variable_values=params)
-        handle_error(result, accepted_errors)
 
-        print("  {apps_owner}".format(apps_owner=apps_owner))
-    else:
-        print("No app viewers were added")
+        print("  {viewer}".format(viewer=viewer))
 else:
-    exit_message()
+    print("Target app is not restricted, not adding any additional viewers.")

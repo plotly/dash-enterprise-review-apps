@@ -133,3 +133,5 @@ dmypy.json
 
 # Other
 /tngo/
+.circleci/test.py
+.circleci/marketing-review-apps
