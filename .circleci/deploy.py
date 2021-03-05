@@ -71,10 +71,14 @@ def zip_list_index(index_list, index_a, index_b):
 
 
 if MAIN_BRANCHNAME == REVIEW_BRANCHNAME:
-    print("Deploying main app...\n")
+    print()
+    print("Deploying main app...")
+    print()
     DEPLOY_APPNAME = MAIN_APPNAME
 else:
-    print("Deploying review app...\n")
+    print()
+    print("Deploying review app...")
+    print()
     DEPLOY_APPNAME = REVIEW_APPNAME
 subprocess.run(
     """
@@ -110,7 +114,6 @@ print()
 if MAIN_BRANCHNAME == REVIEW_BRANCHNAME:
     exit_message()
 else:
-    print("Querying main app viewer permissions...")
     query = gql(
         """
         query (
