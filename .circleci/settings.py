@@ -38,7 +38,9 @@ MAIN_APPNAME = "aa-tobin"
 PREFIX = "{MAIN_APPNAME}-rev-".format(MAIN_APPNAME=MAIN_APPNAME[:15])
 
 # REVIEW_APPNAME is the name of the review app.
-REVIEW_APPNAME = "{PREFIX}{BRANCHNAME}".format(PREFIX=PREFIX, BRANCHNAME=BRANCHNAME)[:30]
+REVIEW_APPNAME = "{PREFIX}{BRANCHNAME}".format(PREFIX=PREFIX, BRANCHNAME=BRANCHNAME)[
+    :30
+]
 
 # DASH_ENTERPRISE_HOST is your Dash Enterprise Server's host address.
 # DASH_ENTERPRISE_HOST = "qa-de-410.plotly.host"

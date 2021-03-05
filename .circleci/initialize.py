@@ -152,8 +152,7 @@ if len(linkedServices.items()) != 0:
         "Adding databases...",
     )
     for serviceType in linkedServices:
-        
-        serviceName = "{REVIEW_APPNAME}-{serviceType}".format(
+        SERVICENAME = "{REVIEW_APPNAME}-{serviceType}".format(
             REVIEW_APPNAME=REVIEW_APPNAME,
             serviceType=serviceType,
         )[0:30]
@@ -170,10 +169,12 @@ if len(linkedServices.items()) != 0:
                     error
                 }}
             }}
-            """.format(serviceType=serviceType)
+            """.format(
+                serviceType=serviceType
+            )
         )
         params_addService = {
-            "serviceName": serviceName,
+            "serviceName": SERVICENAME,
             "serviceType": serviceType,
         }
         sleep(5)
@@ -183,17 +184,16 @@ if len(linkedServices.items()) != 0:
 
         print(
             "  {serviceName}, {serviceType}".format(
-                serviceName=serviceName, serviceType=serviceType
+                serviceName=SERVICENAME, serviceType=serviceType
             )
         )
-
 
     print(
         "Linking databases...",
     )
     for serviceType in linkedServices:
 
-        serviceName = "{REVIEW_APPNAME}-{serviceType}".format(
+        SERVICENAME = "{REVIEW_APPNAME}-{serviceType}".format(
             REVIEW_APPNAME=REVIEW_APPNAME,
             serviceType=serviceType,
         )[0:30]
@@ -212,11 +212,13 @@ if len(linkedServices.items()) != 0:
                     error
                 }}
             }}
-            """.format(serviceType=serviceType)
+            """.format(
+                serviceType=serviceType
+            )
         )
         params_linkService = {
             "appname": REVIEW_APPNAME,
-            "serviceName": serviceName,
+            "serviceName": SERVICENAME,
             "serviceType": serviceType,
         }
 
@@ -227,7 +229,7 @@ if len(linkedServices.items()) != 0:
 
         print(
             "  {serviceName}, {serviceType}".format(
-                serviceName=serviceName, serviceType=serviceType
+                serviceName=SERVICENAME, serviceType=serviceType
             )
         )
 else:
@@ -262,7 +264,7 @@ if len(mounts.items()) != 0:
         result = client_service.execute(query, variable_values=params)
 
         print(
-            "  Mapping host directory: " 
+            "  Mapping host server directory: "
             + "{host_dir} to review app directory: {target_dir}".format(
                 host_dir=host_dir, target_dir=target_dir
             )
@@ -311,7 +313,6 @@ if len(environmentVariables.items()) != 0:
             }
             result = client_service.execute(query, variable_values=params)
             sleep(5)
-            
             print("  {envar_name} :".format(envar_name=envar_name), 10 * "*")
 else:
-    print("No environment variables to add\n")
+    print("No environment variables to add")

@@ -44,16 +44,17 @@ def exit_message():
     """
     print("Your review app has been deployed...")
     print()
-    print("  Preview: https://{DASH_ENTERPRISE_HOST}/{REVIEW_APPNAME}/".format(
-        REVIEW_APPNAME=REVIEW_APPNAME,
-        DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
+    print(
+        "  Preview: https://{DASH_ENTERPRISE_HOST}/{REVIEW_APPNAME}/".format(
+            REVIEW_APPNAME=REVIEW_APPNAME,
+            DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
         )
     )
     print(
         "  Settings: https://"
-        +"{DASH_ENTERPRISE_HOST}/Manager/apps/{REVIEW_APPNAME}/settings".format(
-        REVIEW_APPNAME=REVIEW_APPNAME,
-        DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
+        + "{DASH_ENTERPRISE_HOST}/Manager/apps/{REVIEW_APPNAME}/settings".format(
+            REVIEW_APPNAME=REVIEW_APPNAME,
+            DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
         )
     )
     sys.exit(0)

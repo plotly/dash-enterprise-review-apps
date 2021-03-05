@@ -73,16 +73,14 @@ while len(apps_result) != 0 or PAGE == 0:
     apps.extend(apps_result)
     print("  Total: {apps_total}".format(apps_total=len(apps)), end="\r")
     PAGE = PAGE + 1
-print("  Total: {apps_total}".format(apps_total=len(apps))) 
+print("  Total: {apps_total}".format(apps_total=len(apps)))
 
 if len(apps) == 0:
     sys.exit(
         "No apps were found by user {SERVICE_USERNAME}. ".format(
             SERVICE_USERNAME=SERVICE_USERNAME
         )
-        + "Check that {SERVICE_USERNAME} ".format(
-            SERVICE_USERNAME=SERVICE_USERNAME
-        )
+        + "Check that {SERVICE_USERNAME} ".format(SERVICE_USERNAME=SERVICE_USERNAME)
         + "owns apps or has admin privileges."
     )
 
@@ -108,10 +106,7 @@ for _, app in enumerate(apps):
 
 apps_filtered = dict()
 
-print("  Total: {databases_total}".format(
-    databases_total=len(services_dict.items())
-    )
-)
+print("  Total: {databases_total}".format(databases_total=len(services_dict.items())))
 
 print(
     "Determining which review apps haven't been updated or visited the last "
@@ -127,24 +122,16 @@ for app_name, app_time in apps_dict.items():
     if (
         app_name.startswith(PREFIX)
         and TIME_UPDATED is None
-        and (
-            datetime.now() - datetime.strptime(
-                TIME_CREATED, 
-                "%Y-%m-%dT%H:%M:%S.%f"
-            )
-        ) > timedelta(**LAST_UPDATE)
+        and (datetime.now() - datetime.strptime(TIME_CREATED, "%Y-%m-%dT%H:%M:%S.%f"))
+        > timedelta(**LAST_UPDATE)
     ):
         print("  {app_name}".format(app_name=app_name))
         apps_filtered[app_name] = TIME_CREATED
     elif (
         app_name.startswith(PREFIX)
         and TIME_UPDATED is not None
-        and (
-            datetime.now() - datetime.strptime(
-                TIME_UPDATED, 
-                "%Y-%m-%dT%H:%M:%S.%f"
-            )
-        ) > timedelta(**LAST_UPDATE)
+        and (datetime.now() - datetime.strptime(TIME_UPDATED, "%Y-%m-%dT%H:%M:%S.%f"))
+        > timedelta(**LAST_UPDATE)
     ):
         print("  {app_name}".format(app_name=app_name))
         apps_filtered[app_name] = TIME_UPDATED
@@ -154,7 +141,7 @@ print(
     ),
 )
 
-if len (apps_filtered.items()) != 0:
+if len(apps_filtered.items()) != 0:
     print(
         "Deleting apps that haven't been updated or visited in over "
         + "{time} {period}...".format(
@@ -180,9 +167,7 @@ if len (apps_filtered.items()) != 0:
 
     services_filtered = dict()
     if len(services_dict) != 0:
-        print(
-            "Discovering databases associated with deleted apps..."
-        )
+        print("Discovering databases associated with deleted apps...")
         for service_name, service_type in services_dict.items():
             if services_dict[service_name][0] in apps_filtered:
                 services_filtered[service_name] = service_type[1]
