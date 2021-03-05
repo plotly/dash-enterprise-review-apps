@@ -269,11 +269,11 @@ if len(mounts.items()) != 0:
 else:
     print("No directories to map")
 
-if len(environmentVariables.items()) != 0:
-    print("Adding environment variables...")
+
+for envar_name in list(environmentVariables):
     environmentVariables_filter = tuple(
-        # These environment variables are created automatically by Dash
-        # Enterprise and do not need to be manually modified.
+    # These environment variables are created automatically by Dash
+    # Enterprise and do not need to be manually modified.
         [
             "DOKKU",
             "DASH",
@@ -284,32 +284,36 @@ if len(environmentVariables.items()) != 0:
             "NO_VHOST",
         ]
     )
+    if envar_name.startswith(environmentVariables_filter):
+        environmentVariables.pop(envar_name)
+
+if len(environmentVariables.items()) != 0:
+    print("Adding environment variables...")
     for envar_name, envar_value in environmentVariables.items():
-        if not envar_name.startswith(environmentVariables_filter):
-            query = gql(
-                """
-                mutation (
-                    $environmentVariable: String,
-                    $value: String,
-                    $appname: String
+        query = gql(
+            """
+            mutation (
+                $environmentVariable: String,
+                $value: String,
+                $appname: String
+            ) {
+                addEnvironmentVariable (
+                    name: $environmentVariable,
+                    value: $value,
+                    appname: $appname
                 ) {
-                    addEnvironmentVariable (
-                        name: $environmentVariable,
-                        value: $value,
-                        appname: $appname
-                    ) {
-                        error
-                    }
+                    error
                 }
-                """
-            )
-            params = {
-                "environmentVariable": envar_name,
-                "value": envar_value,
-                "appname": REVIEW_APPNAME,
             }
-            result = client_service.execute(query, variable_values=params)
-            sleep(5)
-            print("  {envar_name} :".format(envar_name=envar_name), 10 * "*")
+            """
+        )
+        params = {
+            "environmentVariable": envar_name,
+            "value": envar_value,
+            "appname": REVIEW_APPNAME,
+        }
+        result = client_service.execute(query, variable_values=params)
+        sleep(5)
+        print("  {envar_name} :".format(envar_name=envar_name), 10 * "*")
 else:
     print("No environment variables to add")
