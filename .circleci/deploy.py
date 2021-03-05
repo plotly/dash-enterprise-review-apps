@@ -1,19 +1,20 @@
 """
-This script is run after initialize.py, and is reposible for deploying Review
-Apps on  your Dash Enterprise host
+This script is run after initialize.py, and is reponsible for deploying Review
+Apps on your Dash Enterprise host
 """
 
 import sys
 import subprocess
+from time import sleep
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from settings import (
     SERVICE_PRIVATE_SSH_KEY,
     DASH_ENTERPRISE_HOST,
-    APPNAME,
-    TARGET_APPNAME,
+    REVIEW_APPNAME,
+    MAIN_APPNAME,
     BRANCHNAME,
-    TRUNK_BRANCHNAME,
+    MAIN_BRANCHNAME,
     SERVICE_USERNAME,
     SERVICE_API_KEY,
 )
@@ -41,17 +42,18 @@ def exit_message():
     Prints out links to deployed app and app settings page before exiting
     script.
     """
+    print("Your review app has been deployed...")
+    print()
+    print("  Preview: https://{DASH_ENTERPRISE_HOST}/{REVIEW_APPNAME}/".format(
+        REVIEW_APPNAME=REVIEW_APPNAME,
+        DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
+        )
+    )
     print(
-        """
-        Your Dash app has been deployed.
-
-        Preview {APPNAME}:
-
-        https://{DASH_ENTERPRISE_HOST}/{APPNAME}/
-        https://{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings
-        """.format(
-            APPNAME=APPNAME,
-            DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
+        "  Settings: https://"
+        +"{DASH_ENTERPRISE_HOST}/Manager/apps/{REVIEW_APPNAME}/settings".format(
+        REVIEW_APPNAME=REVIEW_APPNAME,
+        DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
         )
     )
     sys.exit(0)
@@ -67,12 +69,12 @@ def zip_list_index(index_list, index_a, index_b):
     return dict(zip(index_key, index_value))
 
 
-if TRUNK_BRANCHNAME == BRANCHNAME:
-    print("Re-deploying target app...\n")
-    DEPLOY_APPNAME = TARGET_APPNAME
+if MAIN_BRANCHNAME == BRANCHNAME:
+    print("Deploying main app...\n")
+    DEPLOY_APPNAME = MAIN_APPNAME
 else:
     print("Deploying review app...\n")
-    DEPLOY_APPNAME = APPNAME
+    DEPLOY_APPNAME = REVIEW_APPNAME
 subprocess.run(
     """
     echo "{SSH_KEY}" | base64 --decode -i > ~/.ssh/id_rsa
@@ -99,12 +101,12 @@ subprocess.run(
     check=True,
 )
 
-print("\n")
+print()
 
-if TRUNK_BRANCHNAME == BRANCHNAME:
+if MAIN_BRANCHNAME == BRANCHNAME:
     exit_message()
 else:
-    print("Querying target app viewer permissions...")
+    print("Querying main app viewer permissions...")
     query = gql(
         """
         query (
@@ -133,7 +135,7 @@ else:
         }
         """
     )
-    params = {"name": TARGET_APPNAME}
+    params = {"name": MAIN_APPNAME}
     result = client_service.execute(query, variable_values=params)
 
 if len(result["apps"]["apps"]) != 0:
@@ -145,9 +147,8 @@ apps_permissionLevels = result["apps"]["apps"][0]["metadata"]["permissionLevel"]
 apps_collaborators = result["apps"]["apps"][0]["collaborators"]["users"]
 
 apps_viewers = [apps_owner] + apps_collaborators
-print(apps_permissionLevels)
 print(
-    "Updating app permission level to {permissionLevel}...".format(
+    "Updating review app permission level to {permissionLevel}...".format(
         permissionLevel=apps_permissionLevels
     )
 )
@@ -170,12 +171,12 @@ query = gql(
 )
 params = {
     "permissionLevel": apps_permissionLevels,
-    "appname": APPNAME,
+    "appname": REVIEW_APPNAME,
 }
 result = client_service.execute(query, variable_values=params)
 
 if apps_permissionLevels == "restricted" and apps_status == "true":
-    print("Adding target app viewers to review app...")
+    print("Adding main app viewers to review app...")
     for viewer in range(apps_viewers):
         query = gql(
             """
@@ -192,9 +193,10 @@ if apps_permissionLevels == "restricted" and apps_status == "true":
         }
         """
         )
-        params = {"appname": APPNAME, "users": viewer}
+        params = {"appname": REVIEW_APPNAME, "users": viewer}
         result = client_service.execute(query, variable_values=params)
+        sleep(5)
 
         print("  {viewer}".format(viewer=viewer))
 else:
-    print("Target app is not restricted, not adding any additional viewers.")
+    print("Main app is not restricted, not adding any additional viewers.")

@@ -8,17 +8,17 @@ Usage: source .env && python3.6 initialize.py
 import os
 
 # LAST_UPDATE is the allowed amount of time since a review app was last viewed
-#  or updated, before it is deleted from the server.
+# or updated, before it is deleted from the server.
 # Typically this is {"days": 5}
 PERIOD = "hours"  # "minutes", "hours", "days"
 TIME = 1
 LAST_UPDATE = {PERIOD: TIME}
 
 # Set this to the trunk branch that you'd like to have update your target app.
-# When BRANCHNAME is TRUNK_BRANCHNAME, the script will deploy the changes to
+# When BRANCHNAME is MAIN_BRANCHNAME, the script will deploy the changes to
 # the target app. Otherwise, the script will create a new review app. This is
 # branch is usually called "main", "master" or "dev".
-TRUNK_BRANCHNAME = "main"
+MAIN_BRANCHNAME = "main"
 
 # BRANCHNAME should refer to the branch of the code that the review apps are
 # created from. It is used when creating the name of the review app.
@@ -26,18 +26,19 @@ TRUNK_BRANCHNAME = "main"
 # variables. For example, in CircleCI this is CIRCLE_BRANCH
 BRANCHNAME = os.getenv("CIRCLE_BRANCH")
 
-# TARGET_APPNAME is the name the Dash App that will serve as a review app
-# template. This script will copy that apps configuration settings and
+# MAIN_APPNAME is the name the Dash App that will serve as a review app
+# template. This script will copy that app's configuration settings and
 # apply them to all review apps.
-# When BRANCHNAME = TRUNK_BRANCHNAME, the changes on the branch will get
-# deployed to this app.cl
-TARGET_APPNAME = "aa-tobin"
+# When BRANCHNAME = MAIN_BRANCHNAME, the changes on the branch will get
+# deployed to this app.
+MAIN_APPNAME = "aa-tobin"
 
-# PREFIX is a filter for deleting review apps.
-PREFIX = "{TARGET_APPNAME}-rev-".format(TARGET_APPNAME=TARGET_APPNAME[:15])
+# PREFIX is the prefix of the review app name.
+# It is used for creating review apps and determining which apps to delete.
+PREFIX = "{MAIN_APPNAME}-rev-".format(MAIN_APPNAME=MAIN_APPNAME[:15])
 
-# APPNAME determines how the review apps will be named.
-APPNAME = "{PREFIX}{BRANCHNAME}".format(PREFIX=PREFIX, BRANCHNAME=BRANCHNAME)[:30]
+# REVIEW_APPNAME is the name of the review app.
+REVIEW_APPNAME = "{PREFIX}{BRANCHNAME}".format(PREFIX=PREFIX, BRANCHNAME=BRANCHNAME)[:30]
 
 # DASH_ENTERPRISE_HOST is your Dash Enterprise Server's host address.
 # DASH_ENTERPRISE_HOST = "qa-de-410.plotly.host"
@@ -48,7 +49,7 @@ DASH_ENTERPRISE_HOST = "dash-playground.plotly.host"
 # deployment and configuration.
 SERVICE_USERNAME = "service"
 
-# SERVICE_API_KEY is the "Machine User's" API key used to access your Dash
+# SERVICE_API_KEY is the "Service Account's" API key used to access your Dash
 # Enterprise server.
 SERVICE_API_KEY = os.getenv("SERVICE_API_KEY")
 
@@ -59,7 +60,7 @@ SERVICE_API_KEY = os.getenv("SERVICE_API_KEY")
 # will be the key and the value. In this case, you could delete this
 # dictionary and assign USERNAME to CI_USERNAME: USERNAME = CI_USERNAME
 DE_USERNAME_TO_CI_USERNAME = {
-    "criddyp": "criddyp",
+    "chriddyp": "chriddyp",
     "tobinngo": "tobinngo",
     "service": "service",
 }
@@ -68,7 +69,7 @@ DE_USERNAME_TO_CI_USERNAME = {
 # usernames to the name of a CI environment variable in your CI platform that
 # contains their Dash Enterprise API key.
 DE_USERNAME_TO_CI_API_KEY = {
-    "criddyp": "CRIDDYP_API_KEY",
+    "chriddyp": "CHRIDDYP_API_KEY",
     "tobinngo": "TNGO_API_KEY",
     "service": "SERVICE_API_KEY",
 }

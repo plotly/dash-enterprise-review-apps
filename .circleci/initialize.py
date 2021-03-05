@@ -13,8 +13,8 @@ from settings import (
     USERNAME_API_KEY,
     SERVICE_API_KEY,
     SERVICE_USERNAME,
-    APPNAME,
-    TARGET_APPNAME,
+    REVIEW_APPNAME,
+    MAIN_APPNAME,
 )
 
 if sys.version_info[0:2] < (3, 6) or sys.version_info[0:2] > (3, 7):
@@ -53,8 +53,8 @@ def zip_list_index(index_list, index_a, index_b):
     return dict(zip(index_key, index_value))
 
 
-print("Querying target app...")
-print("  {TARGET_APPNAME}".format(TARGET_APPNAME=TARGET_APPNAME))
+print("Querying main app...")
+print("  {MAIN_APPNAME}".format(MAIN_APPNAME=MAIN_APPNAME))
 
 query = gql(
     """
@@ -101,21 +101,17 @@ query = gql(
     }
     """
 )
-params = {"name": TARGET_APPNAME}
+params = {"name": MAIN_APPNAME}
 result = client_service.execute(query, variable_values=params)
 
 if len(result["apps"]["apps"]) != 0:
     print("Initializing review app...")
     apps = result["apps"]["apps"]
-    apps_name = result["apps"]["apps"][0]["name"]
-    # apps_owner = result["apps"]["apps"][0]["owner"]["username"]
-    # apps_status = result["apps"]["apps"][0]["status"]["running"]
-    # current_isAdmin = result["current"]["isAdmin"]
-    # apps_collaborators = result["apps"]["apps"][0]["collaborators"]
-    apps_permissionLevels = result["apps"]["apps"][0]["metadata"]
-    apps_linkedServices = result["apps"]["apps"][0]["linkedServices"]
-    apps_mounts = result["apps"]["apps"][0]["mounts"]
-    apps_environmentVariables = result["apps"]["apps"][0]["environmentVariables"]
+    apps_name = apps[0]["name"]
+    apps_permissionLevels = apps[0]["metadata"]
+    apps_linkedServices = apps[0]["linkedServices"]
+    apps_mounts = apps[0]["mounts"]
+    apps_environmentVariables = apps[0]["environmentVariables"]
 
     permissionLevels = apps_permissionLevels
     linkedServices = zip_list_index(apps_linkedServices, "serviceType", "name")
@@ -136,179 +132,106 @@ if len(result["apps"]["apps"]) != 0:
         """
     )
 
-    params = {"appname": APPNAME}
+    params = {"appname": REVIEW_APPNAME}
 
     result = client_user.execute(query, variable_values=params)
 
-    print("  {APPNAME}".format(APPNAME=APPNAME))
+    print("  {REVIEW_APPNAME}".format(REVIEW_APPNAME=REVIEW_APPNAME))
 else:
     print(result)
     raise Exception(
         "\nReview app not initialized"
-        + "\nApp {TARGET_APPNAME} does not exist or the user {USERNAME}".format(
-            TARGET_APPNAME=TARGET_APPNAME, USERNAME=USERNAME
+        + "\nApp {MAIN_APPNAME} does not exist or the user {USERNAME}".format(
+            MAIN_APPNAME=MAIN_APPNAME, USERNAME=USERNAME
         )
         + "does not have permission to query this app.\n"
     )
 
 if len(linkedServices.items()) != 0:
     print(
-        "Adding redis/postgres databases...",
+        "Adding databases...",
     )
     for serviceType in linkedServices:
-        if serviceType == "redis":
-            serviceName = "{APPNAME}-{serviceType}".format(
-                APPNAME=APPNAME,
-                serviceType="redis",
-            )[0:30]
-            query_addService = gql(
-                """
-                mutation (
-                    $serviceType: ServiceType=redis,
-                    $serviceName: String
-                ) {
-                    addService (
-                        name: $serviceName,
-                        serviceType: $serviceType
-                    ) {
-                        error
-                    }
-                }
-                """
-            )
-            params_addService = {
-                "serviceName": serviceName,
-                "serviceType": serviceType,
-            }
-            sleep(5)
-            result = client_service.execute(
-                query_addService, variable_values=params_addService
-            )
+        
+        serviceName = "{REVIEW_APPNAME}-{serviceType}".format(
+            REVIEW_APPNAME=REVIEW_APPNAME,
+            serviceType=serviceType,
+        )[0:30]
+        query_addService = gql(
+            """
+            mutation (
+                $serviceType: ServiceType={serviceType},
+                $serviceName: String
+            ) {{
+                addService (
+                    name: $serviceName,
+                    serviceType: $serviceType
+                ) {{
+                    error
+                }}
+            }}
+            """.format(serviceType=serviceType)
+        )
+        params_addService = {
+            "serviceName": serviceName,
+            "serviceType": serviceType,
+        }
+        sleep(5)
+        result = client_service.execute(
+            query_addService, variable_values=params_addService
+        )
 
-            print(
-                "  {serviceName}, {serviceType}".format(
-                    serviceName=serviceName, serviceType=serviceType
-                )
+        print(
+            "  {serviceName}, {serviceType}".format(
+                serviceName=serviceName, serviceType=serviceType
             )
-        elif serviceType == "postgres":
-            serviceName = "{APPNAME}-{serviceType}".format(
-                APPNAME=APPNAME,
-                serviceType="postgres",
-            )[0:30]
-            query_addService = gql(
-                """
-                mutation (
-                    $serviceType: ServiceType=postgres,
-                    $serviceName: String
-                ) {
-                    addService (
-                        name: $serviceName,
-                        serviceType: $serviceType
-                    ) {
-                        error
-                    }
-                }
-                """
-            )
-            params_addService = {
-                "serviceName": serviceName,
-                "serviceType": serviceType,
-            }
-            sleep(5)
-            result = client_service.execute(
-                query_addService, variable_values=params_addService
-            )
+        )
 
-            print(
-                "  {serviceName}, {serviceType}".format(
-                    serviceName=serviceName, serviceType=serviceType
-                )
+
+    print(
+        "Linking databases...",
+    )
+    for serviceType in linkedServices:
+
+        serviceName = "{REVIEW_APPNAME}-{serviceType}".format(
+            REVIEW_APPNAME=REVIEW_APPNAME,
+            serviceType=serviceType,
+        )[0:30]
+        query_linkService = gql(
+            """
+            mutation (
+                $appname: String
+                $serviceType: ServiceType={serviceType},
+                $serviceName: String
+            ) {{
+                linkService (
+                    appname: $appname,
+                    serviceName: $serviceName,
+                    serviceType: $serviceType
+                ) {{
+                    error
+                }}
+            }}
+            """.format(serviceType=serviceType)
+        )
+        params_linkService = {
+            "appname": REVIEW_APPNAME,
+            "serviceName": serviceName,
+            "serviceType": serviceType,
+        }
+
+        sleep(5)
+        result = client_service.execute(
+            query_linkService, variable_values=params_linkService
+        )
+
+        print(
+            "  {serviceName}, {serviceType}".format(
+                serviceName=serviceName, serviceType=serviceType
             )
+        )
 else:
-    print("No redis/postgres databases to add")
-
-
-print(
-    "Linking databases...",
-)
-for serviceType in linkedServices:
-    if serviceType == "redis":
-        serviceName = "{APPNAME}-{serviceType}".format(
-            APPNAME=APPNAME,
-            serviceType="redis",
-        )[0:30]
-        query_linkService = gql(
-            """
-            mutation (
-                $appname: String
-                $serviceType: ServiceType=redis,
-                $serviceName: String
-            ) {
-                linkService (
-                    appname: $appname,
-                    serviceName: $serviceName,
-                    serviceType: $serviceType
-                ) {
-                    error
-                }
-            }
-            """
-        )
-        params_linkService = {
-            "appname": APPNAME,
-            "serviceName": serviceName,
-            "serviceType": serviceType,
-        }
-
-        sleep(5)
-        result = client_service.execute(
-            query_linkService, variable_values=params_linkService
-        )
-
-        print(
-            "  {serviceName}, {serviceType}".format(
-                serviceName=serviceName, serviceType=serviceType
-            )
-        )
-
-    elif serviceType == "postgres":
-        serviceName = "{APPNAME}-{serviceType}".format(
-            APPNAME=APPNAME,
-            serviceType="postgres",
-        )[0:30]
-        query_linkService = gql(
-            """
-            mutation (
-                $appname: String
-                $serviceType: ServiceType=postgres,
-                $serviceName: String
-            ) {
-                linkService (
-                    appname: $appname,
-                    serviceName: $serviceName,
-                    serviceType: $serviceType
-                ) {
-                    error
-                }
-            }
-            """
-        )
-        params_linkService = {
-            "appname": APPNAME,
-            "serviceName": serviceName,
-            "serviceType": serviceType,
-        }
-
-        sleep(5)
-        result = client_service.execute(
-            query_linkService, variable_values=params_linkService
-        )
-
-        print(
-            "  {serviceName}, {serviceType}".format(
-                serviceName=serviceName, serviceType=serviceType
-            )
-        )
+    print("No redis or postgres databases to add")
 
 if len(mounts.items()) != 0:
     print("Mapping directories...")
@@ -333,13 +256,14 @@ if len(mounts.items()) != 0:
         params = {
             "hostDir": host_dir,
             "targetDir": target_dir,
-            "appname": APPNAME,
+            "appname": REVIEW_APPNAME,
         }
 
         result = client_service.execute(query, variable_values=params)
 
         print(
-            "  Mapping host directory: {host_dir} to review app directory: {target_dir}".format(
+            "  Mapping host directory: " 
+            + "{host_dir} to review app directory: {target_dir}".format(
                 host_dir=host_dir, target_dir=target_dir
             )
         )
@@ -383,10 +307,11 @@ if len(environmentVariables.items()) != 0:
             params = {
                 "environmentVariable": envar_name,
                 "value": envar_value,
-                "appname": APPNAME,
+                "appname": REVIEW_APPNAME,
             }
             result = client_service.execute(query, variable_values=params)
-
+            sleep(5)
+            
             print("  {envar_name} :".format(envar_name=envar_name), 10 * "*")
 else:
     print("No environment variables to add\n")

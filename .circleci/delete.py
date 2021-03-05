@@ -43,7 +43,7 @@ apps = []
 apps_result = []
 services = []
 
-print("Querying apps...\n")
+print("Querying apps...")
 while len(apps_result) != 0 or PAGE == 0:
     query = gql(
         """
@@ -67,20 +67,23 @@ while len(apps_result) != 0 or PAGE == 0:
         """
     )
     params = {"PAGE": PAGE}
-    sleep(5)
+    sleep(2)
     api_call = client.execute(query, variable_values=params)
     apps_result = api_call["apps"]["apps"]
     apps.extend(apps_result)
-    print("  Page: {PAGE}".format(PAGE=PAGE))
+    print("  Total: {apps_total}".format(apps_total=len(apps)), end="\r")
     PAGE = PAGE + 1
-print("\n  Apps: {apps}\n".format(apps=len(apps)))
+print("  Total: {apps_total}".format(apps_total=len(apps))) 
 
 if len(apps) == 0:
     sys.exit(
-        "No apps were found by user {username}.".format(username=SERVICE_USERNAME)
-        + "Check that {username} owns apps or has admin privileges.\n".format(
-            username=SERVICE_USERNAME
+        "No apps were found by user {SERVICE_USERNAME}. ".format(
+            SERVICE_USERNAME=SERVICE_USERNAME
         )
+        + "Check that {SERVICE_USERNAME} ".format(
+            SERVICE_USERNAME=SERVICE_USERNAME
+        )
+        + "owns apps or has admin privileges."
     )
 
 
@@ -92,107 +95,132 @@ services_type = []
 apps_dict = dict()
 services_dict = dict()
 
-print("Discovering linked databases associated with the apps...")
-for i in range(len(apps)):
-    apps_name.append(apps[i]["analytics"]["appname"])
-    apps_created.append(apps[i]["analytics"]["timestamps"]["created"])
-    apps_updated.append(apps[i]["analytics"]["timestamps"]["updated"])
+print("Discovering linked databases...")
+for _, app in enumerate(apps):
+    apps_name.append(app["analytics"]["appname"])
+    apps_created.append(app["analytics"]["timestamps"]["created"])
+    apps_updated.append(app["analytics"]["timestamps"]["updated"])
     apps_dict.update(zip(apps_name, zip(apps_updated, apps_created)))
-    for j in range(len(apps[i]["linkedServices"])):
-        services_name.append(apps[i]["linkedServices"][j]["name"])
-        services_type.append(apps[i]["linkedServices"][j]["serviceType"])
+    for _, service in enumerate(app["linkedServices"]):
+        services_name.append(service["name"])
+        services_type.append(service["serviceType"])
         services_dict.update(zip(services_name, zip(apps_name, services_type)))
 
 apps_filtered = dict()
 
-
-print(
-    "Determining which apps haven't been updated or visited the last "
-    + "{time} {period}...".format(
-        time=TIME,
-        period=PERIOD,
+print("  Total: {databases_total}".format(
+    databases_total=len(services_dict.items())
     )
 )
+
+print(
+    "Determining which review apps haven't been updated or visited the last "
+    + "{TIME} {PERIOD}...".format(
+        TIME=TIME,
+        PERIOD=PERIOD,
+    )
+)
+
 for app_name, app_time in apps_dict.items():
-    # app_time[0] is the time last updated
-    # app_time[1] is the time last viewed
+    TIME_UPDATED = app_time[0]
+    TIME_CREATED = app_time[1]
     if (
         app_name.startswith(PREFIX)
-        and app_time[0] is None
-        and (datetime.now() - datetime.strptime(app_time[1], "%Y-%m-%dT%H:%M:%S.%f"))
-        > timedelta(**LAST_UPDATE)
+        and TIME_UPDATED is None
+        and (
+            datetime.now() - datetime.strptime(
+                TIME_CREATED, 
+                "%Y-%m-%dT%H:%M:%S.%f"
+            )
+        ) > timedelta(**LAST_UPDATE)
     ):
         print("  {app_name}".format(app_name=app_name))
-        apps_filtered[app_name] = app_time[0]
+        apps_filtered[app_name] = TIME_CREATED
     elif (
         app_name.startswith(PREFIX)
-        and app_time[1] is not None
-        and (datetime.now() - datetime.strptime(app_time[1], "%Y-%m-%dT%H:%M:%S.%f"))
-        > timedelta(**LAST_UPDATE)
+        and TIME_UPDATED is not None
+        and (
+            datetime.now() - datetime.strptime(
+                TIME_UPDATED, 
+                "%Y-%m-%dT%H:%M:%S.%f"
+            )
+        ) > timedelta(**LAST_UPDATE)
     ):
         print("  {app_name}".format(app_name=app_name))
-        apps_filtered[app_name] = app_time[1]
+        apps_filtered[app_name] = TIME_UPDATED
 print(
-    "\n  Apps filtered: {total_apps_filtered}\n".format(
+    "  Total: {total_apps_filtered}".format(
         total_apps_filtered=len(apps_filtered.items())
-    )
+    ),
 )
 
-
-print(
-    "Deleting apps that haven't been updated or visited in over "
-    + "{time} {period}...".format(
-        time=TIME,
-        period=PERIOD,
-    )
-)
-for app_name in apps_filtered:
-    print("  {app_name}".format(app_name=app_name))
-    query = gql(
-        """
-        mutation ($name: String) {
-            deleteApp(name: $name) {
-                ok
-                error
-            }
-        }
-        """
-    )
-    params = {"name": app_name}
-    client.execute(query, variable_values=params)
-    sleep(10)
-
-services_filtered = dict()
-if len(services_dict) != 0:
-    print("Discovering databases associated with deleted apps...")
-    for service_name, service_type in services_dict.items():
-        if services_dict[service_name][0] in apps_filtered:
-            services_filtered[service_name] = service_type[1]
+if len (apps_filtered.items()) != 0:
     print(
-        "  Databases filtered: {total_db_filtered}\n".format(
-            total_db_filtered=len(services_filtered.items())
+        "Deleting apps that haven't been updated or visited in over "
+        + "{time} {period}...".format(
+            time=TIME,
+            period=PERIOD,
         )
     )
+    for app_name in apps_filtered:
+        print("  {app_name}".format(app_name=app_name))
+        query = gql(
+            """
+            mutation ($name: String) {
+                deleteApp(name: $name) {
+                    ok
+                    error
+                }
+            }
+            """
+        )
+        params = {"name": app_name}
+        client.execute(query, variable_values=params)
+        sleep(20)
+
+    services_filtered = dict()
+    if len(services_dict) != 0:
+        print(
+            "Discovering databases associated with deleted apps..."
+        )
+        for service_name, service_type in services_dict.items():
+            if services_dict[service_name][0] in apps_filtered:
+                services_filtered[service_name] = service_type[1]
+        print(
+            "  Total: {total_db_filtered}".format(
+                total_db_filtered=len(services_filtered.items())
+            )
+        )
+    else:
+        print("No databases associated with deleted apps were found.")
+        sys.exit(0)
+
+    print("Deleting associated databases...")
+    for service_name, service_type in services_filtered.items():
+        query = gql(
+            """
+            mutation ($name: String, $serviceType: ServiceType){
+                deleteService(name: $name, serviceType: $serviceType){
+                    error
+                    ok
+                }
+            }
+            """
+        )
+        params = {"name": service_name, "serviceType": service_type}
+        client.execute(query, variable_values=params)
+        print(
+            "  name: {service_name}, type: {service_type}".format(
+                service_name=service_name, service_type=service_type
+            )
+        )
 else:
-    print("No databases associated with deleted apps were found.")
-    sys.exit()
-
-print("Deleting associated databases...")
-for service_name, service_type in services_filtered.items():
-    query = gql(
-        """
-        mutation ($name: String, $serviceType: ServiceType){
-            deleteService(name: $name, serviceType: $serviceType){
-                error
-                ok
-            }
-        }
-        """
-    )
-    params = {"name": service_name, "serviceType": service_type}
-    client.execute(query, variable_values=params)
     print(
-        "  name: {service_name}, type: {service_type}".format(
-            service_name=service_name, service_type=service_type
+        "All review apps have been updated or visited the last "
+        + "{TIME} {PERIOD}...".format(
+            TIME=TIME,
+            PERIOD=PERIOD,
         )
     )
+    print("  No apps deleted")
+print()
