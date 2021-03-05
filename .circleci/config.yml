@@ -86,6 +86,7 @@ jobs:
 workflows:
   deploy-workflow:
     jobs:
+      - initialize
       - deploy:
           requires:
             - initialize
