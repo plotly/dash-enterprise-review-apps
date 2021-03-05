@@ -92,7 +92,6 @@ subprocess.run(
     echo '-----> Creating ssh config'
     echo "Host *,\
         Port 3022,\
-        IdentityFile ~/.ssh/id_rsa,\
         StrictHostKeyChecking no,\
         UserKnownHostsFile /dev/null"\
     | tr ',' '\n' > ~/.ssh/config
@@ -128,9 +127,6 @@ else:
                     owner {
                         username
                     }
-                    status {
-                        running
-                    }
                     metadata {
                         permissionLevel
                     }
@@ -145,11 +141,10 @@ else:
     params = {"name": MAIN_APPNAME}
     result = client_service.execute(query, variable_values=params)
 
-if len(result["apps"]["apps"]) != 0:
+if len(result["apps"]["apps"]) == 0:
     exit_message()
 
 apps_owner = result["apps"]["apps"][0]["owner"]["username"]
-apps_status = result["apps"]["apps"][0]["status"]["running"]
 apps_permissionLevels = result["apps"]["apps"][0]["metadata"]["permissionLevel"]
 apps_collaborators = result["apps"]["apps"][0]["collaborators"]["users"]
 
@@ -184,7 +179,7 @@ result = client_service.execute(query, variable_values=params)
 
 if apps_permissionLevels == "restricted":
     print("Adding main app viewers to review app...")
-    for viewer in range(apps_viewers):
+    for _, viewer in enumerate(apps_viewers):
         query = gql(
             """
         mutation (

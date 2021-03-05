@@ -74,9 +74,6 @@ query = gql(
                 owner {
                     username
                 }
-                status {
-                    running
-                }
                 collaborators {
                     users
                     teams
@@ -280,9 +277,9 @@ if len(environmentVariables.items()) != 0:
         [
             "DOKKU",
             "DASH",
-            "DATABASE_URL",
+            "DATABASE_URL", # postgres database
             "GIT_REV",
-            "REDIS_URL",
+            "REDIS_URL", # redis database
             "SCRIPT_NAME",
             "NO_VHOST",
         ]
