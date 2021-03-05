@@ -14,22 +14,22 @@ PERIOD = "hours"  # "minutes", "hours", "days"
 TIME = 1
 LAST_UPDATE = {PERIOD: TIME}
 
-# Set this to the trunk branch that you'd like to have update your target app.
-# When BRANCHNAME is MAIN_BRANCHNAME, the script will deploy the changes to
-# the target app. Otherwise, the script will create a new review app. This is
+# Set this to the branch that you'd like to have update your main app.
+# When REVIEW_BRANCHNAME is MAIN_BRANCHNAME, the script will deploy the changes
+# to the target app. Otherwise, the script will create a new review app. This
 # branch is usually called "main", "master" or "dev".
 MAIN_BRANCHNAME = "main"
 
-# BRANCHNAME should refer to the branch of the code that the review apps are
-# created from. It is used when creating the name of the review app.
+# REVIEW_BRANCHNAME should refer to the branch of the code that the review apps
+# are created from. It is used when creating the name of the review app
 # Set this to the branch name provided by your CI system's environment
 # variables. For example, in CircleCI this is CIRCLE_BRANCH
-BRANCHNAME = os.getenv("CIRCLE_BRANCH")
+REVIEW_BRANCHNAME = os.getenv("CIRCLE_BRANCH")
 
 # MAIN_APPNAME is the name the Dash App that will serve as a review app
 # template. This script will copy that app's configuration settings and
 # apply them to all review apps.
-# When BRANCHNAME = MAIN_BRANCHNAME, the changes on the branch will get
+# When REVIEW_BRANCHNAME = MAIN_BRANCHNAME, the changes on the branch will get
 # deployed to this app.
 MAIN_APPNAME = "aa-tobin"
 
@@ -38,12 +38,11 @@ MAIN_APPNAME = "aa-tobin"
 PREFIX = "{MAIN_APPNAME}-rev-".format(MAIN_APPNAME=MAIN_APPNAME[:15])
 
 # REVIEW_APPNAME is the name of the review app.
-REVIEW_APPNAME = "{PREFIX}{BRANCHNAME}".format(PREFIX=PREFIX, BRANCHNAME=BRANCHNAME)[
-    :30
-]
+REVIEW_APPNAME = "{PREFIX}{REVIEW_BRANCHNAME}".format(
+    PREFIX=PREFIX, REVIEW_BRANCHNAME=REVIEW_BRANCHNAME
+)[:30]
 
 # DASH_ENTERPRISE_HOST is your Dash Enterprise Server's host address.
-# DASH_ENTERPRISE_HOST = "qa-de-410.plotly.host"
 DASH_ENTERPRISE_HOST = "dash-playground.plotly.host"
 
 # SERVICE_USERNAME can be the username of any account that has admin privileges.
@@ -81,31 +80,34 @@ DE_USERNAME_TO_CI_API_KEY = {
 # CIRCLE_USERNAME.
 CI_USERNAME = os.getenv("CIRCLE_USERNAME")
 
-
-USERNAME = DE_USERNAME_TO_CI_USERNAME[CI_USERNAME]
-# USERNAME = CI_USERNAME
+# DE_USERNAME is the Dash Enterprise login of your developers
+DE_USERNAME = DE_USERNAME_TO_CI_USERNAME[CI_USERNAME]
+# DE_USERNAME = CI_USERNAME
 
 # SERVICE_PRIVATE_SSH_KEY belongs to a Dash Enterprise user with admin
 # privileges. This user will handle server deployment tasks.
 SERVICE_PRIVATE_SSH_KEY = os.getenv("SERVICE_PRIVATE_SSH_KEY")
 
-if USERNAME in DE_USERNAME_TO_CI_USERNAME and USERNAME in DE_USERNAME_TO_CI_API_KEY:
-    USERNAME_API_KEY = os.getenv(DE_USERNAME_TO_CI_API_KEY.get(USERNAME))
+if (
+    DE_USERNAME in DE_USERNAME_TO_CI_USERNAME
+    and DE_USERNAME in DE_USERNAME_TO_CI_API_KEY
+):
+    DE_USERNAME_API_KEY = os.getenv(DE_USERNAME_TO_CI_API_KEY.get(DE_USERNAME))
 else:
     print("API key was not fetched")
     print(
         """
-        {USERNAME} is missing from
+        {DE_USERNAME} is missing from
         DE_USERNAME_TO_CI_USERNAME and
         DE_USERNAME_TO_CI_API_KEY dictionaries.
 
         See Getting Started section in Continuous Integration Docs
-        (https://{DASH_ENTERPRISE_HOST}/Docs/continuous-integration)
+        (https://{DASH_ENTERPRISE_HOST}/Docs/review-apps)
         for more information or contact your Dash Enterprise
         administrator.
 
         """.format(
-            USERNAME=USERNAME,
+            DE_USERNAME=DE_USERNAME,
             DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
         )
     )

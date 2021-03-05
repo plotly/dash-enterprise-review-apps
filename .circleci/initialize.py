@@ -9,8 +9,8 @@ from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from settings import (
     DASH_ENTERPRISE_HOST,
-    USERNAME,
-    USERNAME_API_KEY,
+    DE_USERNAME,
+    DE_USERNAME_API_KEY,
     SERVICE_API_KEY,
     SERVICE_USERNAME,
     REVIEW_APPNAME,
@@ -34,7 +34,7 @@ transport_service = RequestsHTTPTransport(
 
 transport_user = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
-    auth=(USERNAME, USERNAME_API_KEY),
+    auth=(DE_USERNAME, DE_USERNAME_API_KEY),
     use_json=True,
     retries=5,
 )
@@ -141,8 +141,8 @@ else:
     print(result)
     raise Exception(
         "\nReview app not initialized"
-        + "\nApp {MAIN_APPNAME} does not exist or the user {USERNAME}".format(
-            MAIN_APPNAME=MAIN_APPNAME, USERNAME=USERNAME
+        + "\nApp {MAIN_APPNAME} does not exist or the user {DE_USERNAME}".format(
+            MAIN_APPNAME=MAIN_APPNAME, DE_USERNAME=DE_USERNAME
         )
         + "does not have permission to query this app.\n"
     )

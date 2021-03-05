@@ -13,7 +13,7 @@ from settings import (
     DASH_ENTERPRISE_HOST,
     REVIEW_APPNAME,
     MAIN_APPNAME,
-    BRANCHNAME,
+    REVIEW_BRANCHNAME,
     MAIN_BRANCHNAME,
     SERVICE_USERNAME,
     SERVICE_API_KEY,
@@ -70,7 +70,7 @@ def zip_list_index(index_list, index_a, index_b):
     return dict(zip(index_key, index_value))
 
 
-if MAIN_BRANCHNAME == BRANCHNAME:
+if MAIN_BRANCHNAME == REVIEW_BRANCHNAME:
     print("Deploying main app...\n")
     DEPLOY_APPNAME = MAIN_APPNAME
 else:
@@ -78,25 +78,27 @@ else:
     DEPLOY_APPNAME = REVIEW_APPNAME
 subprocess.run(
     """
+    echo '-----> Creating ssh key'
     echo "{SSH_KEY}" | base64 --decode -i > ~/.ssh/id_rsa
     chmod 600 ~/.ssh/id_rsa
     ssh-add -D
     eval "$(ssh-agent -s)"
+    echo '-----> Adding keys to ssh-agent'
     ssh-add ~/.ssh/id_rsa
-    echo "Host {HOST},\
-        HostName {HOST},\
-        User {SERVICE_USERNAME},\
+    echo '-----> Creating ssh config'
+    echo "Host *,\
         Port 3022,\
         IdentityFile ~/.ssh/id_rsa,\
         StrictHostKeyChecking no,\
         UserKnownHostsFile /dev/null"\
     | tr ',' '\n' > ~/.ssh/config
+    echo '-----> Adding git remote'
     git config remote.plotly.url >&- || git remote add plotly dokku@{HOST}:{APP}
+    echo '-----> Deploying app'
     git push --force plotly HEAD:master
     """.format(
         SSH_KEY=SERVICE_PRIVATE_SSH_KEY,
         HOST=DASH_ENTERPRISE_HOST,
-        SERVICE_USERNAME=SERVICE_USERNAME,
         APP=DEPLOY_APPNAME,
     ),
     shell=True,
@@ -105,7 +107,7 @@ subprocess.run(
 
 print()
 
-if MAIN_BRANCHNAME == BRANCHNAME:
+if MAIN_BRANCHNAME == REVIEW_BRANCHNAME:
     exit_message()
 else:
     print("Querying main app viewer permissions...")
