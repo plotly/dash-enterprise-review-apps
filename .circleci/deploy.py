@@ -182,7 +182,7 @@ params = {
 }
 result = client_service.execute(query, variable_values=params)
 
-if apps_permissionLevels == "restricted" and apps_status == "true":
+if apps_permissionLevels == "restricted":
     print("Adding main app viewers to review app...")
     for viewer in range(apps_viewers):
         query = gql(

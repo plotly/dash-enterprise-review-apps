@@ -101,7 +101,7 @@ else:
         DE_USERNAME_TO_CI_USERNAME and
         DE_USERNAME_TO_CI_API_KEY dictionaries.
 
-        See Getting Started section in Continuous Integration Docs
+        See Getting Started section in Review Apps Docs
         (https://{DASH_ENTERPRISE_HOST}/Docs/review-apps)
         for more information or contact your Dash Enterprise
         administrator.
