@@ -19,8 +19,6 @@ jobs:
       - run:
           name: Run Initialize command
           command: |
-            cd .circleci/
-            env
             source venv/bin/activate
             python3 initialize.py
       - save_cache:
@@ -47,8 +45,6 @@ jobs:
       - run:
           name: Run Deploy Command
           command: |
-            cd .circleci/
-            env
             source venv/bin/activate
             python3 deploy.py
       - save_cache:
@@ -74,8 +70,6 @@ jobs:
       - run:
           name: Run Delete Command 
           command: |
-            cd .circleci/
-            env
             echo "Deleting expired review apps and databases..."
             source venv/bin/activate
             python3 delete.py
@@ -84,7 +78,7 @@ jobs:
           paths:
             - "venv"
 workflows:
-  deploy-workflow:
+  deploy-workflow: # Initializes and deploys review app on commit
     jobs:
       - initialize
       - deploy:
@@ -94,7 +88,7 @@ workflows:
             branches:
               ignore:
                 - main
-  merge-workflow:
+  merge-workflow: # Deploys review app on main branch on PR approval
     jobs:
       - deploy:
           filters:
