@@ -102,10 +102,10 @@ workflows:
       - delete:
           requires:
             - deploy
-            filters:
-              branches:
-                only:
-                  - main
+          filters:
+            branches:
+              only:
+                - main
   schedule-workflow: # Delete review app on a schedule
     triggers:
       - schedule:
