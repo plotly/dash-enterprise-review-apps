@@ -1,6 +1,6 @@
 """
 This script is used initialize Review Apps that inherit the properties and
-settings of their a target app.
+settings of their target app.
 """
 
 import sys
@@ -53,6 +53,9 @@ def zip_list_index(index_list, index_a, index_b):
     return dict(zip(index_key, index_value))
 
 
+print()
+print("Running initialize.py...")
+print()
 print("Querying main app...")
 print("  {MAIN_APPNAME}".format(MAIN_APPNAME=MAIN_APPNAME))
 
@@ -141,7 +144,7 @@ else:
         + "\nApp {MAIN_APPNAME} does not exist or the user {DE_USERNAME}".format(
             MAIN_APPNAME=MAIN_APPNAME, DE_USERNAME=DE_USERNAME
         )
-        + "does not have permission to query this app.\n"
+        + " does not have permission to query this app.\n"
     )
 
 if len(linkedServices.items()) != 0:
@@ -272,14 +275,14 @@ else:
 
 for envar_name in list(environmentVariables):
     environmentVariables_filter = tuple(
-    # These environment variables are created automatically by Dash
-    # Enterprise and do not need to be manually modified.
+        # These environment variables are created automatically by Dash
+        # Enterprise and do not need to be manually modified.
         [
             "DOKKU",
             "DASH",
-            "DATABASE_URL", # postgres database
+            "DATABASE_URL",  # postgres database
             "GIT_REV",
-            "REDIS_URL", # redis database
+            "REDIS_URL",  # redis database
             "SCRIPT_NAME",
             "NO_VHOST",
         ]
@@ -317,3 +320,5 @@ if len(environmentVariables.items()) != 0:
         print("  {envar_name} :".format(envar_name=envar_name), 10 * "*")
 else:
     print("No environment variables to add")
+
+print()

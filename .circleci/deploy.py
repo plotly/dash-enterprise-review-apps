@@ -9,14 +9,15 @@ from time import sleep
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from settings import (
-    SERVICE_PRIVATE_SSH_KEY,
     DASH_ENTERPRISE_HOST,
-    REVIEW_APPNAME,
-    MAIN_APPNAME,
-    REVIEW_BRANCHNAME,
-    MAIN_BRANCHNAME,
+    SERVICE_PRIVATE_SSH_KEY,
+    SERVICE_SSH_CONFIG,
     SERVICE_USERNAME,
     SERVICE_API_KEY,
+    MAIN_BRANCHNAME,
+    MAIN_APPNAME,
+    REVIEW_BRANCHNAME,
+    REVIEW_APPNAME,
 )
 
 if sys.version_info[0:2] < (3, 6) or sys.version_info[0:2] > (3, 7):
@@ -69,6 +70,9 @@ def zip_list_index(index_list, index_a, index_b):
     index_value = [index_list[i][index_b] for i in range(len(index_list))]
     return dict(zip(index_key, index_value))
 
+print()
+print("Running deploy.py..."
+print()
 
 if MAIN_BRANCHNAME == REVIEW_BRANCHNAME:
     print()
@@ -80,6 +84,7 @@ else:
     print("Deploying review app...")
     print()
     DEPLOY_APPNAME = REVIEW_APPNAME
+
 subprocess.run(
     """
     echo '-----> Creating ssh key'
@@ -90,17 +95,14 @@ subprocess.run(
     echo '-----> Adding keys to ssh-agent'
     ssh-add ~/.ssh/id_rsa
     echo '-----> Creating ssh config'
-    echo "Host *,\
-        Port 3022,\
-        StrictHostKeyChecking no,\
-        UserKnownHostsFile /dev/null"\
-    | tr ',' '\n' > ~/.ssh/config
+    echo "{SERVICE_SSH_CONFIG}" | base64 --decode -i > ~/.ssh/config
     echo '-----> Adding git remote'
     git config remote.plotly.url >&- || git remote add plotly dokku@{HOST}:{APP}
     echo '-----> Deploying app'
     git push --force plotly HEAD:master
     """.format(
         SSH_KEY=SERVICE_PRIVATE_SSH_KEY,
+        SERVICE_SSH_CONFIG=SERVICE_SSH_CONFIG,
         HOST=DASH_ENTERPRISE_HOST,
         APP=DEPLOY_APPNAME,
     ),
@@ -202,3 +204,5 @@ if apps_permissionLevels == "restricted":
         print("  {viewer}".format(viewer=viewer))
 else:
     print("Main app is not restricted, not adding any additional viewers.")
+
+print()

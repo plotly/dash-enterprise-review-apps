@@ -54,7 +54,7 @@ jobs:
           key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
           paths:
             - "venv"
-  delete: # Delete old review apps on schedule or on merge
+  delete: # Delete old review apps on schedule
     docker: 
       - image: cimg/python:3.6
     steps:
@@ -92,27 +92,13 @@ workflows:
             branches:
               ignore:
                 - main
-  merge-workflow: # Deploy review app to main app on merge, then delete review app
-    jobs:
-      - deploy:
-          filters:
-            branches:
-              only:
-                - main
-      - delete:
-          requires:
-            - deploy
-          filters:
-            branches:
-              only:
-                - main
   schedule-workflow: # Delete review app on a schedule
     triggers:
       - schedule:
           cron: "0 0 * * 1-5" # 00:00 from Monday to Friday
           filters:
             branches:
-              ignore:
+              only:
                 - main
     jobs:
       - delete

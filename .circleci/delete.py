@@ -1,6 +1,6 @@
 """
 This script deletes your Review apps and their linked databases. It is intended
-to be run when PR's are merged and on a schedule.
+to be run on a schedule.
 """
 
 import sys
@@ -10,14 +10,11 @@ from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from settings import (
     DASH_ENTERPRISE_HOST,
-    MAIN_BRANCHNAME,
-    REVIEW_BRANCHNAME,
-    REVIEW_APPNAME,
     SERVICE_USERNAME,
     SERVICE_API_KEY,
     PREFIX,
-    PERIOD,
-    TIME,
+    TIME_UNIT,
+    TIMESPAN,
     LAST_UPDATE,
 )
 
@@ -47,53 +44,42 @@ apps = []
 apps_result = []
 services = []
 
-if MAIN_BRANCHNAME != REVIEW_BRANCHNAME:
-    print("Querying apps...")
-    VAR_TYPE = "$page: Int"
-    VAR = "page: $page, allApps:true"
-    PARAMS = {"page": PAGE}
-else:
-    print("Querying review app...")
-    VAR_TYPE = "$name: String"
-    VAR = "name: $name"
-    PARAMS = {"name": REVIEW_APPNAME}
+print()
+print("Running delete.py...")
+print()
+print("Querying apps...")
 
-while len(apps_result) != 0 or PAGE == 0:
-    query = gql(
-        """
-        query({VAR_TYPE}) {{
-        apps({VAR}) {{
-                apps {{
-                    analytics {{
-                        appname
-                        timestamps {{
-                            created
-                            updated
-                        }}
-                    }}
-                    linkedServices {{
-                        name
-                        serviceType
-                    }}
-                }}
-            }}
-        }}
-        """.format(
-            VAR_TYPE=VAR_TYPE, VAR=VAR
-        )
-    )
-    params = PARAMS
-    sleep(2)
-    api_call = client.execute(query, variable_values=params)
-    apps_result = api_call["apps"]["apps"]
-    apps.extend(apps_result)
+# while len(apps_result) != 0 or PAGE == 0:
+#     query = gql(
+#         """
+#         query($PAGE: Int) {
+#         apps(page: $PAGE, allApps:true) {
+#                 apps {
+#                     analytics {
+#                         appname
+#                         timestamps {
+#                             created
+#                             updated
+#                         }
+#                     }
+#                     linkedServices {
+#                         name
+#                         serviceType
+#                     }
+#                 }
+#             }
+#         }
+#         """
+#     )
+#     params = {"PAGE": PAGE}
+#     sleep(2)
+#     api_call = client.execute(query, variable_values=params)
+#     apps_result = api_call["apps"]["apps"]
+#     apps.extend(apps_result)
 
-    if MAIN_BRANCHNAME == REVIEW_BRANCHNAME:
-        break
-
-    print("  Total: {apps_total}".format(apps_total=len(apps)), end="\r")
-    PAGE = PAGE + 1
-print("  Total: {apps_total}".format(apps_total=len(apps)))
+#     print("  Total: {apps_total}".format(apps_total=len(apps)), end="\r")
+#     PAGE = PAGE + 1
+# print("  Total: {apps_total}".format(apps_total=len(apps)))
 
 if len(apps) == 0:
     sys.exit(
@@ -127,70 +113,59 @@ apps_filtered = dict()
 
 print("  Total: {databases_total}".format(databases_total=len(services_dict.items())))
 
-if MAIN_BRANCHNAME != REVIEW_BRANCHNAME:
-    print(
-        "Determining which review apps haven't been updated or visited the last"
-        + " {TIME} {PERIOD}...".format(
-            TIME=TIME,
-            PERIOD=PERIOD,
-        )
+
+print(
+    "Determining which Review Apps haven't been updated or visited the last"
+    + " {TIMESPAN} {TIME_UNIT}...".format(
+        TIMESPAN=TIMESPAN,
+        TIME_UNIT=TIME_UNIT,
     )
+)
 
 for app_name, app_time in apps_dict.items():
     TIME_UPDATED = app_time[0]
     TIME_CREATED = app_time[1]
-    if MAIN_BRANCHNAME != REVIEW_BRANCHNAME:
-        if (
-            app_name.startswith(PREFIX)
-            and TIME_UPDATED is None
-            and (
-                datetime.now() - datetime.strptime(TIME_CREATED, "%Y-%m-%dT%H:%M:%S.%f")
-            )
-            > timedelta(**LAST_UPDATE)
-        ):
-            print("  {app_name}".format(app_name=app_name))
-            apps_filtered[app_name] = TIME_CREATED
-        elif (
-            app_name.startswith(PREFIX)
-            and TIME_UPDATED is not None
-            and (
-                datetime.now() - datetime.strptime(TIME_UPDATED, "%Y-%m-%dT%H:%M:%S.%f")
-            )
-            > timedelta(**LAST_UPDATE)
-        ):
-            print("  {app_name}".format(app_name=app_name))
-            apps_filtered[app_name] = TIME_UPDATED
-        print(
-            "  Total: {total_apps_filtered}".format(
-                total_apps_filtered=len(apps_filtered.items())
-            ),
-        )
-    else:
-        # Adding merged review app to apps_filtered dict so it gets deleted
+    if (
+        app_name.startswith(PREFIX)
+        and TIME_UPDATED is None
+        and (datetime.now() - datetime.strptime(TIME_CREATED, "%Y-%m-%dT%H:%M:%S.%f"))
+        > timedelta(**LAST_UPDATE)
+    ):
+        print("  {app_name}".format(app_name=app_name))
+        apps_filtered[app_name] = TIME_CREATED
+    elif (
+        app_name.startswith(PREFIX)
+        and TIME_UPDATED is not None
+        and (datetime.now() - datetime.strptime(TIME_UPDATED, "%Y-%m-%dT%H:%M:%S.%f"))
+        > timedelta(**LAST_UPDATE)
+    ):
+        print("  {app_name}".format(app_name=app_name))
         apps_filtered[app_name] = TIME_UPDATED
+print(
+    "  Total: {total_apps_filtered}".format(
+        total_apps_filtered=len(apps_filtered.items())
+    ),
+)
 
-if MAIN_BRANCHNAME != REVIEW_BRANCHNAME:
-    if len(apps_filtered.items()) != 0:
-        print(
-            "Deleting apps that haven't been updated or visited in over "
-            + "{time} {period}...".format(
-                time=TIME,
-                period=PERIOD,
-            )
+if len(apps_filtered.items()) != 0:
+    print(
+        "Deleting apps that haven't been updated or visited in over "
+        + "{TIMESPAN} {TIME_UNIT}...".format(
+            TIMESPAN=TIMESPAN,
+            TIME_UNIT=TIME_UNIT,
         )
-    else:
-        print(
-            "All review apps have been updated or visited the last "
-            + "{TIME} {PERIOD}...".format(
-                TIME=TIME,
-                PERIOD=PERIOD,
-            )
-        )
-        print("  No apps deleted")
-        sys.exit(0)
+    )
 else:
-    print("Deleting merged review app...")
-    print(REVIEW_APPNAME)
+    print(
+        "All Review Apps have been updated or visited in the last "
+        + "{TIMESPAN} {TIME_UNIT}...".format(
+            TIMESPAN=TIMESPAN,
+            TIME_UNIT=TIME_UNIT,
+        )
+    )
+    print("  No apps deleted")
+    sys.exit(0)
+
 
 for app_name in apps_filtered:
     print("  {app_name}".format(app_name=app_name))
