@@ -71,7 +71,7 @@ def zip_list_index(index_list, index_a, index_b):
     return dict(zip(index_key, index_value))
 
 print()
-print("Running deploy.py..."
+print("Running deploy.py...")
 print()
 
 if MAIN_BRANCHNAME == REVIEW_BRANCHNAME:

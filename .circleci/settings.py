@@ -1,6 +1,6 @@
 """
 This script imports all of the required environment variables. If you are
-running it locally, update  .env file with the environment variables added your ci playform and run source.
+running it locally, update  .env file with the environment variables added your CI playform, set those variables and run the scripts.
 
 Usage: source .env && python3.6 initialize.py; python3.6 deploy.py; python3.6 delete.py
 """
@@ -20,16 +20,16 @@ LAST_UPDATE = {TIME_UNIT: TIMESPAN}
 # This branch is usually called "main", "master" or "production".
 MAIN_BRANCHNAME = "main"
 
+# LOCAL_BRANCHNAME refers to your current branch and is used only when running
+# the scripts locally.
+LOCAL_BRANCHNAME = subprocess.getoutput("echo | git branch --show-current")
+
 # REVIEW_BRANCHNAME refers to the review app's source branch.
 # This branch is used when creating the name of the review app
 # Set this to the branch name provided by your CI system's environment
 # variables. For example, in CircleCI this is CIRCLE_BRANCH, and in Bitbucket
 # it is BITBUCKET_BRANCH.
 REVIEW_BRANCHNAME = os.getenv("CIRCLE_BRANCH", LOCAL_BRANCHNAME)
-
-# LOCAL_BRANCHNAME refers to your current branch and is used only when running
-# the scripts locally.
-LOCAL_BRANCHNAME = subprocess.getoutput("echo | git branch --show-current")
 
 # MAIN_APPNAME is the name the Dash app that will serve as a review app
 # template. This script will copy that app's configuration settings and
