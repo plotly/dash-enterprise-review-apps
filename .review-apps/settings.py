@@ -86,12 +86,7 @@ DE_USERNAME_TO_CI_API_KEY = {
 # CI_USERNAME is the CI platform login of the user pushing app
 # code to your Version Control platform. For example, in CircleCI this is
 # CIRCLE_USERNAME.
-CI_USERNAME = os.getenv("CIRCLE_USERNAME", "service")
-
-# When running cron jobs on CircleCI this environment variable is None. To avoid
-# Key Errors assign CI_USERNAME to your SERVICE_USERNAME.
-if os.getenv("CIRCLE_USERNAME") is None:
-    CI_USERNAME = SERVICE_USERNAME
+CI_USERNAME = os.getenv("CIRCLE_USERNAME") or "service"
 
 # DE_USERNAME is the Dash Enterprise login of your developers
 DE_USERNAME = DE_USERNAME_TO_CI_USERNAME[CI_USERNAME]

@@ -81,7 +81,6 @@ def zip_list_index(index_list, index_a, index_b):
 
 print()
 print("Running deploy.py...")
-print()
 
 if MAIN_BRANCHNAME == REVIEW_BRANCHNAME:
     print("Deploying Main App...")
@@ -156,9 +155,7 @@ if len(result["apps"]["apps"]) == 0:
     exit_message()
 
 apps_owner = result["apps"]["apps"][0]["owner"]["username"]
-apps_permissionLevels = result["apps"]["apps"][0]["metadata"][
-    "permissionLevel"
-]
+apps_permissionLevels = result["apps"]["apps"][0]["metadata"]["permissionLevel"]
 apps_collaborators = result["apps"]["apps"][0]["collaborators"]["users"]
 
 apps_viewers = [apps_owner] + apps_collaborators
@@ -216,4 +213,3 @@ else:
     print("Main App is not restricted, not adding any additional viewers.")
 
 print()
-exit_message

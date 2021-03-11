@@ -112,11 +112,7 @@ for _, app in enumerate(apps):
 
 apps_filtered = dict()
 
-print(
-    "  Total: {databases_total}".format(
-        databases_total=len(services_dict.items())
-    )
-)
+print("  Total: {databases_total}".format(databases_total=len(services_dict.items())))
 
 
 print(
@@ -133,10 +129,7 @@ for app_name, app_time in apps_dict.items():
     if (
         app_name.startswith(PREFIX)
         and TIME_UPDATED is None
-        and (
-            datetime.now()
-            - datetime.strptime(TIME_CREATED, "%Y-%m-%dT%H:%M:%S.%f")
-        )
+        and (datetime.now() - datetime.strptime(TIME_CREATED, "%Y-%m-%dT%H:%M:%S.%f"))
         > timedelta(**LAST_UPDATE)
     ):
         print("  {app_name}".format(app_name=app_name))
@@ -144,10 +137,7 @@ for app_name, app_time in apps_dict.items():
     elif (
         app_name.startswith(PREFIX)
         and TIME_UPDATED is not None
-        and (
-            datetime.now()
-            - datetime.strptime(TIME_UPDATED, "%Y-%m-%dT%H:%M:%S.%f")
-        )
+        and (datetime.now() - datetime.strptime(TIME_UPDATED, "%Y-%m-%dT%H:%M:%S.%f"))
         > timedelta(**LAST_UPDATE)
     ):
         print("  {app_name}".format(app_name=app_name))
