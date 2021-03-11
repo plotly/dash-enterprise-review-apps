@@ -5,11 +5,11 @@ workflows:
   deploy-workflow:
     jobs:
       - lint:
-          name: lint-dash-app
+          name: pre-deploy
       - initialize:
           name: initialize-review-app
           requires:
-            - lint-dash-app
+            - pre-deploy
           filters:
             branches:
               ignore:
@@ -47,7 +47,7 @@ jobs:
   lint: 
     docker:
       - image: circleci/python:3.6
-    working_directory: ~/repo 
+    working_directory: ~/repo
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
@@ -58,18 +58,19 @@ jobs:
       - run:
           name: black
           command: |
-            pip install black==19.10b0 --quiet
-            black --check ./
+            pip install black==19.10b0 -l 79 --quiet
+            black --check app.py
       - run:
           name: flake8
           command: |
             pip install flake8 pep8-naming --quiet
-            flake8 ./
+            flake8 app.py
 
   # Initialize Review App on pr commit
   initialize: 
     docker:
       - image: cimg/python:3.6
+    working_directory: ~/repo
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
@@ -99,6 +100,7 @@ jobs:
   deploy:
     docker: 
       - image: cimg/python:3.6
+    working_directory: ~/repo
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
@@ -128,6 +130,7 @@ jobs:
   delete:
     docker: 
       - image: cimg/python:3.6
+    working_directory: ~/repo
     steps:
       - checkout
       - restore_cache:
