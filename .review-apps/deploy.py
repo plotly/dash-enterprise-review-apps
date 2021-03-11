@@ -212,3 +212,4 @@ else:
     print("Main App is not restricted, not adding any additional viewers.")
 
 print()
+exit_message
