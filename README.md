@@ -1,5 +1,9 @@
 # Review Apps
 
+<p align="center">
+  <img width="460" height="300" src="https://user-images.githubusercontent.com/11036740/110763533-fe7af480-821f-11eb-9103-829e5ebb6a12.png">
+</p>
+
 Review apps are "pre-release" versions of your Dash apps automatically
 created by your CI platform when making a pull request.
 
@@ -35,7 +39,7 @@ To get started you will need:
 8. Set up your CI configuration to run the Review App scripts. See [`.circleci/config.yml`](https://github.com/plotly/dash-enterprise-review-apps/tree/main/.circleci) for an example using CircleCI's configuration.
 
 
-See [Review Apps](https://dash.plotly.com/dash-enterprise/review-apps) for more detailed instruction.
+See [Review Apps](https://dash.plotly.com/dash-enterprise/review-apps) for more detailed instructions.
 
 ## Basic Usage
 
