@@ -93,6 +93,9 @@ CI_USERNAME = os.getenv("CIRCLE_USERNAME", "service")
 if os.getenv("CIRCLE_USERNAME") is None:
     CI_USERNAME = SERVICE_USERNAME
 
+    
+
+
 # DE_USERNAME is the Dash Enterprise login of your developers
 DE_USERNAME = DE_USERNAME_TO_CI_USERNAME[CI_USERNAME]
 # DE_USERNAME = CI_USERNAME

@@ -82,12 +82,12 @@ print()
 print("Running deploy.py...")
 
 if MAIN_BRANCHNAME == REVIEW_BRANCHNAME:
-    print("Deploying Main App...")
+    print("  Deploying Main App...")
     print("  {MAIN_APPNAME}".format(MAIN_APPNAME=MAIN_APPNAME))
     print()
     DEPLOY_APPNAME = MAIN_APPNAME
 else:
-    print("Deploying Review App...")
+    print("  Deploying Review App...")
     print("  {REVIEW_APPNAME}".format(REVIEW_APPNAME=REVIEW_APPNAME))
     print()
     DEPLOY_APPNAME = REVIEW_APPNAME

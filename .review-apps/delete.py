@@ -47,18 +47,18 @@ apps = []
 apps_result = []
 services = []
 
-if MAIN_BRANCHNAME != REVIEW_BRANCHNAME:
+if MAIN_BRANCHNAME == REVIEW_BRANCHNAME:
+    print()
+    print("Querying Review App...")
+    VAR_TYPE = "$name: String"
+    VAR = "name: $name, allApps:true"
+    PARAMS = {"name": REVIEW_APPNAME}
+else:
     print()
     print("Querying apps...")
     VAR_TYPE = "$page: Int"
     VAR = "page: $page, allApps:true"
     PARAMS = {"page": PAGE}
-else:
-    print()
-    print("Querying Review App...")
-    VAR_TYPE = "$name: String"
-    VAR = "name: $name, , allApps:true"
-    PARAMS = {"name": REVIEW_APPNAME}
 
 while len(apps_result) != 0 or PAGE == 0:
     query = gql(
@@ -96,7 +96,7 @@ while len(apps_result) != 0 or PAGE == 0:
     print("  Total: {apps_total}".format(apps_total=len(apps)), end="\r")
     PAGE = PAGE + 1
 print("  Total: {apps_total}".format(apps_total=len(apps)))
-
+print(apps)
 if len(apps) == 0:
     print(
         "No apps were found. ".format(SERVICE_USERNAME=SERVICE_USERNAME)
@@ -106,7 +106,6 @@ if len(apps) == 0:
         + "owns apps or has admin privileges."
     )
     sys.exit(0)
-
 
 apps_name = []
 apps_updated = []

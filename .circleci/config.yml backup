@@ -7,11 +7,11 @@ jobs:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - restore_cache: # Note: Delete cache manually by updating CACHE_VERSION in Project Settings.
-          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".review-apps/ci-requirements.txt" }}
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
       - run:
           name: Install python dependencies in virtual environment
           command: |
-            cd .review-apps/
+            cd .circleci/
             python3 -m venv venv
             source venv/bin/activate
             pip install --upgrade pip
@@ -19,12 +19,12 @@ jobs:
       - run:
           name: Run Initialize command
           command: |
-            cd .review-apps/
+            cd .circleci/
             env
             source venv/bin/activate
             python3 initialize.py
       - save_cache:
-          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".review-apps/ci-requirements.txt" }}
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
           paths:
             - "venv"
   deploy: # Deploy code to main app on merge
@@ -34,11 +34,11 @@ jobs:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - restore_cache:
-          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".review-apps/ci-requirements.txt" }}
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
       - run:
           name: Install python dependencies in virtual environment
           command: |
-            cd .review-apps/
+            cd .circleci/
             python3 -m venv venv
             source venv/bin/activate
             pip install --upgrade pip
@@ -46,12 +46,12 @@ jobs:
       - run:
           name: Run Deploy Command
           command: |
-            cd .review-apps/
+            cd .circleci/
             env
             source venv/bin/activate
             python3 deploy.py
       - save_cache:
-          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".review-apps/ci-requirements.txt" }}
+          key: deps1-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
           paths:
             - "venv"
   delete: # Delete old review apps on schedule
@@ -60,11 +60,11 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum ".review-apps/ci-requirements.txt" }}
+          key: deps2-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
       - run:
           name: Install python dependencies in a virtual environment
           command: |
-            cd .review-apps/
+            cd .circleci/
             python3 -m venv venv
             source venv/bin/activate
             pip install --upgrade pip
@@ -72,12 +72,12 @@ jobs:
       - run:
           name: Run Delete Command 
           command: |
-            cd .review-apps/
+            cd .circleci/
             env
             source venv/bin/activate
             python3 delete.py
       - save_cache:
-          key: deps2-{{ .Branch }}-{{ checksum ".review-apps/ci-requirements.txt" }}
+          key: deps2-{{ .Branch }}-{{ checksum ".circleci/ci-requirements.txt" }}
           paths:
             - "venv"
 
@@ -105,7 +105,7 @@ workflows:
               only:
                 - main
       - delete:
-          name: delete-review-app
+          name: delete-merged-review-app
           requires:
             - deploy-main-app
           filters:
@@ -115,7 +115,7 @@ workflows:
   delete-workflow:
     triggers:
       - schedule:
-          cron: "0 0 * * 1-5" # At midnight from Monday through Friday.
+          cron: "* * * * 1-5" # At midnight from Monday through Friday.
           filters:
             branches:
               ignore:
