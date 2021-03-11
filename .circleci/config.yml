@@ -104,21 +104,14 @@ workflows:
             branches:
               only:
                 - main
-      - delete:
-          name: delete-merged-review-app
-          requires:
-            - deploy-main-app
-          filters:
-            branches:
-              only:
-                - main
   delete-workflow:
     triggers:
       - schedule:
-          cron: "* * * * 1-5" # At midnight from Monday through Friday.
+          cron: "0 0 * * 1-5" # At midnight from Monday through Friday.
           filters:
             branches:
               ignore:
                 - main
     jobs:
       - delete
+
