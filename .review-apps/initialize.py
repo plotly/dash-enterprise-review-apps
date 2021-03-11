@@ -116,7 +116,9 @@ if len(result["apps"]["apps"]) != 0:
     permissionLevels = apps_permissionLevels
     linkedServices = zip_list_index(apps_linkedServices, "serviceType", "name")
     mounts = zip_list_index(apps_mounts, "hostDir", "targetDir")
-    environmentVariables = zip_list_index(apps_environmentVariables, "name", "value")
+    environmentVariables = zip_list_index(
+        apps_environmentVariables, "name", "value"
+    )
 
     query = gql(
         """
