@@ -1,3 +1,5 @@
+[![Plotly](https://circleci.com/gh/plotly/dash-enterprise-review-apps.svg?style=shield)](<LINK>)
+
 # Review Apps
 
 <p align="center">
