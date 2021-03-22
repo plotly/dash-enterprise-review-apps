@@ -20,6 +20,7 @@ go live.
 To get started you will need:
 
 * Dash Enterprise Server instance
+* Deployed Dash app
 * Repository containing your Dash app's source code
     (e.g. GitHub, GitLab, Bitbucket)
 * CI platform (e.g. GitHub Actions, GitLab CI/CD, Bitbucket Pipes & 
