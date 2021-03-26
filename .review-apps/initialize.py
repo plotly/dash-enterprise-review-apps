@@ -3,7 +3,6 @@ This script is used initialize Review Apps that inherit the properties and
 settings of their target app.
 """
 
-import sys
 from time import sleep
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
@@ -16,14 +15,6 @@ from settings import (
     REVIEW_APPNAME,
     MAIN_APPNAME,
 )
-
-if sys.version_info[0:2] < (3, 6) or sys.version_info[0:2] > (3, 7):
-    raise Exception(
-        "This script has only been tested on Python 3.6. "
-        + "You are using {major}.{minor}.".format(
-            major=sys.version_info[0], minor=sys.version_info[1]
-        )
-    )
 
 transport_service = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
@@ -116,9 +107,7 @@ if len(result["apps"]["apps"]) != 0:
     permissionLevels = apps_permissionLevels
     linkedServices = zip_list_index(apps_linkedServices, "serviceType", "name")
     mounts = zip_list_index(apps_mounts, "hostDir", "targetDir")
-    environmentVariables = zip_list_index(
-        apps_environmentVariables, "name", "value"
-    )
+    environmentVariables = zip_list_index(apps_environmentVariables, "name", "value")
 
     query = gql(
         """
@@ -150,13 +139,10 @@ else:
     )
 
 if len(linkedServices.items()) != 0:
-    print(
-        "Adding databases...",
-    )
+    print("Adding databases...",)
     for serviceType in linkedServices:
         SERVICENAME = "{REVIEW_APPNAME}-{serviceType}".format(
-            REVIEW_APPNAME=REVIEW_APPNAME,
-            serviceType=serviceType,
+            REVIEW_APPNAME=REVIEW_APPNAME, serviceType=serviceType,
         )[0:30]
         query_addService = gql(
             """
@@ -190,14 +176,11 @@ if len(linkedServices.items()) != 0:
             )
         )
 
-    print(
-        "Linking databases...",
-    )
+    print("Linking databases...",)
     for serviceType in linkedServices:
 
         SERVICENAME = "{REVIEW_APPNAME}-{serviceType}".format(
-            REVIEW_APPNAME=REVIEW_APPNAME,
-            serviceType=serviceType,
+            REVIEW_APPNAME=REVIEW_APPNAME, serviceType=serviceType,
         )[0:30]
         query_linkService = gql(
             """

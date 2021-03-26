@@ -1,8 +1,9 @@
 """
 This script imports all of the required environment variables. If you are
-running it locally, update  .env file with the environment variables added your CI playform, set those variables and run the scripts.
-
-Usage: source .env && python3.6 initialize.py; python3.6 deploy.py; python3.6 delete.py
+running it locally, update  .env file with the environment variables added your
+CI playform, set those variables and run the scripts.
+Usage: source .env && python3.6 initialize.py; python3.6 deploy.py; python3.6
+delete.py
 """
 import os
 import subprocess
@@ -10,120 +11,89 @@ import subprocess
 # LAST_UPDATE is the allowed amount of time since a Review App was last viewed
 # or updated, before it is deleted from the server
 # Typically this is {"days": 5}
-TIME_UNIT = "hours"  # "minutes", "hours", "days"
-TIMESPAN = 1
-LAST_UPDATE = {TIME_UNIT: TIMESPAN}
+TIME_UNIT = os.getenv("TIME_UNIT", "days")  # "minutes", "hours", "days"
+TIMESPAN = os.getenv("TIMESPAN", "5")
+LAST_UPDATE = {TIME_UNIT: int(TIMESPAN)}
 
+# _MAIN_BRANCHNAME dynamically refers to your app repo's source
+# branch (for internal use).
+_MAIN_BRANCHNAME = subprocess.getoutput(
+    "git remote show origin | grep 'HEAD branch' | cut -d' ' -f5"
+)
 # MAIN_BRANCHNAME refers to the Main App's source branch. When
 # MAIN_BRANCHNAME is equivalent to REVIEW_BRANCHNAME, the script will deploy the
 # changes to the Main App. Otherwise, the script will create a new Review App.
 # This branch is usually called "main", "master" or "production".
-MAIN_BRANCHNAME = subprocess.getoutput(
-    "git remote show origin | grep 'HEAD branch' | cut -d' ' -f5"
-)
-# MAIN_BRANCHNAME = "main"
+MAIN_BRANCHNAME = os.getenv("MAIN_BRANCHNAME", _MAIN_BRANCHNAME)
 
 # LOCAL_BRANCHNAME refers to your current branch and is used only when running
-# the scripts locally.
-LOCAL_BRANCHNAME = subprocess.getoutput("git branch --show-current")
+# the scripts locally (for internal use).
+_LOCAL_BRANCHNAME = subprocess.getoutput("git branch --show-current")
 
 # REVIEW_BRANCHNAME refers to the Review App's source branch.
 # This branch is used when creating the name of the Review App
 # Set this to the branch name provided by your CI system's environment
 # variables. For example, in CircleCI this is CIRCLE_BRANCH, and in Bitbucket
 # it is BITBUCKET_BRANCH.
-REVIEW_BRANCHNAME = os.getenv("CIRCLE_BRANCH", LOCAL_BRANCHNAME)
+REVIEW_BRANCHNAME = os.getenv("CIRCLE_BRANCH", _LOCAL_BRANCHNAME)
 
-# MAIN_APPNAME is the name the Dash app that will serve as a Review App
+# MAIN_APPNAME is the name the deployed Dash app that will serve as a Review App
 # template. This script will copy that app's configuration settings and
 # apply them to all review apps. When REVIEW_BRANCHNAME is equivalent to
 # MAIN_BRANCHNAME, the changes on the review branch will get deployed to this
 # app.
-MAIN_APPNAME = "aa-tobin"
+MAIN_APPNAME = os.getenv("MAIN_APPNAME", "your-main-appname")
 
 # PREFIX is the prefix of the Review App name.
 # It is used for creating review apps and determining which apps to delete.
-PREFIX = "{MAIN_APPNAME}-rev-".format(MAIN_APPNAME=MAIN_APPNAME[:15])
+PREFIX = "{MAIN_APPNAME}-".format(MAIN_APPNAME=MAIN_APPNAME[:15])
 
 # REVIEW_APPNAME is the name of the Review App.
 REVIEW_APPNAME = "{PREFIX}{REVIEW_BRANCHNAME}".format(
-    PREFIX=PREFIX, REVIEW_BRANCHNAME=REVIEW_BRANCHNAME
+    PREFIX=PREFIX, REVIEW_BRANCHNAME=REVIEW_BRANCHNAME.lower().replace("_", "-")
 )[:30]
 
+
+# DEPLOY_APPNAME is the name of the deployed app.
+DEPLOY_APPNAME = (
+    MAIN_APPNAME if MAIN_BRANCHNAME == REVIEW_BRANCHNAME else REVIEW_APPNAME
+)
+
+# Set DEPLOY_APPNAME as environment variable for use with GitHub API. $BASH_ENV
+# points to a temporary file that persists between CircleCI job steps, and must # be sourced for every step to set stored variables.
+subprocess.run(
+    """
+    echo 'export DEPLOY_APPNAME={DEPLOY_APPNAME}' >> $BASH_ENV 
+    """.format(
+        DEPLOY_APPNAME=DEPLOY_APPNAME
+    ),
+    shell=True,
+    check=True,
+)
+
 # DASH_ENTERPRISE_HOST is your Dash Enterprise Server's host address.
-DASH_ENTERPRISE_HOST = "dash-playground.plotly.host"
+DASH_ENTERPRISE_HOST = os.getenv("DASH_ENTERPRISE_HOST", "your-dash-enterprise-host")
 
 # SERVICE_USERNAME can be the username of any account that has admin privileges.
 # That account will be used as a "Service Account" for app
 # deployment and configuration.
-SERVICE_USERNAME = os.getenv("SERVICE_USERNAME", "service")
+SERVICE_USERNAME = os.getenv("SERVICE_USERNAME", "your-service-username")
 
-# SERVICE_API_KEY is the "Service Account's" API key used to access your Dash
+# SERVICE_API_KEY is the API key used to access your Dash
 # Enterprise server.
-SERVICE_API_KEY = os.getenv("SERVICE_API_KEY")
-
-# DE_USERNAME_TO_CI_USERNAME maps your developer
-# usernames to the CI platform username used to push changes to
-# your Review App repository. If you use the same SSO for both Dash Enterprise
-# and your CI platform, then this mapping will be 1-1: the same SSO username
-# will be the key and the value. In this case, you could delete this
-# dictionary and assign USERNAME to CI_USERNAME: USERNAME = CI_USERNAME
-DE_USERNAME_TO_CI_USERNAME = {
-    "YOUR_DEVELOPER_USERNAME": "YOUR_DEVELOPER_USERNAME",
-    "tobinngo": "tobinngo",
-    "service": "service",
-}
-
-# DE_USERNAME_TO_CI_API_KEY maps your Dash Enterprise developer
-# usernames to the name of a CI environment variable in your CI platform that
-# contains their Dash Enterprise API key.
-DE_USERNAME_TO_CI_API_KEY = {
-    "YOUR_DEVELOPER_USERNAME": "YOUR_DEVELOPER_API_KEY",
-    "tobinngo": "TNGO_API_KEY",
-    "service": "SERVICE_API_KEY",
-}
-
-# CI_USERNAME is the CI platform login of the user pushing app
-# code to your Version Control platform. For example, in CircleCI this is
-# CIRCLE_USERNAME.
-CI_USERNAME = os.getenv("CIRCLE_USERNAME", "service")
-
-# When running cron jobs on CircleCI this environment variable is None. To avoid
-# Key Errors assign CI_USERNAME to your SERVICE_USERNAME.
-if os.getenv("CIRCLE_USERNAME") is None:
-    CI_USERNAME = SERVICE_USERNAME
-
-# DE_USERNAME is the Dash Enterprise login of your developers
-DE_USERNAME = DE_USERNAME_TO_CI_USERNAME[CI_USERNAME]
-# DE_USERNAME = CI_USERNAME
+SERVICE_API_KEY = os.getenv("SERVICE_API_KEY", "your-service-api-key")
 
 # SERVICE_PRIVATE_SSH_KEY belongs to a Dash Enterprise user with admin
 # privileges. This user will handle server deployment tasks.
-SERVICE_PRIVATE_SSH_KEY = os.getenv("SERVICE_PRIVATE_SSH_KEY")
+SERVICE_PRIVATE_SSH_KEY = os.getenv(
+    "SERVICE_PRIVATE_SSH_KEY", "your-service-private-ssh-key",
+)
 
 # SERVICE_SSH_CONFIG is a base64-encoded SSH configuration file.
-SERVICE_SSH_CONFIG = os.getenv("SERVICE_SSH_CONFIG")
+SERVICE_SSH_CONFIG = os.getenv("SERVICE_SSH_CONFIG", "your-service-ssh-config")
 
-if (
-    DE_USERNAME in DE_USERNAME_TO_CI_USERNAME
-    and DE_USERNAME in DE_USERNAME_TO_CI_API_KEY
-):
-    DE_USERNAME_API_KEY = os.getenv(DE_USERNAME_TO_CI_API_KEY.get(DE_USERNAME))
-else:
-    print("API key was not fetched")
-    print(
-        """
-        {DE_USERNAME} is missing from
-        DE_USERNAME_TO_CI_USERNAME and
-        DE_USERNAME_TO_CI_API_KEY dictionaries.
+# DE_USERNAME is your Dash Enterprise login
+DE_USERNAME = os.getenv("DE_USERNAME", "your-de-username")
 
-        See Getting Started section in Review Apps Docs
-        (https://{DASH_ENTERPRISE_HOST}/Docs/review-apps)
-        for more information or contact your Dash Enterprise
-        administrator.
-
-        """.format(
-            DE_USERNAME=DE_USERNAME,
-            DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
-        )
-    )
+# DE_USERNAME_API_KEY is API key associated with your DE_USERNAME.
+DE_USERNAME_API_KEY = os.getenv("DEV_API_KEY", "your-de-username-api-key")

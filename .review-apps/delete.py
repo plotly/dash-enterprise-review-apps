@@ -18,14 +18,6 @@ from settings import (
     LAST_UPDATE,
 )
 
-if sys.version_info[0:2] < (3, 6) or sys.version_info[0:2] > (3, 7):
-    raise Exception(
-        "This script has only been tested on Python 3.6. "
-        + "You are using {major}.{minor}.".format(
-            major=sys.version_info[0], minor=sys.version_info[1]
-        )
-    )
-
 transport = RequestsHTTPTransport(
     url="https://{DASH_ENTERPRISE_HOST}/Manager/graphql".format(
         DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST
@@ -112,19 +104,12 @@ for _, app in enumerate(apps):
 
 apps_filtered = dict()
 
-print(
-    "  Total: {databases_total}".format(
-        databases_total=len(services_dict.items())
-    )
-)
+print("  Total: {databases_total}".format(databases_total=len(services_dict.items())))
 
 
 print(
     "Determining which Review Apps haven't been updated or visited in the last"
-    + " {TIMESPAN} {TIME_UNIT}...".format(
-        TIMESPAN=TIMESPAN,
-        TIME_UNIT=TIME_UNIT,
-    )
+    + " {TIMESPAN} {TIME_UNIT}...".format(TIMESPAN=TIMESPAN, TIME_UNIT=TIME_UNIT,)
 )
 
 for app_name, app_time in apps_dict.items():
@@ -133,10 +118,7 @@ for app_name, app_time in apps_dict.items():
     if (
         app_name.startswith(PREFIX)
         and TIME_UPDATED is None
-        and (
-            datetime.now()
-            - datetime.strptime(TIME_CREATED, "%Y-%m-%dT%H:%M:%S.%f")
-        )
+        and (datetime.now() - datetime.strptime(TIME_CREATED, "%Y-%m-%dT%H:%M:%S.%f"))
         > timedelta(**LAST_UPDATE)
     ):
         print("  {app_name}".format(app_name=app_name))
@@ -144,10 +126,7 @@ for app_name, app_time in apps_dict.items():
     elif (
         app_name.startswith(PREFIX)
         and TIME_UPDATED is not None
-        and (
-            datetime.now()
-            - datetime.strptime(TIME_UPDATED, "%Y-%m-%dT%H:%M:%S.%f")
-        )
+        and (datetime.now() - datetime.strptime(TIME_UPDATED, "%Y-%m-%dT%H:%M:%S.%f"))
         > timedelta(**LAST_UPDATE)
     ):
         print("  {app_name}".format(app_name=app_name))
@@ -161,18 +140,12 @@ print(
 if len(apps_filtered.items()) != 0:
     print(
         "Deleting apps that haven't been updated or visited in over "
-        + "{TIMESPAN} {TIME_UNIT}...".format(
-            TIMESPAN=TIMESPAN,
-            TIME_UNIT=TIME_UNIT,
-        )
+        + "{TIMESPAN} {TIME_UNIT}...".format(TIMESPAN=TIMESPAN, TIME_UNIT=TIME_UNIT,)
     )
 else:
     print(
         "All Review Apps have been updated or visited in the last "
-        + "{TIMESPAN} {TIME_UNIT}...".format(
-            TIMESPAN=TIMESPAN,
-            TIME_UNIT=TIME_UNIT,
-        )
+        + "{TIMESPAN} {TIME_UNIT}...".format(TIMESPAN=TIMESPAN, TIME_UNIT=TIME_UNIT,)
     )
     print("  No apps deleted")
     sys.exit(0)

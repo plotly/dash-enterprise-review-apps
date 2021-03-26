@@ -10,6 +10,7 @@ from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from settings import (
     DASH_ENTERPRISE_HOST,
+    DEPLOY_APPNAME,
     SERVICE_PRIVATE_SSH_KEY,
     SERVICE_SSH_CONFIG,
     SERVICE_USERNAME,
@@ -19,14 +20,6 @@ from settings import (
     REVIEW_BRANCHNAME,
     REVIEW_APPNAME,
 )
-
-if sys.version_info[0:2] < (3, 6) or sys.version_info[0:2] > (3, 7):
-    raise Exception(
-        "This script has only been tested on Python 3.6. "
-        + "You are using {major}.{minor}.".format(
-            major=sys.version_info[0], minor=sys.version_info[1]
-        )
-    )
 
 transport_service = RequestsHTTPTransport(
     url=f"https://{DASH_ENTERPRISE_HOST}/Manager/graphql",
@@ -54,15 +47,13 @@ def exit_message():
     print()
     print(
         "  Preview: https://{DASH_ENTERPRISE_HOST}/{APPNAME}/".format(
-            APPNAME=APPNAME,
-            DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
+            APPNAME=APPNAME, DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
         )
     )
     print(
         "  Settings: https://"
         + "{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings".format(
-            APPNAME=APPNAME,
-            DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
+            APPNAME=APPNAME, DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
         )
     )
     print()
@@ -85,21 +76,17 @@ print()
 
 if MAIN_BRANCHNAME == REVIEW_BRANCHNAME:
     print("Deploying Main App...")
-    print("  {MAIN_APPNAME}".format(MAIN_APPNAME=MAIN_APPNAME))
-    print()
-    DEPLOY_APPNAME = MAIN_APPNAME
 else:
     print("Deploying Review App...")
-    print("  {REVIEW_APPNAME}".format(REVIEW_APPNAME=REVIEW_APPNAME))
-    print()
-    DEPLOY_APPNAME = REVIEW_APPNAME
+
+print("  {DEPLOY_APPNAME}".format(DEPLOY_APPNAME=DEPLOY_APPNAME))
+print()
 
 subprocess.run(
     """
     echo '-----> Creating ssh key'
     echo "{SSH_KEY}" | base64 --decode -i > ~/.ssh/id_rsa
     chmod 600 ~/.ssh/id_rsa
-    ssh-add -D
     eval "$(ssh-agent -s)"
     echo '-----> Adding keys to ssh-agent'
     ssh-add ~/.ssh/id_rsa
@@ -156,9 +143,7 @@ if len(result["apps"]["apps"]) == 0:
     exit_message()
 
 apps_owner = result["apps"]["apps"][0]["owner"]["username"]
-apps_permissionLevels = result["apps"]["apps"][0]["metadata"][
-    "permissionLevel"
-]
+apps_permissionLevels = result["apps"]["apps"][0]["metadata"]["permissionLevel"]
 apps_collaborators = result["apps"]["apps"][0]["collaborators"]["users"]
 
 apps_viewers = [apps_owner] + apps_collaborators
