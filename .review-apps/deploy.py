@@ -1,7 +1,6 @@
-"""
-This script is run after initialize.py, and is reponsible for deploying Review
-Apps on your Dash Enterprise host
-"""
+# This script is reponsible for deploying Dash Apps. It must run after
+# initialize.py to deploy Review Apps.
+
 
 import sys
 import subprocess
@@ -36,24 +35,20 @@ def exit_message():
     Prints out links to deployed app and app settings page before exiting
     script.
     """
-    if MAIN_BRANCHNAME == REVIEW_BRANCHNAME:
-        APPNAME = MAIN_APPNAME
-    else:
-        APPNAME = REVIEW_APPNAME
 
     print("Your app has been deployed...")
     print()
-    print("  {APPNAME}".format(APPNAME=APPNAME))
+    print("  {DEPLOY_APPNAME}".format(DEPLOY_APPNAME=DEPLOY_APPNAME))
     print()
     print(
-        "  Preview: https://{DASH_ENTERPRISE_HOST}/{APPNAME}/".format(
+        "  Preview: https://{DASH_ENTERPRISE_HOST}/{DEPLOY_APPNAME}/".format(
             APPNAME=APPNAME, DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
         )
     )
     print(
         "  Settings: https://"
-        + "{DASH_ENTERPRISE_HOST}/Manager/apps/{APPNAME}/settings".format(
-            APPNAME=APPNAME, DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
+        + "{DASH_ENTERPRISE_HOST}/Manager/apps/{DEPLOY_APPNAME}/settings".format(
+            DEPLOY_APPNAME=DEPLOY_APPNAME, DASH_ENTERPRISE_HOST=DASH_ENTERPRISE_HOST,
         )
     )
     print()

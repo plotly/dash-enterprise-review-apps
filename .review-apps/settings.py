@@ -1,10 +1,31 @@
-"""
-This script imports all of the required environment variables. If you are
-running it locally, update  .env file with the environment variables added your
-CI playform, set those variables and run the scripts.
-Usage: source .env && python3.6 initialize.py; python3.6 deploy.py; python3.6
-delete.py
-"""
+
+This script imports environment variables for Review Apps.
+
+Mandatory:
+MAIN_APPNAME
+DASH_ENTERPRISE_HOST
+SERVICE_USERNAME
+SERVICE_API_KEY
+SERVICE_PRIVATE_SSH_KEY
+SERVICE_SSH_CONFIG
+DE_USERNAME
+DE_USERNAME_API_KEY
+
+Optional:
+TIME_UNIT
+TIMESPAN
+MAIN_BRANCHNAME
+REVIEW_BRANCHNAME
+
+
+When
+running Review Apps locally for the first time, run bootstrap.sh
+to generate a .env file from template. Update the template with the
+indicated values.
+
+# Usage: source .env && python3.6 initialize.py; python3.6 deploy.py; python3.6
+# delete.py
+
 import os
 import subprocess
 
@@ -15,8 +36,8 @@ TIME_UNIT = os.getenv("TIME_UNIT", "days")  # "minutes", "hours", "days"
 TIMESPAN = os.getenv("TIMESPAN", "5")
 LAST_UPDATE = {TIME_UNIT: int(TIMESPAN)}
 
-# _MAIN_BRANCHNAME dynamically refers to your app repo's source
-# branch (for internal use).
+# _MAIN_BRANCHNAME refers to Main App's source source
+# branch.
 _MAIN_BRANCHNAME = subprocess.getoutput(
     "git remote show origin | grep 'HEAD branch' | cut -d' ' -f5"
 )
@@ -26,16 +47,15 @@ _MAIN_BRANCHNAME = subprocess.getoutput(
 # This branch is usually called "main", "master" or "production".
 MAIN_BRANCHNAME = os.getenv("MAIN_BRANCHNAME", _MAIN_BRANCHNAME)
 
-# LOCAL_BRANCHNAME refers to your current branch and is used only when running
-# the scripts locally (for internal use).
+# LOCAL_BRANCHNAME refers to your current branch.
 _LOCAL_BRANCHNAME = subprocess.getoutput("git branch --show-current")
 
-# REVIEW_BRANCHNAME refers to the Review App's source branch.
-# This branch is used when creating the name of the Review App
-# Set this to the branch name provided by your CI system's environment
+# REVIEW_BRANCHNAME refers to the source branch of your Review App.
+# This branch is used when creating the name of your Review App
+# You may set this to the branch name provided by your CI system's environment
 # variables. For example, in CircleCI this is CIRCLE_BRANCH, and in Bitbucket
 # it is BITBUCKET_BRANCH.
-REVIEW_BRANCHNAME = os.getenv("CIRCLE_BRANCH", _LOCAL_BRANCHNAME)
+REVIEW_BRANCHNAME = os.getenv("REVIEW_BRANCHNAME", _LOCAL_BRANCHNAME)
 
 # MAIN_APPNAME is the name the deployed Dash app that will serve as a Review App
 # template. This script will copy that app's configuration settings and
@@ -45,7 +65,7 @@ REVIEW_BRANCHNAME = os.getenv("CIRCLE_BRANCH", _LOCAL_BRANCHNAME)
 MAIN_APPNAME = os.getenv("MAIN_APPNAME", "your-main-appname")
 
 # PREFIX is the prefix of the Review App name.
-# It is used for creating review apps and determining which apps to delete.
+# It is used for initializing Review Apps, and determining which apps to delete.
 PREFIX = "{MAIN_APPNAME}-".format(MAIN_APPNAME=MAIN_APPNAME[:15])
 
 # REVIEW_APPNAME is the name of the Review App.
@@ -60,7 +80,7 @@ DEPLOY_APPNAME = (
 )
 
 # Set DEPLOY_APPNAME as environment variable for use with GitHub API. $BASH_ENV
-# points to a temporary file that persists between CircleCI job steps, and must # be sourced for every step to set stored variables.
+# points to a temporary file that persists between CircleCI job steps, and must # be sourced at every run step to set stored variables.
 subprocess.run(
     """
     echo 'export DEPLOY_APPNAME={DEPLOY_APPNAME}' >> $BASH_ENV 
@@ -83,8 +103,9 @@ SERVICE_USERNAME = os.getenv("SERVICE_USERNAME", "your-service-username")
 # Enterprise server.
 SERVICE_API_KEY = os.getenv("SERVICE_API_KEY", "your-service-api-key")
 
-# SERVICE_PRIVATE_SSH_KEY belongs to a Dash Enterprise user with admin
-# privileges. This user will handle server deployment tasks.
+# SERVICE_PRIVATE_SSH_KEY is a base64-encoded key belonging to a Dash
+# Enterprise user with admin privileges. This user will handle server
+# deployment tasks.
 SERVICE_PRIVATE_SSH_KEY = os.getenv(
     "SERVICE_PRIVATE_SSH_KEY", "your-service-private-ssh-key",
 )

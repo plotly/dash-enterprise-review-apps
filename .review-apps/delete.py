@@ -1,7 +1,7 @@
-"""
-This script deletes your Review apps and their linked databases. It is intended
-to be run on a schedule.
-"""
+# This script deletes stale Review Apps and their linked databases. It is
+# intended to run on a schedule. A Review App is stale when the time
+# elapsed since its last update is greater than the value of TIMESPAN.
+
 
 import sys
 from datetime import datetime, timedelta

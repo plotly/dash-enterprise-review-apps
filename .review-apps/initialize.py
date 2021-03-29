@@ -1,7 +1,6 @@
-"""
-This script is used initialize Review Apps that inherit the properties and
-settings of their target app.
-"""
+# This script is used initialize Review Apps that inherit the properties and
+# settings of their target app.
+
 
 from time import sleep
 from gql import gql, Client
