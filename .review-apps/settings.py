@@ -1,27 +1,23 @@
+# This script imports environment variables for Review Apps.
 
-This script imports environment variables for Review Apps.
+# Required:
+# MAIN_APPNAME
+# DASH_ENTERPRISE_HOST
+# SERVICE_USERNAME
+# SERVICE_API_KEY
+# SERVICE_PRIVATE_SSH_KEY (base64)
+# SERVICE_SSH_CONFIG (base64)
+# DE_USERNAME
+# DE_USERNAME_API_KEY
 
-Mandatory:
-MAIN_APPNAME
-DASH_ENTERPRISE_HOST
-SERVICE_USERNAME
-SERVICE_API_KEY
-SERVICE_PRIVATE_SSH_KEY
-SERVICE_SSH_CONFIG
-DE_USERNAME
-DE_USERNAME_API_KEY
+# Optional:
+# TIME_UNIT
+# TIMESPAN
+# MAIN_BRANCHNAME
+# REVIEW_BRANCHNAME
 
-Optional:
-TIME_UNIT
-TIMESPAN
-MAIN_BRANCHNAME
-REVIEW_BRANCHNAME
-
-
-When
-running Review Apps locally for the first time, run bootstrap.sh
-to generate a .env file from template. Update the template with the
-indicated values.
+# When running Review Apps locally you may run bootstrap.sh
+# to generate a .env file. Set required variable values.
 
 # Usage: source .env && python3.6 initialize.py; python3.6 deploy.py; python3.6
 # delete.py
@@ -57,6 +53,16 @@ _LOCAL_BRANCHNAME = subprocess.getoutput("git branch --show-current")
 # it is BITBUCKET_BRANCH.
 REVIEW_BRANCHNAME = os.getenv("REVIEW_BRANCHNAME", _LOCAL_BRANCHNAME)
 
+# REVIEW_BRANCHNAME is sanitized when it is appended to MAIN_APPNAME to compose your REVIEW_APPNAME.
+SANITIZE_BRANCHNAME = subprocess.getoutput(
+    """
+    echo "{REVIEW_BRANCHNAME}" \
+    | iconv -t ascii//TRANSLIT | \
+    sed -r s/[^a-zA-Z0-9\.]+/"-underscore-"/g | \
+    sed -r s/^-+\|-+$//g | tr A-Z a-z
+    """.format(REVIEW_BRANCHNAME=REVIEW_BRANCHNAME)
+)
+
 # MAIN_APPNAME is the name the deployed Dash app that will serve as a Review App
 # template. This script will copy that app's configuration settings and
 # apply them to all review apps. When REVIEW_BRANCHNAME is equivalent to
@@ -69,8 +75,8 @@ MAIN_APPNAME = os.getenv("MAIN_APPNAME", "your-main-appname")
 PREFIX = "{MAIN_APPNAME}-".format(MAIN_APPNAME=MAIN_APPNAME[:15])
 
 # REVIEW_APPNAME is the name of the Review App.
-REVIEW_APPNAME = "{PREFIX}{REVIEW_BRANCHNAME}".format(
-    PREFIX=PREFIX, REVIEW_BRANCHNAME=REVIEW_BRANCHNAME.lower().replace("_", "-")
+REVIEW_APPNAME = "{PREFIX}{SANITIZE_BRANCHNAME}".format(
+    PREFIX=PREFIX, SANITIZE_BRANCHNAME=SANITIZE_BRANCHNAME
 )[:30]
 
 
