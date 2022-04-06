@@ -108,7 +108,7 @@ subprocess.run(
     echo '-----> Adding git remote'
     git config remote.plotly.url >&- || git remote add plotly dokku@{HOST}:{APP}
     echo '-----> Deploying app'
-    git push --force plotly HEAD:master
+    git push --force plotly HEAD:refs/heads/master
     """.format(
         SSH_KEY=SERVICE_PRIVATE_SSH_KEY,
         SERVICE_SSH_CONFIG=SERVICE_SSH_CONFIG,
