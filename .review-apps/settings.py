@@ -71,6 +71,7 @@ SERVICE_API_KEY = os.getenv("SERVICE_API_KEY")
 DE_USERNAME_TO_CI_USERNAME = {
     "YOUR_DEVELOPER_USERNAME": "YOUR_DEVELOPER_USERNAME",
     "tobinngo": "tobinngo",
+    "michaelbabyn": "tobinngo",
     "service": "service",
 }
 
@@ -80,6 +81,7 @@ DE_USERNAME_TO_CI_USERNAME = {
 DE_USERNAME_TO_CI_API_KEY = {
     "YOUR_DEVELOPER_USERNAME": "YOUR_DEVELOPER_API_KEY",
     "tobinngo": "TNGO_API_KEY",
+    "michaelbabyn": "TNGO_API_KEY",
     "service": "SERVICE_API_KEY",
 }
 
