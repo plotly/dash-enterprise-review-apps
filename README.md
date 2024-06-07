@@ -2,6 +2,13 @@
 
 # Review Apps
 
+<div align="center">
+  <a href="https://dash.plotly.com/project-maintenance">
+    <img src="https://dash.plotly.com/assets/images/maintained-by-plotly.png" width="400px" alt="Maintained by Plotly">
+  </a>
+</div>
+
+
 <p align="center">
   <img width="460" height="300" src="https://user-images.githubusercontent.com/11036740/110763533-fe7af480-821f-11eb-9103-829e5ebb6a12.png">
 </p>
